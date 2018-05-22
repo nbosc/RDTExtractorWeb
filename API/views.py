@@ -113,7 +113,6 @@ def findings(request):
     else:
         init = 0
         end = len(filtered)
-
     # adding the values in a context variable
     num_pages = int(len(filtered) / 20)
 
@@ -134,6 +133,7 @@ def findings(request):
     range_pages = range(1, num_pages + 1)[previous:nexts]
     previous_page = page - 1
     next_page = page + 1
+
     if (next_page >= num_pages):
         next_page = 0
 
@@ -386,6 +386,114 @@ def organs(request):
         'organs': organs
     }
     return Response(results)
+
+@api_view(['GET'])
+def observations(request):
+
+    global findings_df, study_df
+
+    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                     'relevance', 'normalised_sex']],
+                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                                  'normalised_species', 'exposure_period_days']],
+                        how='left', on='study_id', left_index=False,
+                        right_index=False, sort=False)
+
+    observations = filtered.observation_normalised.unique().tolist()
+    # observations.remove(None)
+    observations.sort()
+
+    results = {
+        'observations': observations
+    }
+    return Response(results)
+
+@api_view(['GET'])
+def routes(request):
+
+    global findings_df, study_df
+
+    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                     'relevance', 'normalised_sex']],
+                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                                  'normalised_species', 'exposure_period_days']],
+                        how='left', on='study_id', left_index=False,
+                        right_index=False, sort=False)
+
+    route = filtered.normalised_administration_route.unique().tolist()
+    route.remove(None)
+    route.sort()
+
+    results = {
+        'route': route
+    }
+
+    return Response(results)
+
+@api_view(['GET'])
+def species(request):
+    global findings_df, study_df
+
+    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                     'relevance', 'normalised_sex']],
+                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                                  'normalised_species', 'exposure_period_days']],
+                        how='left', on='study_id', left_index=False,
+                        right_index=False, sort=False)
+
+    species = filtered.normalised_species.unique().tolist()
+    species.remove(None)
+    species.sort()
+
+    results = {
+        'species': species
+    }
+
+    return Response(results)\
+
+@api_view(['GET'])
+def sex(request):
+
+    global findings_df, study_df
+
+    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                     'relevance', 'normalised_sex']],
+                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                                  'normalised_species', 'exposure_period_days']],
+                        how='left', on='study_id', left_index=False,
+                        right_index=False, sort=False)
+
+    sex = filtered.normalised_sex.unique().tolist()
+    sex.remove(None)
+    sex.sort()
+
+    results = {
+        'sex': sex
+    }
+
+    return Response(results)
+
+@api_view(['GET'])
+def organs(request):
+
+    global findings_df, study_df
+
+    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                     'relevance', 'normalised_sex']],
+                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                                  'normalised_species', 'exposure_period_days']],
+                        how='left', on='study_id', left_index=False,
+                        right_index=False, sort=False)
+
+    organs=filtered.organ_normalised.unique().tolist()
+    #organs.remove(None)
+    organs.sort()
+
+    results = {
+        'organs': organs
+    }
+    return Response(results)
+
 
 @api_view(['GET'])
 def observations(request):
