@@ -9,5 +9,8 @@ urlpatterns = [
     url(r'api/findings/routes', views.routes),
     url(r'api/findings/sex', views.sex),
     url(r'api/findings', views.findings),
+    url(r'api/qualitative', views.qualitative),
+    url(r'api/quantitative', views.quantitative),
+
 
 ]
