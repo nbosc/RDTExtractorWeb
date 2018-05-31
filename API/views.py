@@ -109,13 +109,13 @@ def findings(request):
     # Range of page
 
     if page != 0:
-        init = (int(page) - 1) * 20;
-        end = init + 20
+        init = (int(page) - 1) * 10;
+        end = init + 10
     else:
         init = 0
         end = len(filtered)
 
-    num_pages = int(len(filtered) / 20)
+    num_pages = int(len(filtered) / 10)
 
     # Range of pages to show
     if page < 4:
@@ -135,9 +135,12 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
+    filtered = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
+               right_index=False, sort=False)
+
     results = {
 
-        'data': filtered[init:end].to_dict('records'),
+        'data': filtered.to_dict('records'),
         'range_pages': range_pages,
         'num_pages': num_pages,
         'page': page,
