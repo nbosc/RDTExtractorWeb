@@ -1,4 +1,6 @@
 .idea
-API/static/data/findings.pkl.gz
-API/static/data/study.pkl
-
+*findings.pkl.gz
+*study.pkl
+*compound.pkl
+API/__pychche_
+*.ipynb
