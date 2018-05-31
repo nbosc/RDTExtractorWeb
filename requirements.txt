@@ -2,4 +2,3 @@ djangorestframework
 django-cors-headers
 cx_Oracle
 pandas
-
