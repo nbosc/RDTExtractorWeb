@@ -14,6 +14,7 @@ from API.utils import extract
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 study_df = pd.read_pickle("API/static/data/study.pkl")
+compound_df = pd.read_pickle("API/static/data/compound.pkl")
 
 
 @api_view(['GET'])
@@ -113,11 +114,8 @@ def findings(request):
     else:
         init = 0
         end = len(filtered)
-    # adding the values in a context variable
+
     num_pages = int(len(filtered) / 20)
-
-    # paginator = Paginator(df.to_dict('records'), 10)
-
 
     # Range of pages to show
     if page < 4:
@@ -540,6 +538,7 @@ def routes(request):
 
 @api_view(['GET'])
 def species(request):
+
     global findings_df, study_df
 
     filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
@@ -557,7 +556,21 @@ def species(request):
         'species': species
     }
 
-    return Response(results)\
+    return Response(results)
+
+@api_view(['GET'])
+def study(request):
+
+    id= request.GET.get("id")
+
+
+    res = pd.merge( study_df[study_df.study_id == id],compound_df,how='left', on='subst_id', left_index=False,right_index=False, sort=False)
+
+    results = {
+        'study':  res.fillna(value="-")
+    }
+    return Response(results)
+
 
 @api_view(['GET'])
 def sex(request):
