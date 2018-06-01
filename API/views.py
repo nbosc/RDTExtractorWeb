@@ -28,9 +28,9 @@ def source(request):
         user = 'vitic2016'
         password = 'T0Vitic2016'
 
-        conn = connectDB(host, port, sid, user, password)
+        '''conn = connectDB(host, port, sid, user, password)
 
-        cursor = conn.cursor()
+        cursor = conn.cursor()'''
 
         # Generate normalised study dataframe
         '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
@@ -66,8 +66,6 @@ def findings(request):
 
     relevant = request.GET.get("treatmentRelated")
     page = int(request.GET.get("page"))
-
-    global findings_df,study_df
 
     ################
     # Filter Study #
@@ -109,10 +107,8 @@ def findings(request):
     if relevant:
         filtered = filtered[filtered.relevance == 'treatment related']
     if len(all_organs) > 0:
-        filter_dict['organs'] = all_organs
         filtered = filtered[filtered['organ_normalised'].isin(all_organs)]
     if len(all_observation) > 0:
-        filter_dict['observations'] = all_observation
         filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
 
     num_studies = len(filtered.study_id.unique().tolist())
@@ -121,7 +117,7 @@ def findings(request):
 
     # Pagination
     if page != 0:
-        init = (int(page) - 1) * 10;
+        init = (int(page) - 1) * 10
         end = init + 10
     else:
         init = 0
@@ -151,7 +147,6 @@ def findings(request):
                right_index=False, sort=False)
 
     results = {
-
         'data': filtered.to_dict('records'),
         'range_pages': range_pages,
         'num_pages': num_pages,
@@ -444,27 +439,6 @@ def routes(request):
     return Response(results)
 
 @api_view(['GET'])
-def species(request):
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    species = filtered.normalised_species.unique().tolist()
-    species.remove(None)
-    species.sort()
-
-    results = {
-        'species': species
-    }
-
-    return Response(results)\
-
-@api_view(['GET'])
 def sex(request):
 
     global findings_df, study_df
@@ -482,71 +456,6 @@ def sex(request):
 
     results = {
         'sex': sex
-    }
-
-    return Response(results)
-
-@api_view(['GET'])
-def organs(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    organs=filtered.organ_normalised.unique().tolist()
-    #organs.remove(None)
-    organs.sort()
-
-    results = {
-        'organs': organs
-    }
-    return Response(results)
-
-
-@api_view(['GET'])
-def observations(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    observations = filtered.observation_normalised.unique().tolist()
-    # observations.remove(None)
-    observations.sort()
-
-    results = {
-        'observations': observations
-    }
-    return Response(results)
-
-@api_view(['GET'])
-def routes(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    route = filtered.normalised_administration_route.unique().tolist()
-    route.remove(None)
-    route.sort()
-
-    results = {
-        'route': route
     }
 
     return Response(results)
