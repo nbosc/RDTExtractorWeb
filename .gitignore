@@ -1,4 +1,5 @@
 .idea
 API/static/data/findings.pkl.gz
 API/static/data/study.pkl
+*.pyc
 
