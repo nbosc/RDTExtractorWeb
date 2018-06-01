@@ -14,6 +14,7 @@ from API.utils import extract
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 study_df = pd.read_pickle("API/static/data/study.pkl")
+compound_df = pd.read_pickle("API/static/data/compound.pkl")
 
 
 @api_view(['GET'])
@@ -53,7 +54,6 @@ def source(request):
 @api_view(['GET'])
 def findings(request):
 
-
     global findings_df,study_df
 
     all_organs = request.GET.getlist("organs")
@@ -63,33 +63,46 @@ def findings(request):
     sex = request.GET.getlist("sex")
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
+
     relevant = request.GET.get("treatmentRelated")
     page = int(request.GET.get("page"))
 
     global findings_df,study_df
 
-    #Filter
-    ########################################3
-    filter_dict = {}
-    if min_exposure:
-        filter_dict['min_exposure'] = int(min_exposure[0])
-    if max_exposure:
-        filter_dict['max_exposure'] = int(max_exposure[0])
-    if len(all_routes) > 0:
-        filter_dict['route'] = all_routes
-    if len(all_species) > 0:
-        filter_dict['species'] = all_species
+    ################
+    # Filter Study #
+    ################
+
+    # Exposure
+    if min_exposure and max_exposure:
+        # An exposure range filter is defined
+        study_df = study_df[(study_df.exposure_period_days >= int(min_exposure[0])) &
+                (study_df.exposure_period_days <= int(max_exposure[0]))]
+    elif min_exposure:
+        # Only a.upper bound for exposure range has been set
+        study_df = study_df[study_df.exposure_period_days >= int(min_exposure[0])]
+    elif max_exposure:
+        study_df = study_df[study_df.exposure_period_days <= int(max_exposure[0])]
+    # Administration route
+    if  len(all_routes) > 0:
+        study_df = study_df[study_df.normalised_administration_route.str.lower().isin([x.lower() for x in all_routes])]
+
+    # Species
+    if  len(all_species) > 0:
+        study_df = study_df[study_df.normalised_species.str.lower().isin([x.lower() for x in all_species])]
 
 
-    filtered = extract.filter_study(filter_dict, study_df)
-    filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
-
-    filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                  'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+    filtered = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', \
                                'normalised_species', 'exposure_period_days', 'report_number']],
+                        findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
+                                  'relevance', 'normalised_sex']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
+
+
+    ##################
+    # Filter Finding #
+    ##################
 
     if sex:
         filtered = filtered[filtered.normalised_sex.str.lower() == sex[0].lower()]
@@ -105,19 +118,16 @@ def findings(request):
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
 
-    # Range of page
 
+    # Pagination
     if page != 0:
-        init = (int(page) - 1) * 20;
-        end = init + 20
+        init = (int(page) - 1) * 10;
+        end = init + 10
     else:
         init = 0
         end = len(filtered)
-    # adding the values in a context variable
-    num_pages = int(len(filtered) / 20)
 
-    # paginator = Paginator(df.to_dict('records'), 10)
-
+    num_pages = int(len(filtered) / 10)
 
     # Range of pages to show
     if page < 4:
@@ -137,9 +147,12 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
+    filtered = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
+               right_index=False, sort=False)
+
     results = {
 
-        'data': filtered[init:end].to_dict('records'),
+        'data': filtered.to_dict('records'),
         'range_pages': range_pages,
         'num_pages': num_pages,
         'page': page,
@@ -540,6 +553,7 @@ def routes(request):
 
 @api_view(['GET'])
 def species(request):
+
     global findings_df, study_df
 
     filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
@@ -557,7 +571,21 @@ def species(request):
         'species': species
     }
 
-    return Response(results)\
+    return Response(results)
+
+@api_view(['GET'])
+def study(request):
+
+    id= request.GET.get("id")
+
+
+    res = pd.merge( study_df[study_df.study_id == id],compound_df,how='left', on='subst_id', left_index=False,right_index=False, sort=False)
+
+    results = {
+        'study':  res.fillna(value="-")
+    }
+    return Response(results)
+
 
 @api_view(['GET'])
 def sex(request):
