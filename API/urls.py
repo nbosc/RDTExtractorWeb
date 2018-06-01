@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'api/findings', views.findings),
     url(r'api/qualitative', views.qualitative),
     url(r'api/quantitative', views.quantitative),
+    url(r'api/study', views.study),
 ]
