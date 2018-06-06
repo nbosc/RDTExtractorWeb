@@ -8,6 +8,7 @@ class YourSerializer(serializers.Serializer):
 class FindingSerializer (serializers.Serializer):
 
    data = serializers.ListField()
+   allOptions = serializers.DictField()
    range_pages = serializers.ListField()
    num_pages = serializers.IntegerField()
    page = serializers.IntegerField()
