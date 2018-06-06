@@ -11,11 +11,16 @@ from django.views.decorators.csrf import csrf_exempt
 from .serializers import YourSerializer,FindingSerializer
 from API.utils import extract
 
-findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 onto_df = pd.read_pickle("API/static/data/ontology.pkl")
-study_df = pd.read_pickle("API/static/data/study.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
-
+findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
+study_df = pd.read_pickle("API/static/data/study.pkl")
+merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', \
+                        'normalised_species', 'exposure_period_days', 'report_number']],
+                    findings_df[['study_id', 'observation_normalised', 
+                        'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                    how='left', on='study_id', left_index=False, right_index=False, \
+                    sort=False)
 
 @api_view(['GET'])
 def source(request):
@@ -52,70 +57,154 @@ def source(request):
         return Response(yourdata)
 
 @api_view(['GET'])
-def findings(request):
+def initFindings(request):
 
-    global findings_df,study_df
+    global findings_df, study_df, merged_df
 
-    all_organs = request.GET.getlist("organs")
-    all_observation = request.GET.getlist("observations")
-    all_species = request.GET.getlist("species")
-    all_routes = request.GET.getlist("routes")
-    sex = request.GET.getlist("sex")
-    min_exposure = request.GET.get("min_exposure")
-    max_exposure = request.GET.get("max_exposure")
-
-    relevant = request.GET.get("treatmentRelated")
     page = int(request.GET.get("page"))
 
-    ################
-    # Filter Study #
-    ################
+    num_studies = len(merged_df.study_id.unique().tolist())
+    num_structures = len(merged_df.subst_id.unique().tolist())
+
+    fullDict = {}
+    fullDict['organs'] = merged_df.organ_normalised.dropna().unique().tolist()
+    fullDict['organs'].sort()
+
+    fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
+    fullDict['observations'].sort()
+
+    fullDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
+    fullDict['routes'].sort()
+
+    fullDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+    fullDict['sex'].sort()
+
+    fullDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
+    fullDict['species'].sort()
+
+    # Pagination
+    if page != 0:
+        init = (int(page) - 1) * 10
+        end = init + 10
+    else:
+        init = 0
+        end = len(merged_df)
+
+    num_pages = int(len(merged_df) / 10)
+
+    # Range of pages to show
+    if page < 4:
+        previous = 0
+        nexts = 7
+    elif page > (num_pages - 4):
+        previous = num_pages - 7
+        nexts = num_pages
+    else:
+        previous = page - 4
+        nexts = page + 3
+    range_pages = range(1, num_pages + 1)[previous:nexts]
+    previous_page = page - 1
+    next_page = page + 1
+
+    if (next_page >= num_pages):
+        next_page = 0
+
+    output = pd.merge(merged_df[init:end], compound_df[['subst_id','smiles']], how='left',
+                        on='subst_id', left_index=False, right_index=False, sort=False)
+
+    results = {
+        'data': output.to_dict('records'),
+        'allOptions': fullDict,
+        'range_pages': range_pages,
+        'num_pages': num_pages,
+        'page': page,
+        'previous_page': previous_page,
+        'next_page': next_page,
+        'num_studies': num_studies,
+        'num_structures': num_structures
+    }
+
+    send_data = FindingSerializer(results, many=False).data
+    return Response(send_data)
+
+@api_view(['GET'])
+def findings(request):
+
+    global merged_df, compound_df
+
+    filtered = merged_df[:]
+
+    ##################
+    # Filter Studies #
+    ##################
 
     # Exposure
+    min_exposure = request.GET.get("min_exposure")
+    max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
         # An exposure range filter is defined
-        study_df = study_df[(study_df.exposure_period_days >= int(min_exposure[0])) &
-                (study_df.exposure_period_days <= int(max_exposure[0]))]
+        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure[0])) &
+                    (filtered.exposure_period_days <= int(max_exposure[0]))]
     elif min_exposure:
         # Only a.upper bound for exposure range has been set
-        study_df = study_df[study_df.exposure_period_days >= int(min_exposure[0])]
+        filtered = filtered[filtered.exposure_period_days >= int(min_exposure[0])]
     elif max_exposure:
-        study_df = study_df[study_df.exposure_period_days <= int(max_exposure[0])]
+        filtered = filtered[filtered.exposure_period_days <= int(max_exposure[0])]
+
     # Administration route
-    if  len(all_routes) > 0:
-        study_df = study_df[study_df.normalised_administration_route.str.lower().isin([x.lower() for x in all_routes])]
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        filtered = filtered[filtered.normalised_administration_route.str.lower().isin([x.lower() for x in all_routes])]
 
     # Species
-    if  len(all_species) > 0:
-        study_df = study_df[study_df.normalised_species.str.lower().isin([x.lower() for x in all_species])]
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        filtered = filtered[filtered.normalised_species.str.lower().isin([x.lower() for x in all_species])]
 
-
-    filtered = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                               'normalised_species', 'exposure_period_days', 'report_number']],
-                        findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                  'relevance', 'normalised_sex']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-
-    ##################
-    # Filter Finding #
-    ##################
-
+    ###################
+    # Filter Findings #
+    ###################
+    sex = request.GET.getlist("sex")
     if sex:
         filtered = filtered[filtered.normalised_sex.str.lower() == sex[0].lower()]
+
+    relevant = request.GET.get("treatmentRelated")
     if relevant:
         filtered = filtered[filtered.relevance == 'treatment related']
+        
+    all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
         filtered = filtered[filtered['organ_normalised'].isin(all_organs)]
-    if len(all_observation) > 0:
-        filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
+        
+    all_observations = request.GET.getlist("observations")
+    if len(all_observations) > 0:
+        filtered = filtered[filtered['observation_normalised'].isin(all_observations)]
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
 
+    optionsDict = {}
+    optionsDict['organs'] = filtered.organ_normalised.dropna().unique().tolist()
+    optionsDict['organs'].sort()
 
-    # Pagination
+    optionsDict['observations'] = filtered.observation_normalised.dropna().unique().tolist()
+    optionsDict['observations'].sort()
+
+    optionsDict['routes'] = filtered.normalised_administration_route.dropna().unique().tolist()
+    optionsDict['routes'].sort()
+
+    optionsDict['sex'] = filtered.normalised_sex.dropna().unique().tolist()
+    optionsDict['sex'].sort()
+
+    optionsDict['species'] = filtered.normalised_species.dropna().unique().tolist()
+    optionsDict['species'].sort()
+
+    ##############
+    # Pagination #
+    ##############
+
+    page = int(request.GET.get("page"))
+
     if page != 0:
         init = (int(page) - 1) * 10
         end = init + 10
@@ -143,11 +232,12 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    filtered = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
+    output = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
                right_index=False, sort=False)
 
     results = {
-        'data': filtered.to_dict('records'),
+        'data': output.to_dict('records'),
+        'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
         'page': page,
@@ -174,8 +264,6 @@ def qualitative(request):
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
     relevant = request.GET.get("treatmentRelated")
-
-    global findings_df,study_df
 
     #############
     # Filter    #
@@ -375,147 +463,15 @@ def quantitative(request):
     return Response(results)
 
 @api_view(['GET'])
-def organs(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    organs=filtered.organ_normalised.unique().tolist()
-    #organs.remove(None)
-    organs.sort()
-
-    results = {
-        'organs': organs
-    }
-    return Response(results)
-
-@api_view(['GET'])
-def observations(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    observations = filtered.observation_normalised.unique().tolist()
-    # observations.remove(None)
-    observations.sort()
-
-    results = {
-        'observations': observations
-    }
-    return Response(results)
-
-@api_view(['GET'])
-def routes(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    route = filtered.normalised_administration_route.unique().tolist()
-    route.remove(None)
-    route.sort()
-
-    results = {
-        'route': route
-    }
-
-    return Response(results)
-
-@api_view(['GET'])
-def sex(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    sex = filtered.normalised_sex.unique().tolist()
-    sex.remove(None)
-    sex.sort()
-
-    results = {
-        'sex': sex
-    }
-
-    return Response(results)
-
-@api_view(['GET'])
-def species(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    species = filtered.normalised_species.unique().tolist()
-    species.remove(None)
-    species.sort()
-
-    results = {
-        'species': species
-    }
-
-    return Response(results)
-
-@api_view(['GET'])
 def study(request):
 
     id= request.GET.get("id")
-
 
     res = pd.merge( study_df[study_df.study_id == id],compound_df,how='left', on='subst_id', left_index=False,right_index=False, sort=False)
 
     results = {
         'study':  res.fillna(value="-")
     }
-    return Response(results)
-
-
-@api_view(['GET'])
-def sex(request):
-
-    global findings_df, study_df
-
-    filtered = pd.merge(findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                     'relevance', 'normalised_sex']],
-                        study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                                  'normalised_species', 'exposure_period_days']],
-                        how='left', on='study_id', left_index=False,
-                        right_index=False, sort=False)
-
-    sex = filtered.normalised_sex.unique().tolist()
-    sex.remove(None)
-    sex.sort()
-
-    results = {
-        'sex': sex
-    }
-
     return Response(results)
 
 def testConnectDB (host, port, sid, user, password) :
