@@ -67,20 +67,25 @@ def initFindings(request):
     num_structures = len(merged_df.subst_id.unique().tolist())
 
     fullDict = {}
-    fullDict['organs'] = merged_df.organ_normalised.dropna().unique().tolist()
+    fullDict['organs'] = [x.capitalize() for x in merged_df.organ_normalised.dropna().unique().tolist()]
     fullDict['organs'].sort()
 
-    fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
+    fullDict['observations'] = [x.capitalize() for x in merged_df.observation_normalised.dropna().unique().tolist()]
     fullDict['observations'].sort()
 
-    fullDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
+    fullDict['routes'] = [x.capitalize() for x in merged_df.normalised_administration_route.dropna().unique().tolist()]
     fullDict['routes'].sort()
 
     fullDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
     fullDict['sex'].sort()
 
-    fullDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
+    fullDict['species'] = [x.capitalize() for x in merged_df.normalised_species.dropna().unique().tolist()]
     fullDict['species'].sort()
+
+    exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
+    exposure_range.sort()
+    fullDict['exposure_min'] = int(exposure_range[0])
+    fullDict['exposure_max'] = int(exposure_range[-1])
 
     # Pagination
     if page != 0:
@@ -143,13 +148,13 @@ def findings(request):
     max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
         # An exposure range filter is defined
-        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure[0])) &
-                    (filtered.exposure_period_days <= int(max_exposure[0]))]
+        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure)) &
+                    (filtered.exposure_period_days <= int(max_exposure))]
     elif min_exposure:
         # Only a.upper bound for exposure range has been set
-        filtered = filtered[filtered.exposure_period_days >= int(min_exposure[0])]
+        filtered = filtered[filtered.exposure_period_days >= int(min_exposure)]
     elif max_exposure:
-        filtered = filtered[filtered.exposure_period_days <= int(max_exposure[0])]
+        filtered = filtered[filtered.exposure_period_days <= int(max_exposure)]
 
     # Administration route
     all_routes = request.GET.getlist("routes")
@@ -184,20 +189,25 @@ def findings(request):
     num_structures = len(filtered.subst_id.unique().tolist())
 
     optionsDict = {}
-    optionsDict['organs'] = filtered.organ_normalised.dropna().unique().tolist()
+    optionsDict['organs'] = [x.capitalize() for x in filtered.organ_normalised.dropna().unique().tolist()]
     optionsDict['organs'].sort()
 
-    optionsDict['observations'] = filtered.observation_normalised.dropna().unique().tolist()
+    optionsDict['observations'] = [x.capitalize() for x in filtered.observation_normalised.dropna().unique().tolist()]
     optionsDict['observations'].sort()
 
-    optionsDict['routes'] = filtered.normalised_administration_route.dropna().unique().tolist()
+    optionsDict['routes'] = [x.capitalize() for x in filtered.normalised_administration_route.dropna().unique().tolist()]
     optionsDict['routes'].sort()
 
     optionsDict['sex'] = filtered.normalised_sex.dropna().unique().tolist()
     optionsDict['sex'].sort()
 
-    optionsDict['species'] = filtered.normalised_species.dropna().unique().tolist()
+    optionsDict['species'] = [x.capitalize() for x in filtered.normalised_species.dropna().unique().tolist()]
     optionsDict['species'].sort()
+
+    exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
+    exposure_range.sort()
+    optionsDict['exposure_min'] = int(exposure_range[0])
+    optionsDict['exposure_max'] = int(exposure_range[-1])
 
     ##############
     # Pagination #
