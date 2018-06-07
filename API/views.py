@@ -179,35 +179,36 @@ def findings(request):
         
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
-        filtered = filtered[filtered['organ_normalised'].isin(all_organs)]
+        filtered = filtered[filtered['organ_normalised'].str.lower().isin([x.lower() for x in all_organs])]
         
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
-        filtered = filtered[filtered['observation_normalised'].isin(all_observations)]
+        filtered = filtered[filtered['observation_normalised'].str.lower().isin(x.lower() for x in all_observations)]
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
 
     optionsDict = {}
-    optionsDict['organs'] = [x.capitalize() for x in filtered.organ_normalised.dropna().unique().tolist()]
-    optionsDict['organs'].sort()
+    if not filtered.empty:
+        optionsDict['organs'] = [x.capitalize() for x in filtered.organ_normalised.dropna().unique().tolist()]
+        optionsDict['organs'].sort()
 
-    optionsDict['observations'] = [x.capitalize() for x in filtered.observation_normalised.dropna().unique().tolist()]
-    optionsDict['observations'].sort()
+        optionsDict['observations'] = [x.capitalize() for x in filtered.observation_normalised.dropna().unique().tolist()]
+        optionsDict['observations'].sort()
 
-    optionsDict['routes'] = [x.capitalize() for x in filtered.normalised_administration_route.dropna().unique().tolist()]
-    optionsDict['routes'].sort()
+        optionsDict['routes'] = [x.capitalize() for x in filtered.normalised_administration_route.dropna().unique().tolist()]
+        optionsDict['routes'].sort()
 
-    optionsDict['sex'] = filtered.normalised_sex.dropna().unique().tolist()
-    optionsDict['sex'].sort()
+        optionsDict['sex'] = filtered.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'].sort()
 
-    optionsDict['species'] = [x.capitalize() for x in filtered.normalised_species.dropna().unique().tolist()]
-    optionsDict['species'].sort()
+        optionsDict['species'] = [x.capitalize() for x in filtered.normalised_species.dropna().unique().tolist()]
+        optionsDict['species'].sort()
 
-    exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
-    exposure_range.sort()
-    optionsDict['exposure_min'] = int(exposure_range[0])
-    optionsDict['exposure_max'] = int(exposure_range[-1])
+        exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
+        exposure_range.sort()
+        optionsDict['exposure_min'] = int(exposure_range[0])
+        optionsDict['exposure_max'] = int(exposure_range[-1])
 
     ##############
     # Pagination #
