@@ -194,6 +194,8 @@ def findings(request):
     if queryDict != {}:
         query_string = ' and '.join(list(queryDict.values()))
         filtered = filtered_tmp.query(query_string)
+    else:
+        filtered = filtered_tmp[:]
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
