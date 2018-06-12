@@ -1,5 +1,5 @@
-#from snippets.models import Snippet
-#from snippets.serializers import SnippetSerializer
+# from snippets.models import Snippet
+# from snippets.serializers import SnippetSerializer
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -7,59 +7,60 @@ from rest_framework import status
 import cx_Oracle
 import pandas as pd
 import json
+import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import YourSerializer,FindingSerializer
+from .serializers import YourSerializer, FindingSerializer
 from API.utils import extract
 
 onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
-merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                        'normalised_species', 'exposure_period_days', 'report_number']],
-                    findings_df[['study_id', 'observation_normalised', 
-                        'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
-                    how='left', on='study_id', left_index=False, right_index=False, \
-                    sort=False)
+merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
+                               'normalised_species', 'normalised_strain', 'exposure_period_days',
+                               'report_number']],
+                     findings_df[['study_id', 'observation_normalised', 'grade',
+                                  'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                     how='left', on='study_id', left_index=False, right_index=False,
+                     sort=False)
+
 
 @api_view(['GET'])
 def source(request):
+    global find_df
 
-        global find_df
+    host = '172.20.16.76'
+    port = '1521'
+    sid = 'ORA11G'
+    user = 'vitic2016'
+    password = 'T0Vitic2016'
 
-        host = '172.20.16.76'
-        port = '1521'
-        sid = 'ORA11G'
-        user = 'vitic2016'
-        password = 'T0Vitic2016'
+    '''conn = connectDB(host, port, sid, user, password)
+    cursor = conn.cursor()'''
 
-        '''conn = connectDB(host, port, sid, user, password)
+    # Generate normalised study dataframe
+    '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
+        STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
+        FROM HISTOPATHOLOGICALFI \
+        WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
+        AND STANDARDISED_ORGAN IS NOT NULL"
+    cursor.execute(cmd)
+    results = cursor.fetchall()
+    tmp_table = []
+    for (study_id, relevance, observation, organ, dose) in results:
+        tmp_table.append([study_id, relevance, observation, organ, dose])
+        print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
+    find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
+                                               'observation_normalised', 'organ_normalised', 'dose'])'''
 
-        cursor = conn.cursor()'''
+    yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
+    results = YourSerializer(yourdata, many=True).data
+    return Response(yourdata)
 
-        # Generate normalised study dataframe
-        '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
-            STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
-            FROM HISTOPATHOLOGICALFI \
-            WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
-            AND STANDARDISED_ORGAN IS NOT NULL"
-        cursor.execute(cmd)
-        results = cursor.fetchall()
-        tmp_table = []
-        for (study_id, relevance, observation, organ, dose) in results:
-            tmp_table.append([study_id, relevance, observation, organ, dose])
-            print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
-        find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                                   'observation_normalised', 'organ_normalised', 'dose'])'''
-
-        yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
-        results = YourSerializer(yourdata, many=True).data
-        return Response(yourdata)
 
 @api_view(['GET'])
 def initFindings(request):
-
-    global findings_df, study_df, merged_df
+    global merged_df
 
     page = int(request.GET.get("page"))
 
@@ -67,19 +68,22 @@ def initFindings(request):
     num_structures = len(merged_df.subst_id.unique().tolist())
 
     fullDict = {}
-    fullDict['organs'] = [x.capitalize() for x in merged_df.organ_normalised.dropna().unique().tolist()]
+    fullDict['organs'] = merged_df.organ_normalised.dropna().unique().tolist()
     fullDict['organs'].sort()
 
-    fullDict['observations'] = [x.capitalize() for x in merged_df.observation_normalised.dropna().unique().tolist()]
+    fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
     fullDict['observations'].sort()
 
-    fullDict['routes'] = [x.capitalize() for x in merged_df.normalised_administration_route.dropna().unique().tolist()]
+    fullDict['grade'] = merged_df.grade.dropna().unique().tolist()
+    fullDict['grade'].sort()
+
+    fullDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
     fullDict['routes'].sort()
 
     fullDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
     fullDict['sex'].sort()
 
-    fullDict['species'] = [x.capitalize() for x in merged_df.normalised_species.dropna().unique().tolist()]
+    fullDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
     fullDict['species'].sort()
 
     exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
@@ -114,8 +118,8 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(merged_df[init:end], compound_df[['subst_id','smiles']], how='left',
-                        on='subst_id', left_index=False, right_index=False, sort=False)
+    output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
+                      on='subst_id', left_index=False, right_index=False, sort=False)
 
     results = {
         'data': output.to_dict('records'),
@@ -132,83 +136,134 @@ def initFindings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
+
 @api_view(['GET'])
 def findings(request):
-
     global merged_df, compound_df
 
-    filtered = merged_df[:]
+    filtered_tmp = merged_df[:]
 
-    ##################
-    # Filter Studies #
-    ##################
+    # Sex
+    sex = request.GET.getlist("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex.str.lower() == sex[0].lower()]
+
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'treatment related']
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
-        # An exposure range filter is defined
-        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure)) &
-                    (filtered.exposure_period_days <= int(max_exposure))]
-    elif min_exposure:
-        # Only a.upper bound for exposure range has been set
-        filtered = filtered[filtered.exposure_period_days >= int(min_exposure)]
-    elif max_exposure:
-        filtered = filtered[filtered.exposure_period_days <= int(max_exposure)]
+        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
+                                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
+    queryDict = {}
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
-        filtered = filtered[filtered.normalised_administration_route.str.lower().isin([x.lower() for x in all_routes])]
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
-        filtered = filtered[filtered.normalised_species.str.lower().isin([x.lower() for x in all_species])]
+        queryDict['species'] = 'normalised_species == @all_species'
 
-    ###################
-    # Filter Findings #
-    ###################
-    sex = request.GET.getlist("sex")
-    if sex:
-        filtered = filtered[filtered.normalised_sex.str.lower() == sex[0].lower()]
-
-    relevant = request.GET.get("treatmentRelated")
-    if relevant:
-        filtered = filtered[filtered.relevance == 'treatment related']
-        
+    # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
-        filtered = filtered[filtered['organ_normalised'].str.lower().isin([x.lower() for x in all_organs])]
-        
+        queryDict['organs'] = 'organ_normalised == @all_organs'
+
+    # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
-        filtered = filtered[filtered['observation_normalised'].str.lower().isin(x.lower() for x in all_observations)]
+        queryDict['observations'] = 'observation_normalised == @all_observations'
+
+    # Grade
+    all_grades = request.GET.getlist("grade")
+    if len(all_grades) > 0:
+        queryDict['grade'] = 'grade == @all_grades'
+
+    #####################
+    # Apply all filters #
+    #####################
+    query_string = ''
+    if queryDict != {}:
+        query_string = ' and '.join(list(queryDict.values()))
+        filtered = filtered_tmp.query(query_string)
+    else:
+        filtered = filtered_tmp[:]
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
 
     optionsDict = {}
+    queryN = len(queryDict)
     if not filtered.empty:
-        optionsDict['organs'] = [x.capitalize() for x in filtered.organ_normalised.dropna().unique().tolist()]
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('organs', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['organs'] = tmp_df.organ_normalised.dropna().unique().tolist()
         optionsDict['organs'].sort()
 
-        optionsDict['observations'] = [x.capitalize() for x in filtered.observation_normalised.dropna().unique().tolist()]
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('observations', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['observations'] = tmp_df.observation_normalised.dropna().unique().tolist()
         optionsDict['observations'].sort()
 
-        optionsDict['routes'] = [x.capitalize() for x in filtered.normalised_administration_route.dropna().unique().tolist()]
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('grade', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        optionsDict['grade'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('routes', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
         optionsDict['routes'].sort()
 
-        optionsDict['sex'] = filtered.normalised_sex.dropna().unique().tolist()
-        optionsDict['sex'].sort()
-
-        optionsDict['species'] = [x.capitalize() for x in filtered.normalised_species.dropna().unique().tolist()]
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('species', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['species'] = tmp_df.normalised_species.dropna().unique().tolist()
         optionsDict['species'].sort()
 
         exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
         exposure_range.sort()
         optionsDict['exposure_min'] = int(exposure_range[0])
         optionsDict['exposure_max'] = int(exposure_range[-1])
+
+        optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'].sort()
 
     ##############
     # Pagination #
@@ -243,8 +298,9 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
-               right_index=False, sort=False)
+    output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
+                      left_index=False,
+                      right_index=False, sort=False)
 
     results = {
         'data': output.to_dict('records'),
@@ -261,11 +317,10 @@ def findings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
+
 @api_view(['GET'])
 def qualitative(request):
-
-
-    global findings_df,study_df
+    global findings_df, study_df
 
     all_organs = request.GET.getlist("organs")
     all_observation = request.GET.getlist("observations")
@@ -290,14 +345,13 @@ def qualitative(request):
     if len(all_species) > 0:
         filter_dict['species'] = all_species
 
-
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
     filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
                                   'relevance', 'normalised_sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                               'normalised_species', 'exposure_period_days', 'report_number']],
+                                  'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
@@ -311,7 +365,6 @@ def qualitative(request):
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
         filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
-
 
     ###################################
     # Get stats for relevant findings #
@@ -359,20 +412,18 @@ def qualitative(request):
     cols = cols[0:4] + [cols[-1]] + cols[4:-1]
     qualitative_df = qualitative_df[cols]
 
-    print (qualitative_df.head())
+    print(qualitative_df.head())
 
     results = {
-        "data" : qualitative_df.fillna(value=0)
+        "data": qualitative_df.fillna(value=0)
     }
-
 
     return Response(results)
 
+
 @api_view(['GET'])
 def quantitative(request):
-
-
-    global findings_df,study_df
+    global findings_df, study_df
 
     all_organs = request.GET.getlist("organs")
     all_observation = request.GET.getlist("observations")
@@ -383,7 +434,7 @@ def quantitative(request):
     max_exposure = request.GET.get("max_exposure")
     relevant = request.GET.get("treatmentRelated")
 
-    global findings_df,study_df
+    global findings_df, study_df
 
     #############
     # Filter    #
@@ -399,14 +450,13 @@ def quantitative(request):
     if len(all_species) > 0:
         filter_dict['species'] = all_species
 
-
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
     filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
                                   'relevance', 'normalised_sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                               'normalised_species', 'exposure_period_days', 'report_number']],
+                                  'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
@@ -420,7 +470,6 @@ def quantitative(request):
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
         filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
-
 
     ###################################
     # Get stats for relevant findings #
@@ -473,37 +522,47 @@ def quantitative(request):
 
     return Response(results)
 
+
 @api_view(['GET'])
 def study(request):
+    id = request.GET.get("id")
 
-    id= request.GET.get("id")
-
-    res = pd.merge( study_df[study_df.study_id == id],compound_df,how='left', on='subst_id', left_index=False,right_index=False, sort=False)
+    res = pd.merge(study_df[study_df.study_id == id], compound_df,
+                   how='left', on='subst_id', left_index=False,
+                   right_index=False, sort=False)
 
     results = {
-        'study':  res.fillna(value="-")
+        'study': res.fillna(value="-")
     }
     return Response(results)
 
-def testConnectDB (host, port, sid, user, password) :
-    conn= None
-    dsn_tns = cx_Oracle.makedsn(host,port,sid)
-    try:
-        conn = cx_Oracle.connect(user,password,dsn=dsn_tns)
-    except cx_Oracle.DatabaseError as e:
-        result=e
-    finally:
-        if conn is not None:
-            conn.close()
-            result="Database connected."
-    return result
+    # @api_view(['GET'])
+    # def connectDB(request):
 
-def connectDB (host, port, sid, user, password):
+    #     host= request.GET.get("host")
+    #     port= int(request.GET.get("port"))
+    #     sid= request.GET.get("sid")
+    #     user= request.GET.get("user")
+    #     password= request.GET.get("password")
 
-    conn = None
-    dsn_tns = cx_Oracle.makedsn(host, port, sid)
-    try:
-        conn = cx_Oracle.connect(user, password, dsn=dsn_tns)
-    except cx_Oracle.DatabaseError as e:
-        return None
-    return conn
+    #     # try:
+    #     #     dsn_tns = cx_Oracle.makedsn(host, port, sid)
+    #     #     conn = cx_Oracle.connect(user, password, dsn=dsn_tns)
+    #     # except:
+    #     #     #  cx_Oracle.DatabaseError as e:
+    #     #     conn = None
+    #     #     # error, = e.args
+    #     #     # connStatus = error.message
+    #     #     connStatus = 'Failed'
+    #     # else:
+    #     #     connStatus = 'Connected'
+
+    #     connStatus = 'Connected'
+
+    #     results = {
+    #         'connStatus': connStatus
+    #     }
+
+    #     send_data = FindingSerializer(results, many=False).data
+
+    #     return Response(send_data)
