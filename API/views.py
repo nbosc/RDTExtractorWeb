@@ -16,11 +16,12 @@ onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
-merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                        'normalised_species', 'exposure_period_days', 'report_number']],
-                    findings_df[['study_id', 'observation_normalised', 
+merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', 
+                        'normalised_species', 'normalised_strain', 'exposure_period_days', 
+                        'report_number']],
+                    findings_df[['study_id', 'observation_normalised', 'grade',
                         'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
-                    how='left', on='study_id', left_index=False, right_index=False, \
+                    how='left', on='study_id', left_index=False, right_index=False, 
                     sort=False)
 
 @api_view(['GET'])
@@ -73,6 +74,9 @@ def initFindings(request):
 
     fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
     fullDict['observations'].sort()
+
+    fullDict['grade'] = merged_df.grade.dropna().unique().tolist()
+    fullDict['grade'].sort()
 
     fullDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
     fullDict['routes'].sort()
@@ -168,13 +172,20 @@ def findings(request):
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
 
+    # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
         queryDict['organs'] = 'organ_normalised == @all_organs'
         
+    # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
         queryDict['observations'] = 'observation_normalised == @all_observations'
+
+    # Grade
+    all_grades = request.GET.getlist("grade")
+    if len(all_grades) > 0:
+        queryDict['grade'] = 'grade == @all_grades'
 
     #####################
     # Apply all filters #
@@ -211,6 +222,17 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = tmp_df.observation_normalised.dropna().unique().tolist()
         optionsDict['observations'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('grade', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        optionsDict['grade'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
