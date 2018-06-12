@@ -152,7 +152,7 @@ def findings(request):
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
-        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'treatment related']
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
