@@ -81,12 +81,6 @@ WSGI_APPLICATION = 'DjangoAPI.wsgi.application'
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE':   'django.db.backends.oracle',
-#         'NAME':     'gea.prib.upf.edu/ORA11G.prib.upf.edu',
-#         'USER':     'vitic2016',
-#         'PASSWORD': 'T0Vitic2016'
-#     },
-#     'original': {
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
