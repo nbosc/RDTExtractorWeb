@@ -29,11 +29,11 @@ merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administratio
 def source(request):
     global find_df
 
-    host = '172.20.16.76'
-    port = '1521'
-    sid = 'ORA11G'
-    user = 'vitic2016'
-    password = 'T0Vitic2016'
+    host = ''
+    port = ''
+    sid = ''
+    user = ''
+    password = ''
 
     '''conn = connectDB(host, port, sid, user, password)
     cursor = conn.cursor()'''
@@ -165,16 +165,25 @@ def findings(request):
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
+    not_routes = request.GET.getlist("not_routes")
+    if len(not_routes) > 0:
+        queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
+    not_species = request.GET.getlist("not_species")
+    if len(not_species) > 0:
+        queryDict['not_species'] = 'normalised_species != @not_species'
 
     # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
         queryDict['organs'] = 'organ_normalised == @all_organs'
+    not_organs = request.GET.getlist("not_organs")
+    if len(not_organs) > 0:
+        queryDict['not_organs'] = 'organ_normalised != @not_organs'
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -185,6 +194,9 @@ def findings(request):
     all_grades = request.GET.getlist("grade")
     if len(all_grades) > 0:
         queryDict['grade'] = 'grade == @all_grades'
+    not_grades = request.GET.getlist("not_grades")
+    if len(not_grades) > 0:
+        queryDict['not_grades'] = 'grade != @not_grades'
 
     #####################
     # Apply all filters #
@@ -204,6 +216,7 @@ def findings(request):
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('organs', None)
+        tmp_dict.pop('not_organs', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -215,6 +228,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
+        tmp_dict.pop('not_observations', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -226,6 +240,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('grade', None)
+        tmp_dict.pop('not_grade', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -237,6 +252,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
+        tmp_dict.pop('not_routes', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -248,6 +264,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('species', None)
+        tmp_dict.pop('not_species', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
