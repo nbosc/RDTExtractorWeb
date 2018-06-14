@@ -163,40 +163,48 @@ def findings(request):
     queryDict = {}
     # Administration route
     all_routes = request.GET.getlist("routes")
-    if len(all_routes) > 0:
-        queryDict['routes'] = 'normalised_administration_route == @all_routes'
     not_routes = request.GET.getlist("not_routes")
-    if len(not_routes) > 0:
-        queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
+    if len(all_routes) > 0:
+        if len(not_routes) > 0:
+            all_routes = list(set(all_routes)-set(not_routes))
+            queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
 
     # Species
     all_species = request.GET.getlist("species")
-    if len(all_species) > 0:
-        queryDict['species'] = 'normalised_species == @all_species'
     not_species = request.GET.getlist("not_species")
     if len(not_species) > 0:
+        all_species = list(set(all_species)-set(not_species))
         queryDict['not_species'] = 'normalised_species != @not_species'
+    if len(all_species) > 0:
+        queryDict['species'] = 'normalised_species == @all_species'
 
     # Organs
     all_organs = request.GET.getlist("organs")
-    if len(all_organs) > 0:
-        queryDict['organs'] = 'organ_normalised == @all_organs'
     not_organs = request.GET.getlist("not_organs")
-    if len(not_organs) > 0:
-        queryDict['not_organs'] = 'organ_normalised != @not_organs'
+    if len(all_organs) > 0:
+        if len(not_organs) > 0:
+            all_organs = list(set(all_organs)-set(not_organs))
+            queryDict['not_organs'] = 'organ_normalised != @not_organs'
+        queryDict['organs'] = 'organ_normalised == @all_organs'
 
     # Observations
     all_observations = request.GET.getlist("observations")
+    not_observations = request.GET.getlist("not_observations")
     if len(all_observations) > 0:
+        if len(not_observations) > 0:
+            all_observations = list(set(all_observations)-set(not_observations))
+            queryDict['not_observations'] = 'observation_normalised != @not_observations'
         queryDict['observations'] = 'observation_normalised == @all_observations'
 
     # Grade
     all_grades = request.GET.getlist("grade")
-    if len(all_grades) > 0:
-        queryDict['grade'] = 'grade == @all_grades'
     not_grades = request.GET.getlist("not_grades")
-    if len(not_grades) > 0:
-        queryDict['not_grades'] = 'grade != @not_grades'
+    if len(all_grades) > 0:
+        if len(not_grades) > 0:
+            all_grades = list(set(all_grades)-set(not_grades))
+            queryDict['not_grades'] = 'grade != @not_grades'
+        queryDict['grade'] = 'grade == @all_grades'
 
     #####################
     # Apply all filters #
