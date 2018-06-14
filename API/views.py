@@ -1,5 +1,5 @@
-#from snippets.models import Snippet
-#from snippets.serializers import SnippetSerializer
+# from snippets.models import Snippet
+# from snippets.serializers import SnippetSerializer
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -9,58 +9,57 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import YourSerializer,FindingSerializer
+from .serializers import YourSerializer, FindingSerializer
 from API.utils import extract
 
 onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
-merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route', 
-                        'normalised_species', 'normalised_strain', 'exposure_period_days', 
-                        'report_number']],
-                    findings_df[['study_id', 'observation_normalised', 'grade',
-                        'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
-                    how='left', on='study_id', left_index=False, right_index=False, 
-                    sort=False)
+merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
+                               'normalised_species', 'normalised_strain', 'exposure_period_days',
+                               'report_number']],
+                     findings_df[['study_id', 'observation_normalised', 'grade',
+                                  'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                     how='left', on='study_id', left_index=False, right_index=False,
+                     sort=False)
+
 
 @api_view(['GET'])
 def source(request):
+    global find_df
 
-        global find_df
+    host = ''
+    port = ''
+    sid = ''
+    user = ''
+    password = ''
 
-        host = '172.20.16.76'
-        port = '1521'
-        sid = 'ORA11G'
-        user = 'vitic2016'
-        password = 'T0Vitic2016'
+    '''conn = connectDB(host, port, sid, user, password)
+    cursor = conn.cursor()'''
 
-        '''conn = connectDB(host, port, sid, user, password)
+    # Generate normalised study dataframe
+    '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
+        STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
+        FROM HISTOPATHOLOGICALFI \
+        WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
+        AND STANDARDISED_ORGAN IS NOT NULL"
+    cursor.execute(cmd)
+    results = cursor.fetchall()
+    tmp_table = []
+    for (study_id, relevance, observation, organ, dose) in results:
+        tmp_table.append([study_id, relevance, observation, organ, dose])
+        print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
+    find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
+                                               'observation_normalised', 'organ_normalised', 'dose'])'''
 
-        cursor = conn.cursor()'''
+    yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
+    results = YourSerializer(yourdata, many=True).data
+    return Response(yourdata)
 
-        # Generate normalised study dataframe
-        '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
-            STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
-            FROM HISTOPATHOLOGICALFI \
-            WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
-            AND STANDARDISED_ORGAN IS NOT NULL"
-        cursor.execute(cmd)
-        results = cursor.fetchall()
-        tmp_table = []
-        for (study_id, relevance, observation, organ, dose) in results:
-            tmp_table.append([study_id, relevance, observation, organ, dose])
-            print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
-        find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                                   'observation_normalised', 'organ_normalised', 'dose'])'''
-
-        yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
-        results = YourSerializer(yourdata, many=True).data
-        return Response(yourdata)
 
 @api_view(['GET'])
 def initFindings(request):
-
     global merged_df
 
     page = int(request.GET.get("page"))
@@ -119,8 +118,8 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(merged_df[init:end], compound_df[['subst_id','smiles']], how='left',
-                        on='subst_id', left_index=False, right_index=False, sort=False)
+    output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
+                      on='subst_id', left_index=False, right_index=False, sort=False)
 
     results = {
         'data': output.to_dict('records'),
@@ -137,9 +136,9 @@ def initFindings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
+
 @api_view(['GET'])
 def findings(request):
-
     global merged_df, compound_df
 
     filtered_tmp = merged_df[:]
@@ -166,17 +165,26 @@ def findings(request):
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
+    not_routes = request.GET.getlist("not_routes")
+    if len(not_routes) > 0:
+        queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
+    not_species = request.GET.getlist("not_species")
+    if len(not_species) > 0:
+        queryDict['not_species'] = 'normalised_species != @not_species'
 
     # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
         queryDict['organs'] = 'organ_normalised == @all_organs'
-        
+    not_organs = request.GET.getlist("not_organs")
+    if len(not_organs) > 0:
+        queryDict['not_organs'] = 'organ_normalised != @not_organs'
+
     # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
@@ -186,6 +194,9 @@ def findings(request):
     all_grades = request.GET.getlist("grade")
     if len(all_grades) > 0:
         queryDict['grade'] = 'grade == @all_grades'
+    not_grades = request.GET.getlist("not_grades")
+    if len(not_grades) > 0:
+        queryDict['not_grades'] = 'grade != @not_grades'
 
     #####################
     # Apply all filters #
@@ -205,6 +216,7 @@ def findings(request):
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('organs', None)
+        tmp_dict.pop('not_organs', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -216,6 +228,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
+        tmp_dict.pop('not_observations', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -227,6 +240,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('grade', None)
+        tmp_dict.pop('not_grade', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -238,6 +252,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
+        tmp_dict.pop('not_routes', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -249,6 +264,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('species', None)
+        tmp_dict.pop('not_species', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -299,8 +315,9 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(filtered[init:end], compound_df[['subst_id','smiles']], how='left', on='subst_id', left_index=False,
-               right_index=False, sort=False)
+    output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
+                      left_index=False,
+                      right_index=False, sort=False)
 
     results = {
         'data': output.to_dict('records'),
@@ -317,11 +334,10 @@ def findings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
+
 @api_view(['GET'])
 def qualitative(request):
-
-
-    global findings_df,study_df
+    global findings_df, study_df
 
     all_organs = request.GET.getlist("organs")
     all_observation = request.GET.getlist("observations")
@@ -346,14 +362,13 @@ def qualitative(request):
     if len(all_species) > 0:
         filter_dict['species'] = all_species
 
-
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
     filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
                                   'relevance', 'normalised_sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                               'normalised_species', 'exposure_period_days', 'report_number']],
+                                  'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
@@ -367,7 +382,6 @@ def qualitative(request):
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
         filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
-
 
     ###################################
     # Get stats for relevant findings #
@@ -415,20 +429,18 @@ def qualitative(request):
     cols = cols[0:4] + [cols[-1]] + cols[4:-1]
     qualitative_df = qualitative_df[cols]
 
-    print (qualitative_df.head())
+    print(qualitative_df.head())
 
     results = {
-        "data" : qualitative_df.fillna(value=0)
+        "data": qualitative_df.fillna(value=0)
     }
-
 
     return Response(results)
 
+
 @api_view(['GET'])
 def quantitative(request):
-
-
-    global findings_df,study_df
+    global findings_df, study_df
 
     all_organs = request.GET.getlist("organs")
     all_observation = request.GET.getlist("observations")
@@ -439,7 +451,7 @@ def quantitative(request):
     max_exposure = request.GET.get("max_exposure")
     relevant = request.GET.get("treatmentRelated")
 
-    global findings_df,study_df
+    global findings_df, study_df
 
     #############
     # Filter    #
@@ -455,14 +467,13 @@ def quantitative(request):
     if len(all_species) > 0:
         filter_dict['species'] = all_species
 
-
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
     filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
                                   'relevance', 'normalised_sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
-                               'normalised_species', 'exposure_period_days', 'report_number']],
+                                  'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
@@ -476,7 +487,6 @@ def quantitative(request):
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
         filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
-
 
     ###################################
     # Get stats for relevant findings #
@@ -529,14 +539,14 @@ def quantitative(request):
 
     return Response(results)
 
+
 @api_view(['GET'])
 def study(request):
-
-    id= request.GET.get("id")
+    id = request.GET.get("id")
 
     res = pd.merge(study_df[study_df.study_id == id], compound_df,
-                    how='left', on='subst_id', left_index=False,
-                    right_index=False, sort=False)
+                   how='left', on='subst_id', left_index=False,
+                   right_index=False, sort=False)
 
     results = {
         'study': res.fillna(value="-")
