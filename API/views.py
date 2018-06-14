@@ -30,11 +30,11 @@ merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administratio
 def source(request):
     global find_df
 
-    host = '***'
-    port = '1521'
-    sid = 'ORA11G'
-    user = '***'
-    password = '****'
+    host = ''
+    port = ''
+    sid = ''
+    user = ''
+    password = ''
 
     '''conn = connectDB(host, port, sid, user, password)
     cursor = conn.cursor()'''
@@ -152,38 +152,58 @@ def findings(request):
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
-        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'treatment related']
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
         filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
-                                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
+                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
     queryDict = {}
     # Administration route
     all_routes = request.GET.getlist("routes")
+    not_routes = request.GET.getlist("not_routes")
+    if len(not_routes) > 0:
+        all_routes = list(set(all_routes)-set(not_routes))
+        queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
     if len(all_routes) > 0:
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
 
     # Species
     all_species = request.GET.getlist("species")
+    not_species = request.GET.getlist("not_species")
+    if len(not_species) > 0:
+        all_species = list(set(all_species)-set(not_species))
+        queryDict['not_species'] = 'normalised_species != @not_species'
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
 
     # Organs
     all_organs = request.GET.getlist("organs")
+     not_organs = request.GET.getlist("not_organs")
+    if len(not_organs) > 0:
+        all_organs = list(set(all_organs)-set(not_organs))
+        queryDict['not_organs'] = 'organ_normalised != @not_organs'
     if len(all_organs) > 0:
         queryDict['organs'] = 'organ_normalised == @all_organs'
 
     # Observations
     all_observations = request.GET.getlist("observations")
+    not_observations = request.GET.getlist("not_observations")
+    if len(not_observations) > 0:
+        all_observations = list(set(all_observations)-set(not_observations))
+        queryDict['not_observations'] = 'observation_normalised != @not_observations'
     if len(all_observations) > 0:
         queryDict['observations'] = 'observation_normalised == @all_observations'
 
     # Grade
     all_grades = request.GET.getlist("grade")
+    not_grades = request.GET.getlist("not_grades")
+    if len(not_grades) > 0:
+        all_grades = list(set(all_grades)-set(not_grades))
+        queryDict['not_grades'] = 'grade != @not_grades'
     if len(all_grades) > 0:
         queryDict['grade'] = 'grade == @all_grades'
 
@@ -205,6 +225,7 @@ def findings(request):
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('organs', None)
+        tmp_dict.pop('not_organs', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -216,6 +237,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
+        tmp_dict.pop('not_observations', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -227,6 +249,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('grade', None)
+        tmp_dict.pop('not_grade', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -238,6 +261,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
+        tmp_dict.pop('not_routes', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -249,6 +273,7 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('species', None)
+        tmp_dict.pop('not_species', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -537,33 +562,33 @@ def study(request):
     }
     return Response(results)
 
-    # @api_view(['GET'])
-    # def connectDB(request):
+# @api_view(['GET'])
+# def connectDB(request):
 
-    #     host= request.GET.get("host")
-    #     port= int(request.GET.get("port"))
-    #     sid= request.GET.get("sid")
-    #     user= request.GET.get("user")
-    #     password= request.GET.get("password")
+#     host= request.GET.get("host")
+#     port= int(request.GET.get("port"))
+#     sid= request.GET.get("sid")
+#     user= request.GET.get("user")
+#     password= request.GET.get("password")
 
-    #     # try:
-    #     #     dsn_tns = cx_Oracle.makedsn(host, port, sid)
-    #     #     conn = cx_Oracle.connect(user, password, dsn=dsn_tns)
-    #     # except:
-    #     #     #  cx_Oracle.DatabaseError as e:
-    #     #     conn = None
-    #     #     # error, = e.args
-    #     #     # connStatus = error.message
-    #     #     connStatus = 'Failed'
-    #     # else:
-    #     #     connStatus = 'Connected'
+#     # try:
+#     #     dsn_tns = cx_Oracle.makedsn(host, port, sid)
+#     #     conn = cx_Oracle.connect(user, password, dsn=dsn_tns)        
+#     # except:
+#     #     #  cx_Oracle.DatabaseError as e:
+#     #     conn = None
+#     #     # error, = e.args
+#     #     # connStatus = error.message
+#     #     connStatus = 'Failed'
+#     # else:
+#     #     connStatus = 'Connected'
 
-    #     connStatus = 'Connected'
+#     connStatus = 'Connected'
 
-    #     results = {
-    #         'connStatus': connStatus
-    #     }
+#     results = {
+#         'connStatus': connStatus
+#     }
 
-    #     send_data = FindingSerializer(results, many=False).data
+#     send_data = FindingSerializer(results, many=False).data
 
-    #     return Response(send_data)
+#     return Response(send_data)
