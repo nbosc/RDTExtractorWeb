@@ -16,6 +16,7 @@ onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
+onto_tree_df = pd.read_pickle("API/static/data/ontology_tree.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                                'normalised_species', 'normalised_strain', 'exposure_period_days',
                                'report_number']],
@@ -29,11 +30,11 @@ merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administratio
 def source(request):
     global find_df
 
-    host = '172.20.16.76'
+    host = '***'
     port = '1521'
     sid = 'ORA11G'
-    user = 'vitic2016'
-    password = 'T0Vitic2016'
+    user = '***'
+    password = '****'
 
     '''conn = connectDB(host, port, sid, user, password)
     cursor = conn.cursor()'''
