@@ -163,46 +163,27 @@ def findings(request):
     queryDict = {}
     # Administration route
     all_routes = request.GET.getlist("routes")
-    not_routes = request.GET.getlist("not_routes")
-    if len(not_routes) > 0:
-        all_routes = list(set(all_routes)-set(not_routes))
-        queryDict['not_routes'] = 'normalised_administration_route != @not_routes'
     if len(all_routes) > 0:
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
 
     # Species
     all_species = request.GET.getlist("species")
-    not_species = request.GET.getlist("not_species")
-    if len(not_species) > 0:
-        all_species = list(set(all_species)-set(not_species))
-        queryDict['not_species'] = 'normalised_species != @not_species'
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
 
     # Organs
     all_organs = request.GET.getlist("organs")
-    not_organs = request.GET.getlist("not_organs")
-    if len(not_organs) > 0:
-        all_organs = list(set(all_organs)-set(not_organs))
-        queryDict['not_organs'] = 'organ_normalised != @not_organs'
     if len(all_organs) > 0:
         queryDict['organs'] = 'organ_normalised == @all_organs'
 
     # Observations
     all_observations = request.GET.getlist("observations")
-    not_observations = request.GET.getlist("not_observations")
-    if len(not_observations) > 0:
-        all_observations = list(set(all_observations)-set(not_observations))
         queryDict['not_observations'] = 'observation_normalised != @not_observations'
     if len(all_observations) > 0:
         queryDict['observations'] = 'observation_normalised == @all_observations'
 
     # Grade
     all_grades = request.GET.getlist("grade")
-    not_grades = request.GET.getlist("not_grades")
-    if len(not_grades) > 0:
-        all_grades = list(set(all_grades)-set(not_grades))
-        queryDict['not_grades'] = 'grade != @not_grades'
     if len(all_grades) > 0:
         queryDict['grade'] = 'grade == @all_grades'
 
@@ -224,7 +205,6 @@ def findings(request):
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('organs', None)
-        tmp_dict.pop('not_organs', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -236,7 +216,6 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
-        tmp_dict.pop('not_observations', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -248,7 +227,6 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('grade', None)
-        tmp_dict.pop('not_grade', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -260,7 +238,6 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
-        tmp_dict.pop('not_routes', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
@@ -272,7 +249,6 @@ def findings(request):
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('species', None)
-        tmp_dict.pop('not_species', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
