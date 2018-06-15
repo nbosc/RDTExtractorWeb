@@ -179,7 +179,6 @@ def findings(request):
 
     # Observations
     all_observations = request.GET.getlist("observations")
-        queryDict['not_observations'] = 'observation_normalised != @not_observations'
     if len(all_observations) > 0:
         queryDict['observations'] = 'observation_normalised == @all_observations'
 
