@@ -16,7 +16,8 @@ onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
-onto_tree_df = pd.read_pickle("API/static/data/ontology_tree.pkl")
+organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                                'normalised_species', 'normalised_strain', 
                                'exposure_period_days', 'report_number']],
@@ -68,10 +69,24 @@ def initFindings(request):
 
     fullDict = {}
     fullDict['organs'] = merged_df.organ_normalised.dropna().unique().tolist()
-    fullDict['organs'].sort()
+    #fullDict['organs'].sort()
+    # Create nested dictionary for angular treeviews
+    organs_df = organ_onto_df[organ_onto_df.child_term.isin([x.lower() for x in fullDict['organs']])]
+    organs_df=getValuesForTree(organs_df,organ_onto_df)
+    relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+    parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+    fullDict['organs'] = create_dictionary(relations, parents)
+
 
     fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
-    fullDict['observations'].sort()
+    #fullDict['observations'].sort()
+    # Create nested dictionary for angular treeviews
+    observations_df = observation_onto_df[observation_onto_df.child_term.isin([x.lower() for x in fullDict['observations']])]
+    observations_df = getValuesForTree(observations_df,observation_onto_df)
+    relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+    parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+    fullDict['observations'] = create_dictionary(relations, parents)
+
 
     fullDict['grade'] = merged_df.grade.dropna().unique().tolist()
     fullDict['grade'].sort()
@@ -121,7 +136,7 @@ def initFindings(request):
                       on='subst_id', left_index=False, right_index=False, sort=False)
 
     results = {
-        'data': output.to_dict('records'),
+        'data': output.fillna(value="-").to_dict('records'),
         'allOptions': fullDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
@@ -175,7 +190,6 @@ def findings(request):
 
     # Organs
     all_organs = request.GET.getlist("organs")
-    print (all_organs)
     if len(all_organs) > 0:
         all_organs = all_organs[0].split(', ')
         tmp_dict = {}
@@ -249,7 +263,13 @@ def findings(request):
         else:
             tmp_df = filtered_tmp
         optionsDict['organs'] = tmp_df.organ_normalised.dropna().unique().tolist()
-        optionsDict['organs'].sort()
+        #optionsDict['organs'].sort()
+        #Create nested dictionary for angular treeviews
+        organs_df = organ_onto_df[organ_onto_df.child_term.isin([x.lower() for x in optionsDict['organs']])]
+        organs_df = getValuesForTree(organs_df, organ_onto_df)
+        relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+        optionsDict['organs'] = create_dictionary(relations, parents)
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -260,7 +280,15 @@ def findings(request):
         else:
             tmp_df = filtered_tmp
         optionsDict['observations'] = tmp_df.observation_normalised.dropna().unique().tolist()
-        optionsDict['observations'].sort()
+        #optionsDict['observations'].sort()
+        # Create nested dictionary for angular treeviews
+        observations_df = observation_onto_df[observation_onto_df.child_term.isin([x.lower() for x in optionsDict['observations']])]
+        observations_df = getValuesForTree(observations_df, observation_onto_df)
+        relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+        optionsDict['observations'] = create_dictionary(relations, parents)
+
+
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('grade', None)
@@ -341,7 +369,7 @@ def findings(request):
                       right_index=False, sort=False)
 
     results = {
-        'data': output.to_dict('records'),
+        'data': output.fillna(value="-").to_dict('records'),
         'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
@@ -448,8 +476,6 @@ def qualitative(request):
     cols = qualitative_df.columns.tolist()
     cols = cols[0:4] + [cols[-1]] + cols[4:-1]
     qualitative_df = qualitative_df[cols]
-
-    print(qualitative_df.head())
 
     results = {
         "data": qualitative_df.fillna(value=0)
@@ -601,3 +627,61 @@ def study(request):
 #     send_data = FindingSerializer(results, many=False).data
 
 #     return Response(send_data)
+
+'''
+Recurive function to create dictionary for treeviews
+'''
+def create_dictionary(relations, parents):
+    dict_out = {}
+    for key in parents:
+        dict_aux = {}
+        if key in relations:
+            dict_return = create_dictionary(relations, relations[key])
+            dict_aux[key] = dict_return
+        else:
+            dict_aux[key] = {}
+        dict_out = mergeDeepDict(dict_out, dict_aux)
+    return dict_out
+
+'''
+Recurive function to merge two nested dictionaries
+'''
+
+def mergeDeepDict(d1, d2):
+    '''update first dict with second recursively'''
+    for k, v in d1.items():
+        if k in d2:
+            d2[k] = mergeDeepDict(v, d2[k])
+    d1.update(d2)
+    return d1
+
+'''
+
+'''
+def getValuesForTree(df_filter,onto_tree_df):
+
+    columns_name = ['child_term', 'parent_term', 'ontology']
+    df_filter = df_filter[columns_name]
+    tree_created = False
+    last_size = -1
+    while not tree_created:
+
+        df_filter = pd.merge(df_filter, onto_tree_df, how='left', left_on='parent_term', right_on='child_term')
+
+        df_filter = df_filter.dropna()
+        df_1 = df_filter[['child_term_x', 'parent_term_x', 'ontology_x']]
+        df_2 = df_filter[['child_term_y', 'parent_term_y', 'ontology_y']]
+
+        df_1.columns = columns_name
+        df_2.columns = columns_name
+
+        df_filter = pd.concat([df_1, df_2])
+
+        df_filter.drop_duplicates(inplace=True)
+
+        if last_size == len(df_filter):
+            tree_created = True
+
+        last_size = len(df_filter)
+
+    return df_filter
