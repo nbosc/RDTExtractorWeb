@@ -18,13 +18,12 @@ findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzi
 study_df = pd.read_pickle("API/static/data/study.pkl")
 onto_tree_df = pd.read_pickle("API/static/data/ontology_tree.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain', 'exposure_period_days',
-                               'report_number']],
-                     findings_df[['study_id', 'observation_normalised', 'grade',
+                               'normalised_species', 'normalised_strain', 
+                               'exposure_period_days', 'report_number']],
+                     findings_df[['study_id', 'source', 'observation_normalised', 'grade',
                                   'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
                      sort=False)
-
 
 @api_view(['GET'])
 def source(request):
@@ -57,7 +56,6 @@ def source(request):
     yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
     results = YourSerializer(yourdata, many=True).data
     return Response(yourdata)
-
 
 @api_view(['GET'])
 def initFindings(request):
@@ -137,7 +135,6 @@ def initFindings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
-
 @api_view(['GET'])
 def findings(request):
     global merged_df, compound_df
@@ -172,20 +169,61 @@ def findings(request):
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
 
+    ##
+    ## Filter organs, observations and grades by category
+    ##
+
     # Organs
     all_organs = request.GET.getlist("organs")
+    print (all_organs)
     if len(all_organs) > 0:
-        queryDict['organs'] = 'organ_normalised == @all_organs'
+        all_organs = all_organs[0].split(', ')
+        tmp_dict = {}
+        for v in all_organs:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and organ_normalised == %s)' %(category.strip(), tmp_list))
+        queryDict['organs'] = ' and '.join(list(queryList))
 
     # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
-        queryDict['observations'] = 'observation_normalised == @all_observations'
+        all_observations = all_observations[0].split(', ')
+        tmp_dict = {}
+        for v in all_observations:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and observation_normalised == %s)' %(category.strip(), tmp_list))
+        queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
     all_grades = request.GET.getlist("grade")
     if len(all_grades) > 0:
-        queryDict['grade'] = 'grade == @all_grades'
+        all_grades = all_grades[0].split(', ')
+        tmp_dict = {}
+        for v in all_grades:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+        queryDict['grade'] = ' and '.join(list(queryList))
 
     #####################
     # Apply all filters #
@@ -201,7 +239,6 @@ def findings(request):
     num_structures = len(filtered.subst_id.unique().tolist())
 
     optionsDict = {}
-    queryN = len(queryDict)
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('organs', None)
@@ -318,7 +355,6 @@ def findings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
-
 @api_view(['GET'])
 def qualitative(request):
     global findings_df, study_df
@@ -421,7 +457,6 @@ def qualitative(request):
 
     return Response(results)
 
-
 @api_view(['GET'])
 def quantitative(request):
     global findings_df, study_df
@@ -522,7 +557,6 @@ def quantitative(request):
     }
 
     return Response(results)
-
 
 @api_view(['GET'])
 def study(request):
