@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .serializers import YourSerializer, FindingSerializer
 from API.utils import extract
 
-onto_df = pd.read_pickle("API/static/data/ontology.pkl")
+# onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
@@ -36,11 +36,11 @@ def source(request):
     user = ''
     password = ''
 
-    '''conn = connectDB(host, port, sid, user, password)
-    cursor = conn.cursor()'''
+    """conn = connectDB(host, port, sid, user, password)
+    cursor = conn.cursor()"""
 
     # Generate normalised study dataframe
-    '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
+    """cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
         STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
         FROM HISTOPATHOLOGICALFI \
         WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
@@ -52,7 +52,7 @@ def source(request):
         tmp_table.append([study_id, relevance, observation, organ, dose])
         print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
     find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                               'observation_normalised', 'organ_normalised', 'dose'])'''
+                                               'observation_normalised', 'organ_normalised', 'dose'])"""
 
     yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
     results = YourSerializer(yourdata, many=True).data
@@ -156,6 +156,11 @@ def findings(request):
     if relevant:
         filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
 
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+
     # Exposure
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
@@ -213,21 +218,21 @@ def findings(request):
         queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
-    all_grades = request.GET.getlist("grade")
-    if len(all_grades) > 0:
-        all_grades = all_grades[0].split(', ')
-        tmp_dict = {}
-        for v in all_grades:
-            category, val = v.split(' | ')
-            if category not in tmp_dict:
-                tmp_dict[category] = [val]
-            else:
-                tmp_dict[category].append(val)
-        queryList = []
-        for category in tmp_dict:
-            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
-        queryDict['grades'] = ' and '.join(list(queryList))
+    # all_grades = request.GET.getlist("grade")
+    # if len(all_grades) > 0:
+    #     all_grades = all_grades[0].split(', ')
+    #     tmp_dict = {}
+    #     for v in all_grades:
+    #         category, val = v.split(' | ')
+    #         if category not in tmp_dict:
+    #             tmp_dict[category] = [val]
+    #         else:
+    #             tmp_dict[category].append(val)
+    #     queryList = []
+    #     for category in tmp_dict:
+    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #     queryDict['grades'] = ' and '.join(list(queryList))
 
     #####################
     # Apply all filters #
@@ -616,10 +621,10 @@ def study(request):
 
 #     return Response(send_data)
 
-'''
-Recursive function to create dictionary for treeviews
-'''
 def create_dictionary(relations, parents):
+    """
+    Recursive function to create dictionary for treeviews
+    """
     dict_out = {}
     for key in parents:
         dict_aux = {}
@@ -631,21 +636,17 @@ def create_dictionary(relations, parents):
         dict_out = mergeDeepDict(dict_out, dict_aux)
     return dict_out
 
-'''
-Recursive function to merge two nested dictionaries
-'''
-
 def mergeDeepDict(d1, d2):
-    '''update first dict with second recursively'''
+    """
+    Recursive function to merge two nested dictionaries
+    """
+    # update first dict with second recursively
     for k, v in d1.items():
         if k in d2:
             d2[k] = mergeDeepDict(v, d2[k])
     d1.update(d2)
     return d1
 
-'''
-
-'''
 def getValuesForTree(df_filter,onto_tree_df):
 
     columns_name = ['child_term', 'parent_term', 'ontology']
