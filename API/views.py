@@ -9,7 +9,7 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import YourSerializer, FindingSerializer
+from .serializers import FindingSerializer
 from API.utils import extract
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
@@ -54,9 +54,7 @@ def source(request):
     find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
                                                'observation_normalised', 'organ_normalised', 'dose'])"""
 
-    yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
-    results = YourSerializer(yourdata, many=True).data
-    return Response(yourdata)
+    pass
 
 @api_view(['GET'])
 def initFindings(request):

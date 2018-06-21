@@ -1,12 +1,6 @@
 from rest_framework import serializers
 
-class YourSerializer(serializers.Serializer):
-   """Your data serializer, define your fields here."""
-   comments = serializers.IntegerField()
-   likes = serializers.IntegerField()
-
 class FindingSerializer (serializers.Serializer):
-
    data = serializers.ListField()
    allOptions = serializers.DictField()
    range_pages = serializers.ListField()
