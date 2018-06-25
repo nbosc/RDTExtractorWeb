@@ -9,7 +9,7 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import FindingSerializer
+from .serializers import FindingSerializer, FiltersSerializer
 from API.utils import extract
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
@@ -24,6 +24,12 @@ merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administratio
                      findings_df[['study_id', 'source', 'observation_normalised', 'grade',
                                   'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
+                     sort=False)
+merged_df = pd.merge(merged_df,
+                     compound_df[['subst_id', 
+                                    # 'smiles', 'common_name', 'cas_number',
+                                    'pharmacological_action']],
+                     how='left', on='subst_id', left_index=False, right_index=False,
                      sort=False)
 
 @api_view(['GET'])
@@ -80,6 +86,9 @@ def initFindings(request):
     optionsDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
     optionsDict['species'].sort()
 
+    optionsDict['pharmacological_action'] = merged_df.pharmacological_action.dropna().unique().tolist()
+    optionsDict['pharmacological_action'].sort()
+
     exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
     exposure_range.sort()
     optionsDict['exposure_min'] = int(exposure_range[0])
@@ -96,7 +105,7 @@ def initFindings(request):
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
         optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-        observations = merged_df.observation_normalised.dropna().unique().tolist()
+        observations = merged_df[merged_df.source == source].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
         observations_df = getValuesForTree(observations_df,observation_onto_df)
@@ -104,7 +113,9 @@ def initFindings(request):
         parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
         optionsDict['observations'][source] = create_dictionary(relations, parents)
 
-    # Pagination
+    ##############
+    # Pagination #
+    ##############
     page = 1
     init = 0
     total = len(merged_df)
@@ -167,6 +178,11 @@ def findings(request):
                     (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
     queryDict = {}
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
@@ -244,6 +260,7 @@ def findings(request):
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
+    sources = filtered.source.dropna().unique().tolist()
 
     optionsDict = {}
     if not filtered.empty:
@@ -255,14 +272,15 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['organs'] = tmp_df.organ_normalised.dropna().unique().tolist()
-        # optionsDict['organs'].sort()
-        #Create nested dictionary for angular treeviews
-        organs_df = organ_onto_df[organ_onto_df.child_term.isin([x.lower() for x in optionsDict['organs']])]
-        organs_df = getValuesForTree(organs_df, organ_onto_df)
+        optionsDict['organs'] = {}
+        for source in sources:
+            organs = filtered_tmp[filtered_tmp.source == source].organ_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+            organs_df = getValuesForTree(organs_df,organ_onto_df)
         relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-        optionsDict['organs'] = create_dictionary(relations, parents)
+        optionsDict['organs'][source] = create_dictionary(relations, parents)
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -272,25 +290,37 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['observations'] = tmp_df.observation_normalised.dropna().unique().tolist()
-        # optionsDict['observations'].sort()
+        optionsDict['observations'] = {}
+        for source in sources:
+            observations = filtered_tmp[filtered_tmp.source == source].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        observations_df = observation_onto_df[observation_onto_df.child_term.isin([x.lower() for x in optionsDict['observations']])]
-        observations_df = getValuesForTree(observations_df, observation_onto_df)
+            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+            observations_df = getValuesForTree(observations_df,observation_onto_df)
         relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-        optionsDict['observations'] = create_dictionary(relations, parents)
+        optionsDict['observations'][source] = create_dictionary(relations, parents)
+
+        # tmp_dict = copy.deepcopy(queryDict)
+        # tmp_dict.pop('grade', None)
+        # valuesL = list(tmp_dict.values())
+        # if len(valuesL) > 0:
+        #     query_string = ' and '.join(valuesL)
+        #     tmp_df = filtered_tmp.query(query_string)
+        # else:
+        #     tmp_df = filtered_tmp
+        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        # optionsDict['grade'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('grade', None)
+        tmp_dict.pop('pharmacological_action', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
-        optionsDict['grade'].sort()
+        optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+        optionsDict['pharmacological_action'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
@@ -355,12 +385,12 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
-                      left_index=False,
-                      right_index=False, sort=False)
+    # output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
+    #                   left_index=False,
+    #                   right_index=False, sort=False)
 
     results = {
-        'data': output.fillna(value="-").to_dict('records'),
+        'data': merged_df.fillna(value="-").to_dict('records'),
         'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
