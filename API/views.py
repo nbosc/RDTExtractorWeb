@@ -26,8 +26,7 @@ merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administratio
                      how='left', on='study_id', left_index=False, right_index=False,
                      sort=False)
 merged_df = pd.merge(merged_df,
-                     compound_df[['subst_id', 
-                                    # 'smiles', 'common_name', 'cas_number',
+                     compound_df[['subst_id', 'smiles', 'common_name', 'cas_number',
                                     'pharmacological_action']],
                      how='left', on='subst_id', left_index=False, right_index=False,
                      sort=False)
@@ -88,6 +87,12 @@ def initFindings(request):
 
     optionsDict['pharmacological_action'] = merged_df.pharmacological_action.dropna().unique().tolist()
     optionsDict['pharmacological_action'].sort()
+
+    optionsDict['compound_name'] = merged_df.common_name.dropna().unique().tolist()
+    optionsDict['compound_name'].sort()
+
+    optionsDict['cas_number'] = merged_df.cas_number.dropna().unique().tolist()
+    optionsDict['cas_number'].sort()
 
     exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
     exposure_range.sort()
@@ -183,6 +188,16 @@ def findings(request):
     all_pharm = request.GET.getlist("pharmacological_action")
     if len(all_pharm) > 0:
         queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
+    # Pharmacological action
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+        
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
 
     # Administration route
     all_routes = request.GET.getlist("routes")
@@ -322,6 +337,28 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
         optionsDict['pharmacological_action'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('cas_number', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
+        optionsDict['cas_number'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('compound_name', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
+        optionsDict['compound_name'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
