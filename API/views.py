@@ -136,11 +136,12 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
-                      on='subst_id', left_index=False, right_index=False, sort=False)
+    # output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
+    #                   on='subst_id', left_index=False, right_index=False, sort=False)
+    output = merged_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
-        'data': output.fillna(value="-").to_dict('records'),
+        'data': output,
         'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
@@ -388,9 +389,10 @@ def findings(request):
     # output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
     #                   left_index=False,
     #                   right_index=False, sort=False)
+    output = filtered[init:end].fillna(value="-").to_dict('records')
 
     results = {
-        'data': merged_df.fillna(value="-").to_dict('records'),
+        'data': output,
         'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
