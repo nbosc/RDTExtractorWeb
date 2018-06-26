@@ -1,7 +1,7 @@
 .idea
-*findings.pkl.gz
-*study.pkl
-*compound.pkl
+findings.pkl.gz
+study.pkl
+compound.pkl
 API/__pychche_
 *.ipynb
 *pyc
