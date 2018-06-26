@@ -189,10 +189,10 @@ def findings(request):
     if len(all_pharm) > 0:
         queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
 
-    # Pharmacological action
-    all_compound_name = request.GET.getlist("compound_name")
-    if len(all_compound_name) > 0:
-        queryDict['compound_name'] = 'common_name == @all_compound_name'
+    # Compound name
+    all_compound_names = request.GET.getlist("compound_name")
+    if len(all_compound_names) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_names'
         
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
@@ -294,9 +294,9 @@ def findings(request):
             # Create nested dictionary for angular treeviews
             organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
             organs_df = getValuesForTree(organs_df,organ_onto_df)
-        relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-        optionsDict['organs'][source] = create_dictionary(relations, parents)
+            relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+            optionsDict['organs'][source] = create_dictionary(relations, parents)
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -309,12 +309,12 @@ def findings(request):
         optionsDict['observations'] = {}
         for source in sources:
             observations = filtered_tmp[filtered_tmp.source == source].observation_normalised.dropna().unique().tolist()
-        # Create nested dictionary for angular treeviews
+            # Create nested dictionary for angular treeviews
             observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
             observations_df = getValuesForTree(observations_df,observation_onto_df)
-        relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-        optionsDict['observations'][source] = create_dictionary(relations, parents)
+            relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+            optionsDict['observations'][source] = create_dictionary(relations, parents)
 
         # tmp_dict = copy.deepcopy(queryDict)
         # tmp_dict.pop('grade', None)
@@ -393,6 +393,8 @@ def findings(request):
     ##############
     # Pagination #
     ##############
+
+    print ('got this far')
 
     page = int(request.GET.get("page"))
 
