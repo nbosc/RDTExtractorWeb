@@ -9,7 +9,7 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import FindingSerializer, FiltersSerializer
+from .serializers import FindingSerializer  #, FiltersSerializer
 from API.utils import extract
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
@@ -141,8 +141,6 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    # output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
-    #                   on='subst_id', left_index=False, right_index=False, sort=False)
     output = merged_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
@@ -278,6 +276,11 @@ def findings(request):
     num_structures = len(filtered.subst_id.unique().tolist())
     sources = filtered.source.dropna().unique().tolist()
 
+    ##
+    ## Exand based on organ / observation ontologies
+    ##
+    
+
     optionsDict = {}
     if not filtered.empty:
         tmp_dict = copy.deepcopy(queryDict)
@@ -288,9 +291,10 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
+        tmp_df = tmp_df[['organ_normalised', 'source']]
         optionsDict['organs'] = {}
         for source in sources:
-            organs = filtered_tmp[filtered_tmp.source == source].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
             organs_df = getValuesForTree(organs_df,organ_onto_df)
@@ -306,9 +310,10 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
+        tmp_df = tmp_df[['observation_normalised', 'source']]
         optionsDict['observations'] = {}
         for source in sources:
-            observations = filtered_tmp[filtered_tmp.source == source].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
             observations_df = getValuesForTree(observations_df,observation_onto_df)

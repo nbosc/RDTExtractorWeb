@@ -10,4 +10,11 @@ class FindingSerializer (serializers.Serializer):
    next_page = serializers.IntegerField()
    num_studies = serializers.IntegerField()
    num_structures = serializers.IntegerField()
-#    connStatus = serializers.CharField()
+
+class FiltersSerializer (serializers.Serializer):
+    filters = serializers.DictField()
+    categories_filters = serializers.DictField()
+    page = serializers.IntegerField()
+
+class ConnectionSerializer (serializers.Serializer):
+   connStatus = serializers.CharField()
