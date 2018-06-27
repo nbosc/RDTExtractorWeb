@@ -9,21 +9,26 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import YourSerializer, FindingSerializer
+from .serializers import FindingSerializer
 from API.utils import extract
 
-onto_df = pd.read_pickle("API/static/data/ontology.pkl")
+# onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 study_df = pd.read_pickle("API/static/data/study.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain', 
+                               'normalised_species', 'normalised_strain',
                                'exposure_period_days', 'report_number']],
                      findings_df[['study_id', 'source', 'observation_normalised', 'grade',
                                   'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
+                     sort=False)
+merged_df = pd.merge(merged_df,
+                     compound_df[['subst_id', 'smiles', 'common_name', 'cas_number',
+                                    'pharmacological_action']],
+                     how='left', on='subst_id', left_index=False, right_index=False,
                      sort=False)
 
 @api_view(['GET'])
@@ -36,11 +41,11 @@ def source(request):
     user = ''
     password = ''
 
-    '''conn = connectDB(host, port, sid, user, password)
-    cursor = conn.cursor()'''
+    """conn = connectDB(host, port, sid, user, password)
+    cursor = conn.cursor()"""
 
     # Generate normalised study dataframe
-    '''cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
+    """cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
         STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
         FROM HISTOPATHOLOGICALFI \
         WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
@@ -52,79 +57,83 @@ def source(request):
         tmp_table.append([study_id, relevance, observation, organ, dose])
         print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
     find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                               'observation_normalised', 'organ_normalised', 'dose'])'''
+                                               'observation_normalised', 'organ_normalised', 'dose'])"""
 
-    yourdata = [{"likes": 10, "comments": 0}, {"likes": 4, "comments": 23}]
-    results = YourSerializer(yourdata, many=True).data
-    return Response(yourdata)
+    pass
 
 @api_view(['GET'])
 def initFindings(request):
     global merged_df
 
-    page = int(request.GET.get("page"))
-
     num_studies = len(merged_df.study_id.unique().tolist())
     num_structures = len(merged_df.subst_id.unique().tolist())
 
-    fullDict = {}
-    fullDict['organs'] = merged_df.organ_normalised.dropna().unique().tolist()
-    #fullDict['organs'].sort()
-    # Create nested dictionary for angular treeviews
-    organs_df = organ_onto_df[organ_onto_df.child_term.isin([x.lower() for x in fullDict['organs']])]
-    organs_df=getValuesForTree(organs_df,organ_onto_df)
-    relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-    parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-    fullDict['organs'] = create_dictionary(relations, parents)
+    optionsDict = {}
 
+    optionsDict['sources'] = merged_df.source.dropna().unique().tolist()
+    optionsDict['sources'].sort()
 
-    fullDict['observations'] = merged_df.observation_normalised.dropna().unique().tolist()
-    #fullDict['observations'].sort()
-    # Create nested dictionary for angular treeviews
-    observations_df = observation_onto_df[observation_onto_df.child_term.isin([x.lower() for x in fullDict['observations']])]
-    observations_df = getValuesForTree(observations_df,observation_onto_df)
-    relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-    parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-    fullDict['observations'] = create_dictionary(relations, parents)
+    optionsDict['grades'] = merged_df.grade.dropna().unique().tolist()
+    optionsDict['grades'].sort()
 
+    optionsDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
+    optionsDict['routes'].sort()
 
-    fullDict['grade'] = merged_df.grade.dropna().unique().tolist()
-    fullDict['grade'].sort()
+    optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+    optionsDict['sex'].sort()
 
-    fullDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
-    fullDict['routes'].sort()
+    optionsDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
+    optionsDict['species'].sort()
 
-    fullDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
-    fullDict['sex'].sort()
+    optionsDict['pharmacological_action'] = merged_df.pharmacological_action.dropna().unique().tolist()
+    optionsDict['pharmacological_action'].sort()
 
-    fullDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
-    fullDict['species'].sort()
+    optionsDict['compound_name'] = merged_df.common_name.dropna().unique().tolist()
+    optionsDict['compound_name'].sort()
+
+    optionsDict['cas_number'] = merged_df.cas_number.dropna().unique().tolist()
+    optionsDict['cas_number'].sort()
 
     exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
     exposure_range.sort()
-    fullDict['exposure_min'] = int(exposure_range[0])
-    fullDict['exposure_max'] = int(exposure_range[-1])
+    optionsDict['exposure_min'] = int(exposure_range[0])
+    optionsDict['exposure_max'] = int(exposure_range[-1])
 
-    # Pagination
-    if page != 0:
-        init = (int(page) - 1) * 10
-        end = init + 10
+    optionsDict['organs'] = {}
+    optionsDict['observations'] = {}
+    for source in optionsDict['sources']:
+        organs = merged_df[merged_df.source == source].organ_normalised.dropna().unique().tolist()
+        # Create nested dictionary for angular treeviews
+        organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+        organs_df = getValuesForTree(organs_df,organ_onto_df)
+        relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+        optionsDict['organs'][source] = create_dictionary(relations, parents)
+
+        observations = merged_df[merged_df.source == source].observation_normalised.dropna().unique().tolist()
+        # Create nested dictionary for angular treeviews
+        observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+        observations_df = getValuesForTree(observations_df,observation_onto_df)
+        relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+        optionsDict['observations'][source] = create_dictionary(relations, parents)
+
+    ##############
+    # Pagination #
+    ##############
+    page = 1
+    init = 0
+    total = len(merged_df)
+    if total < 10:
+        end = total
+        num_pages = total
     else:
-        init = 0
-        end = len(merged_df)
-
-    num_pages = int(len(merged_df) / 10)
+        end = 10
+        num_pages = int(total / 10)
 
     # Range of pages to show
-    if page < 4:
-        previous = 0
-        nexts = 7
-    elif page > (num_pages - 4):
-        previous = num_pages - 7
-        nexts = num_pages
-    else:
-        previous = page - 4
-        nexts = page + 3
+    previous = 0
+    nexts = 7
     range_pages = range(1, num_pages + 1)[previous:nexts]
     previous_page = page - 1
     next_page = page + 1
@@ -132,12 +141,13 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
-                      on='subst_id', left_index=False, right_index=False, sort=False)
+    # output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
+    #                   on='subst_id', left_index=False, right_index=False, sort=False)
+    output = merged_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
-        'data': output.fillna(value="-").to_dict('records'),
-        'allOptions': fullDict,
+        'data': output,
+        'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
         'page': page,
@@ -152,19 +162,20 @@ def initFindings(request):
 
 @api_view(['GET'])
 def findings(request):
+
     global merged_df, compound_df
 
     filtered_tmp = merged_df[:]
-
-    # Sex
-    sex = request.GET.getlist("sex")
-    if sex:
-        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex.str.lower() == sex[0].lower()]
 
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
         filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
+
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -174,6 +185,21 @@ def findings(request):
                     (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
     queryDict = {}
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
+    # Pharmacological action
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
+
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
@@ -223,21 +249,21 @@ def findings(request):
         queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
-    all_grades = request.GET.getlist("grade")
-    if len(all_grades) > 0:
-        all_grades = all_grades[0].split(', ')
-        tmp_dict = {}
-        for v in all_grades:
-            category, val = v.split(' | ')
-            if category not in tmp_dict:
-                tmp_dict[category] = [val]
-            else:
-                tmp_dict[category].append(val)
-        queryList = []
-        for category in tmp_dict:
-            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
-        queryDict['grade'] = ' and '.join(list(queryList))
+    # all_grades = request.GET.getlist("grade")
+    # if len(all_grades) > 0:
+    #     all_grades = all_grades[0].split(', ')
+    #     tmp_dict = {}
+    #     for v in all_grades:
+    #         category, val = v.split(' | ')
+    #         if category not in tmp_dict:
+    #             tmp_dict[category] = [val]
+    #         else:
+    #             tmp_dict[category].append(val)
+    #     queryList = []
+    #     for category in tmp_dict:
+    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #     queryDict['grades'] = ' and '.join(list(queryList))
 
     #####################
     # Apply all filters #
@@ -251,6 +277,7 @@ def findings(request):
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
+    sources = filtered.source.dropna().unique().tolist()
 
     optionsDict = {}
     if not filtered.empty:
@@ -259,17 +286,21 @@ def findings(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
+            print ("------------111-----------")
+            print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['organs'] = tmp_df.organ_normalised.dropna().unique().tolist()
-        #optionsDict['organs'].sort()
-        #Create nested dictionary for angular treeviews
-        organs_df = organ_onto_df[organ_onto_df.child_term.isin([x.lower() for x in optionsDict['organs']])]
-        organs_df = getValuesForTree(organs_df, organ_onto_df)
-        relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-        optionsDict['organs'] = create_dictionary(relations, parents)
+        optionsDict['organs'] = {}
+        for source in sources:
+
+            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+            organs_df = getValuesForTree(organs_df,organ_onto_df)
+            relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+            optionsDict['organs'][source] = create_dictionary(relations, parents)
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -279,27 +310,59 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['observations'] = tmp_df.observation_normalised.dropna().unique().tolist()
-        #optionsDict['observations'].sort()
-        # Create nested dictionary for angular treeviews
-        observations_df = observation_onto_df[observation_onto_df.child_term.isin([x.lower() for x in optionsDict['observations']])]
-        observations_df = getValuesForTree(observations_df, observation_onto_df)
-        relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-        optionsDict['observations'] = create_dictionary(relations, parents)
+        optionsDict['observations'] = {}
+        for source in sources:
+            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+            observations_df = getValuesForTree(observations_df,observation_onto_df)
+            relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+            optionsDict['observations'][source] = create_dictionary(relations, parents)
 
-
+        # tmp_dict = copy.deepcopy(queryDict)
+        # tmp_dict.pop('grade', None)
+        # valuesL = list(tmp_dict.values())
+        # if len(valuesL) > 0:
+        #     query_string = ' and '.join(valuesL)
+        #     tmp_df = filtered_tmp.query(query_string)
+        # else:
+        #     tmp_df = filtered_tmp
+        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        # optionsDict['grade'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('grade', None)
+        tmp_dict.pop('pharmacological_action', None)
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
-        optionsDict['grade'].sort()
+        optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+        optionsDict['pharmacological_action'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('cas_number', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
+        optionsDict['cas_number'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('compound_name', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
+        optionsDict['compound_name'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('routes', None)
@@ -364,12 +427,13 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
-                      left_index=False,
-                      right_index=False, sort=False)
+    # output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
+    #                   left_index=False,
+    #                   right_index=False, sort=False)
+    output = filtered[init:end].fillna(value="-").to_dict('records')
 
     results = {
-        'data': output.fillna(value="-").to_dict('records'),
+        'data': output,
         'allOptions': optionsDict,
         'range_pages': range_pages,
         'num_pages': num_pages,
@@ -608,7 +672,7 @@ def study(request):
 
 #     # try:
 #     #     dsn_tns = cx_Oracle.makedsn(host, port, sid)
-#     #     conn = cx_Oracle.connect(user, password, dsn=dsn_tns)        
+#     #     conn = cx_Oracle.connect(user, password, dsn=dsn_tns)
 #     # except:
 #     #     #  cx_Oracle.DatabaseError as e:
 #     #     conn = None
@@ -628,10 +692,10 @@ def study(request):
 
 #     return Response(send_data)
 
-'''
-Recurive function to create dictionary for treeviews
-'''
 def create_dictionary(relations, parents):
+    """
+    Recursive function to create dictionary for treeviews
+    """
     dict_out = {}
     for key in parents:
         dict_aux = {}
@@ -643,21 +707,17 @@ def create_dictionary(relations, parents):
         dict_out = mergeDeepDict(dict_out, dict_aux)
     return dict_out
 
-'''
-Recurive function to merge two nested dictionaries
-'''
-
 def mergeDeepDict(d1, d2):
-    '''update first dict with second recursively'''
+    """
+    Recursive function to merge two nested dictionaries
+    """
+    # update first dict with second recursively
     for k, v in d1.items():
         if k in d2:
             d2[k] = mergeDeepDict(v, d2[k])
     d1.update(d2)
     return d1
 
-'''
-
-'''
 def getValuesForTree(df_filter,onto_tree_df):
 
     columns_name = ['child_term', 'parent_term', 'ontology']
@@ -685,3 +745,122 @@ def getValuesForTree(df_filter,onto_tree_df):
         last_size = len(df_filter)
 
     return df_filter
+
+@api_view(['GET'])
+def plot(request):
+
+
+    global merged_df, compound_df
+
+    filtered_tmp = merged_df[:]
+
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
+
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+
+    # Exposure
+    min_exposure = request.GET.get("min_exposure")
+    max_exposure = request.GET.get("max_exposure")
+    if min_exposure and max_exposure:
+        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
+                                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
+
+    queryDict = {}
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
+    # Pharmacological action
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        queryDict['species'] = 'normalised_species == @all_species'
+
+    ##
+    ## Filter organs, observations and grades by category
+    ##
+
+    # Organs
+    all_organs = request.GET.getlist("organs")
+    if len(all_organs) > 0:
+        all_organs = all_organs[0].split(', ')
+        tmp_dict = {}
+        for v in all_organs:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
+        queryDict['organs'] = ' and '.join(list(queryList))
+
+    # Observations
+    all_observations = request.GET.getlist("observations")
+    if len(all_observations) > 0:
+        all_observations = all_observations[0].split(', ')
+        tmp_dict = {}
+        for v in all_observations:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
+        queryDict['observations'] = ' and '.join(list(queryList))
+
+    # Grade
+    # all_grades = request.GET.getlist("grade")
+    # if len(all_grades) > 0:
+    #     all_grades = all_grades[0].split(', ')
+    #     tmp_dict = {}
+    #     for v in all_grades:
+    #         category, val = v.split(' | ')
+    #         if category not in tmp_dict:
+    #             tmp_dict[category] = [val]
+    #         else:
+    #             tmp_dict[category].append(val)
+    #     queryList = []
+    #     for category in tmp_dict:
+    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #     queryDict['grades'] = ' and '.join(list(queryList))
+
+    #####################
+    # Apply all filters #
+    #####################
+    query_string = ''
+    if queryDict != {}:
+        query_string = ' and '.join(list(queryDict.values()))
+        filtered = filtered_tmp.query(query_string)
+    else:
+        filtered = filtered_tmp[:]
+
+
+    return filtered
