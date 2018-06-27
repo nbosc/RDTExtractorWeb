@@ -862,5 +862,16 @@ def plot(request):
     else:
         filtered = filtered_tmp[:]
 
+        
 
-    return filtered
+    plot_info=filtered.groupby(['normalised_species'])['normalised_species'].count()
+
+    x=plot_info.index
+    y=plot_info.values
+
+    results = {
+        'x': filtered.normalised_species,
+        'y': y
+    }
+
+    return Response(results)
