@@ -271,8 +271,6 @@ def runFilter(request):
     else:
         filtered = filtered_tmp[:]
 
-    num_studies = len(filtered.study_id.unique().tolist())
-    num_structures = len(filtered.subst_id.unique().tolist())
     sources = filtered.source.dropna().unique().tolist()
 
     ##
@@ -405,6 +403,9 @@ def findings(request):
     ###############
 
     filtered, optionsDict = runFilter(request)
+
+    num_studies = len(filtered.study_id.unique().tolist())
+    num_structures = len(filtered.subst_id.unique().tolist())
 
     ##############
     # Pagination #
