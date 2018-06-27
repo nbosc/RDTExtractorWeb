@@ -158,8 +158,7 @@ def initFindings(request):
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
-@api_view(['GET'])
-def findings(request):
+def runFilter(request):
     global merged_df, compound_df
 
     filtered_tmp = merged_df[:]
@@ -394,12 +393,22 @@ def findings(request):
 
         optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
         optionsDict['sex'].sort()
+    
+    return filtered, optionsDict
+
+
+@api_view(['GET'])
+def findings(request):
+
+    ###############
+    # Run filters #
+    ###############
+
+    filtered, optionsDict = runFilter(request)
 
     ##############
     # Pagination #
     ##############
-
-    print ('got this far')
 
     page = int(request.GET.get("page"))
 
