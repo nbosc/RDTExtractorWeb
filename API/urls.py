@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'api/findings', views.findings),
     url(r'api/qualitative', views.qualitative),
     url(r'api/quantitative', views.quantitative),
-    url(r'api/study', views.study)
+    url(r'api/study', views.study),
+    url(r'api/plot', views.plot)
     # url(r'api/connectDB', views.connectDB)
 ]
