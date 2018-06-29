@@ -271,12 +271,22 @@ def runFilter(request):
     else:
         filtered = filtered_tmp[:]
 
+    return filtered, queryDict
+
+@api_view(['GET'])
+def filter(request):
+
+    ###############
+    # Run filters #
+    ###############
+
+    filtered, queryDict = runFilter(request)
+
     sources = filtered.source.dropna().unique().tolist()
 
     ##
     ## Exand based on organ / observation ontologies
-    ##
-    
+    ##    
 
     optionsDict = {}
     if not filtered.empty:
@@ -394,15 +404,14 @@ def runFilter(request):
     
     return filtered, optionsDict
 
-
 @api_view(['GET'])
-def findings(request):
+def table(request):
 
     ###############
     # Run filters #
     ###############
 
-    filtered, optionsDict = runFilter(request)
+    filtered, queryDict = runFilter(request)
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
