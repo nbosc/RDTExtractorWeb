@@ -21,8 +21,8 @@ observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                                'normalised_species', 'normalised_strain',
                                'exposure_period_days', 'report_number']],
-                     findings_df[['study_id', 'source', 'observation_normalised', 'grade',
-                                  'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                     findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', 
+                                'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
                      sort=False)
 merged_df = pd.merge(merged_df,
