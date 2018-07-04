@@ -870,7 +870,7 @@ def plot(request):
     y=plot_info.values
 
     results = {
-        'x': filtered.normalised_species,
+        'x': x,
         'y': y
     }
 
