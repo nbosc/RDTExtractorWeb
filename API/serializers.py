@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 class FindingSerializer (serializers.Serializer):
-
     data = serializers.ListField()
     allOptions = serializers.DictField()
     range_pages = serializers.ListField()
