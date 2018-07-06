@@ -19,7 +19,7 @@ study_df = pd.read_pickle("API/static/data/study.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain',
+                               'normalised_species', 'normalised_strain', 'source_company',
                                'exposure_period_days', 'report_number']],
                      findings_df[['study_id', 'observation_normalised', 'organ_normalised', 'dose', 
                                 'relevance', 'normalised_sex']],
@@ -70,7 +70,7 @@ def initFindings(request):
 
     optionsDict = {}
 
-    optionsDict['sources'] = merged_df.source.dropna().unique().tolist()
+    optionsDict['sources'] = merged_df.source_company.dropna().unique().tolist()
     optionsDict['sources'].sort()
 
     optionsDict['grades'] = merged_df.grade.dropna().unique().tolist()
@@ -102,7 +102,7 @@ def initFindings(request):
     optionsDict['organs'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
-        organs = merged_df[merged_df.source == source].organ_normalised.dropna().unique().tolist()
+        organs = merged_df[merged_df.source_company == source].organ_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
         organs_df = getValuesForTree(organs_df,organ_onto_df)
@@ -110,7 +110,7 @@ def initFindings(request):
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
         optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-        observations = merged_df[merged_df.source == source].observation_normalised.dropna().unique().tolist()
+        observations = merged_df[merged_df.source_company == source].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
         observations_df = getValuesForTree(observations_df,observation_onto_df)
@@ -228,7 +228,7 @@ def findings(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and organ_normalised == %s)' %(category.strip(), tmp_list))
+            queryList.append('(source_company == \'%s\' and organ_normalised == %s)' %(category.strip(), tmp_list))
         queryDict['organs'] = ' and '.join(list(queryList))
 
     # Observations
@@ -245,7 +245,7 @@ def findings(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation_normalised == %s)' %(category.strip(), tmp_list))
+            queryList.append('(source_company == \'%s\' and observation_normalised == %s)' %(category.strip(), tmp_list))
         queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
@@ -262,7 +262,7 @@ def findings(request):
     #     queryList = []
     #     for category in tmp_dict:
     #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #         queryList.append('(source_company == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
     #     queryDict['grades'] = ' and '.join(list(queryList))
 
     #####################
@@ -277,7 +277,7 @@ def findings(request):
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
-    sources = filtered.source.dropna().unique().tolist()
+    sources = filtered.source_company.dropna().unique().tolist()
 
     optionsDict = {}
     if not filtered.empty:
@@ -293,7 +293,7 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['organs'] = {}
         for source in sources:
-            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source_company == source].organ_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
             organs_df = getValuesForTree(organs_df,organ_onto_df)
@@ -311,7 +311,7 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = {}
         for source in sources:
-            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source_company == source].observation_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
             observations_df = getValuesForTree(observations_df,observation_onto_df)
@@ -816,7 +816,7 @@ def plot(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
+            queryList.append('(source_company == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
         queryDict['organs'] = ' and '.join(list(queryList))
 
     # Observations
@@ -833,7 +833,7 @@ def plot(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
+            queryList.append('(source_company == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
         queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
