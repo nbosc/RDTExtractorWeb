@@ -19,7 +19,7 @@ study_df = pd.read_pickle("API/static/data/study.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain',
+                               'normalised_species', 'normalised_strain', 'source_company',
                                'exposure_period_days', 'report_number']],
                      findings_df[['study_id','source', 'observation_normalised', 'grade', 'organ_normalised', 'dose',
                                 'relevance', 'normalised_sex']],
@@ -286,8 +286,6 @@ def findings(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
-            print ("------------111-----------")
-            print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
@@ -872,8 +870,6 @@ def plot(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
-            print ("------------111-----------")
-            print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
