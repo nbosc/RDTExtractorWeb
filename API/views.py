@@ -102,17 +102,18 @@ def initFindings(request):
     optionsDict['organs'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
-        organs = merged_df[merged_df.source == source].organ_normalised.dropna().unique().tolist()
+
+        organs = merged_df[merged_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+        organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
         organs_df = getValuesForTree(organs_df,organ_onto_df)
         relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
         optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-        observations = merged_df[merged_df.source == source].observation_normalised.dropna().unique().tolist()
+        observations = merged_df[merged_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+        observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
         observations_df = getValuesForTree(observations_df,observation_onto_df)
         relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
@@ -286,18 +287,16 @@ def findings(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
-            print ("------------111-----------")
             print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
         optionsDict['organs'] = {}
         for source in sources:
-
-            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
-            organs_df = getValuesForTree(organs_df,organ_onto_df)
+            organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
+            organs_df = getValuesForTree(organs_df, organ_onto_df)
             relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
             parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
             optionsDict['organs'][source] = create_dictionary(relations, parents)
@@ -312,10 +311,10 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = {}
         for source in sources:
-            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
-            observations_df = getValuesForTree(observations_df,observation_onto_df)
+            observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
+            observations_df = getValuesForTree(observations_df, observation_onto_df)
             relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
             parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
             optionsDict['observations'][source] = create_dictionary(relations, parents)
@@ -870,7 +869,7 @@ def plot(request):
     y=plot_info.values
 
     results = {
-        'x': filtered.normalised_species,
+        'x': x,
         'y': y
     }
 
