@@ -21,8 +21,8 @@ observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                                'normalised_species', 'normalised_strain', 'source_company',
                                'exposure_period_days', 'report_number']],
-                     findings_df[['study_id', 'observation_normalised', 'organ_normalised', 
-                                'dose', 'source', 'relevance', 'normalised_sex']],
+                     findings_df[['study_id','source', 'observation_normalised', 'grade', 'organ_normalised', 'dose',
+                                'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
                      sort=False)
 merged_df = pd.merge(merged_df,
@@ -33,6 +33,310 @@ merged_df = pd.merge(merged_df,
 
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
+
+def runFilter(request, getOptions=False):
+
+    global merged_df
+
+    filtered_tmp = merged_df[:]
+
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
+
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+
+    # Exposure
+    min_exposure = request.GET.get("min_exposure")
+    max_exposure = request.GET.get("max_exposure")
+    if min_exposure and max_exposure:
+        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
+                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
+
+    queryDict = {}
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
+    # Pharmacological action
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        queryDict['species'] = 'normalised_species == @all_species'
+
+    ##
+    ## Filter organs, observations and grades by category
+    ##
+
+    # Organs
+    all_organs = request.GET.getlist("organs")
+    if len(all_organs) > 0:
+        all_organs = all_organs[0].split(', ')
+        tmp_dict = {}
+        for v in all_organs:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and organ_normalised == %s)' %(category.strip(), tmp_list))
+        queryDict['organs'] = ' and '.join(list(queryList))
+
+    # Observations
+    all_observations = request.GET.getlist("observations")
+    if len(all_observations) > 0:
+        all_observations = all_observations[0].split(', ')
+        tmp_dict = {}
+        for v in all_observations:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and observation_normalised == %s)' %(category.strip(), tmp_list))
+        queryDict['observations'] = ' and '.join(list(queryList))
+
+    # Grade
+    # all_grades = request.GET.getlist("grade")
+    # if len(all_grades) > 0:
+    #     all_grades = all_grades[0].split(', ')
+    #     tmp_dict = {}
+    #     for v in all_grades:
+    #         category, val = v.split(' | ')
+    #         if category not in tmp_dict:
+    #             tmp_dict[category] = [val]
+    #         else:
+    #             tmp_dict[category].append(val)
+    #     queryList = []
+    #     for category in tmp_dict:
+    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #     queryDict['grades'] = ' and '.join(list(queryList))
+
+    #####################
+    # Apply all filters #
+    #####################
+    query_string = ''
+    if queryDict != {}:
+        query_string = ' and '.join(list(queryDict.values()))
+        filtered = filtered_tmp.query(query_string)
+    else:
+        filtered = filtered_tmp[:]
+
+    optionsDict = {}
+    if getOptions:
+        sources = filtered.source.dropna().unique().tolist()
+        if not filtered.empty:
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('organs', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['organs'] = {}
+            for source in sources:
+                organs = tmp_df[tmp_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
+                # Create nested dictionary for angular treeviews
+                organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
+                organs_df = getValuesForTree(organs_df, organ_onto_df)
+                relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+                parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+                optionsDict['organs'][source] = create_dictionary(relations, parents)
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('observations', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['observations'] = {}
+            for source in sources:
+                observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
+                # Create nested dictionary for angular treeviews
+                observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
+                observations_df = getValuesForTree(observations_df, observation_onto_df)
+                relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+                parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+                optionsDict['observations'][source] = create_dictionary(relations, parents)
+
+            # tmp_dict = copy.deepcopy(queryDict)
+            # tmp_dict.pop('grade', None)
+            # valuesL = list(tmp_dict.values())
+            # if len(valuesL) > 0:
+            #     query_string = ' and '.join(valuesL)
+            #     tmp_df = filtered_tmp.query(query_string)
+            # else:
+            #     tmp_df = filtered_tmp
+            # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+            # optionsDict['grade'].sort()
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('pharmacological_action', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+            optionsDict['pharmacological_action'].sort()
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('cas_number', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
+            optionsDict['cas_number'].sort()
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('compound_name', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
+            optionsDict['compound_name'].sort()
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('routes', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
+            optionsDict['routes'].sort()
+
+            tmp_dict = copy.deepcopy(queryDict)
+            tmp_dict.pop('species', None)
+            valuesL = list(tmp_dict.values())
+            if len(valuesL) > 0:
+                query_string = ' and '.join(valuesL)
+                tmp_df = filtered_tmp.query(query_string)
+            else:
+                tmp_df = filtered_tmp
+            optionsDict['species'] = tmp_df.normalised_species.dropna().unique().tolist()
+            optionsDict['species'].sort()
+
+            exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
+            exposure_range.sort()
+            optionsDict['exposure_min'] = int(exposure_range[0])
+            optionsDict['exposure_max'] = int(exposure_range[-1])
+
+            optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+            optionsDict['sex'].sort()
+
+    return filtered, optionsDict
+
+def getTableData(df, page=1):
+
+    ##############
+    # Pagination #
+    ##############
+
+    if page != 0:
+        init = (int(page) - 1) * 10
+        end = init + 10
+    else:
+        init = 0
+        end = len(filtered)
+
+    num_pages = int(len(filtered) / 10)
+
+    # Range of pages to show
+    if page < 4:
+        previous = 0
+        nexts = 7
+    elif page > (num_pages - 4):
+
+        previous = num_pages - 7
+        nexts = num_pages
+    else:
+        previous = page - 4
+        nexts = page + 3
+    range_pages = range(1, num_pages + 1)[previous:nexts]
+    previous_page = page - 1
+    next_page = page + 1
+
+    if (next_page >= num_pages):
+        next_page = 0
+
+    #############
+    # Aggregate #
+    #############
+
+    group_df = filtered.groupby(('subst_id'))
+    print (group_df)
+    # Get the number of studies per substance
+    count_df = group_df.study_id.nunique().to_frame().reset_index()
+    print (count_df)
+    # Get the list of sudies IDs
+    # studies_list_df = group_df.report_number.apply(lambda x: '; '.join(set(x))).reset_index()
+    # Get the global dose range per substance
+    range_df = filtered[filtered.dose > 0]
+    range_df = range_df.groupby(('subst_id')).dose.apply(get_stats).unstack().reset_index()
+    # Get all stats into a single dataframe
+    stats_df = pd.merge(count_df, range_df, how='inner', on='subst_id', 
+                        left_index=False, right_index=False, sort=False)
+    # stats_df = pd.merge(stats_df, studies_list_df, how='left', on='subst_id', 
+    #                     left_index=False, right_index=False, sort=False)
+    stats_df.columns = ['subst_id', 'study_count', 'dose_max', 'dose_min'] #, 
+                        # 'report_number_list']
+    print (stats_df)
+
+    # output = filtered[init:end].fillna(value="-").to_dict('records')
+    output = stats_df[init:end].fillna(value="-").to_dict('records')
+
+def getPlotData(df, request):
+    plot_info = filtered.groupby(['normalised_species'])['normalised_species'].count()
+    x = plot_info.index
+    y = plot_info.values
+
+    # results = {
+    #     'x': x,
+    #     'y': y,
+    #     'allOptions': optionsDict,
+    #     'num_studies': num_studies,
+    #     'num_structures': num_structures
+    # }
+
+    return (x,y)
 
 @api_view(['GET'])
 def source(request):
@@ -105,17 +409,18 @@ def initFindings(request):
     optionsDict['organs'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
-        organs = merged_df[merged_df.source == source].organ_normalised.dropna().unique().tolist()
+
+        organs = merged_df[merged_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+        organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
         organs_df = getValuesForTree(organs_df,organ_onto_df)
         relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
         optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-        observations = merged_df[merged_df.source == source].observation_normalised.dropna().unique().tolist()
+        observations = merged_df[merged_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+        observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
         observations_df = getValuesForTree(observations_df,observation_onto_df)
         relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
         parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
@@ -173,6 +478,30 @@ def initFindings(request):
         'page': page,
         'previous_page': previous_page,
         'next_page': next_page,
+        'num_studies': num_studies,
+        'num_structures': num_structures
+    }
+
+    send_data = FindingSerializer(results, many=False).data
+    return Response(send_data)
+
+@api_view(['GET'])
+def updateSidebar(request):
+
+    filtered_df, optionsDict = runFilter(request, getOptions=True)
+
+    tab = request.GET.get("tab")
+    if tab == 'table':
+        output = getTableData(filtered_df, 1)
+    elif tab == 'plot':
+        output = getPlotData(filtered_df, request)
+
+    num_studies = filtered_df.study_id.nunique()
+    num_structures = filtered_df.subst_id.nunique()
+
+    results = {
+        'data': output,
+        'allOptions': optionsDict,
         'num_studies': num_studies,
         'num_structures': num_structures
     }
@@ -309,10 +638,10 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['organs'] = {}
         for source in sources:
-            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
-            organs_df = getValuesForTree(organs_df,organ_onto_df)
+            organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
+            organs_df = getValuesForTree(organs_df, organ_onto_df)
             relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
             parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
             optionsDict['organs'][source] = create_dictionary(relations, parents)
@@ -327,10 +656,10 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = {}
         for source in sources:
-            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
-            observations_df = getValuesForTree(observations_df,observation_onto_df)
+            observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
+            observations_df = getValuesForTree(observations_df, observation_onto_df)
             relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
             parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
             optionsDict['observations'][source] = create_dictionary(relations, parents)
@@ -789,17 +1118,246 @@ def getValuesForTree(df_filter,onto_tree_df):
 
 @api_view(['GET'])
 def plot(request):
+    global merged_df, compound_df
 
-    (filtered, queryDict) = runFilter(request)
+    filtered_tmp = merged_df[:]
 
-    plot_info=filtered.groupby(['normalised_species'])['normalised_species'].count()
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
 
-    x=plot_info.index
-    y=plot_info.values
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+
+    # Exposure
+    min_exposure = request.GET.get("min_exposure")
+    max_exposure = request.GET.get("max_exposure")
+    if min_exposure and max_exposure:
+        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
+                                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
+
+    queryDict = {}
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+
+    # Pharmacological action
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        queryDict['species'] = 'normalised_species == @all_species'
+
+    ##
+    ## Filter organs, observations and grades by category
+    ##
+
+    # Organs
+    all_organs = request.GET.getlist("organs")
+    if len(all_organs) > 0:
+        all_organs = all_organs[0].split(', ')
+        tmp_dict = {}
+        for v in all_organs:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
+        queryDict['organs'] = ' and '.join(list(queryList))
+
+    # Observations
+    all_observations = request.GET.getlist("observations")
+    if len(all_observations) > 0:
+        all_observations = all_observations[0].split(', ')
+        tmp_dict = {}
+        for v in all_observations:
+            category, val = v.split(' | ')
+            if category not in tmp_dict:
+                tmp_dict[category] = [val]
+            else:
+                tmp_dict[category].append(val)
+        queryList = []
+        for category in tmp_dict:
+            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
+            queryList.append('(source == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
+        queryDict['observations'] = ' and '.join(list(queryList))
+
+    # Grade
+    # all_grades = request.GET.getlist("grade")
+    # if len(all_grades) > 0:
+    #     all_grades = all_grades[0].split(', ')
+    #     tmp_dict = {}
+    #     for v in all_grades:
+    #         category, val = v.split(' | ')
+    #         if category not in tmp_dict:
+    #             tmp_dict[category] = [val]
+    #         else:
+    #             tmp_dict[category].append(val)
+    #     queryList = []
+    #     for category in tmp_dict:
+    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
+    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
+    #     queryDict['grades'] = ' and '.join(list(queryList))
+
+    #####################
+    # Apply all filters #
+    #####################
+    query_string = ''
+    if queryDict != {}:
+        query_string = ' and '.join(list(queryDict.values()))
+        filtered = filtered_tmp.query(query_string)
+    else:
+        filtered = filtered_tmp[:]
+
+    num_studies = len(filtered.study_id.unique().tolist())
+    num_structures = len(filtered.subst_id.unique().tolist())
+    sources = filtered.source.dropna().unique().tolist()
+
+    optionsDict = {}
+    if not filtered.empty:
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('organs', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['organs'] = {}
+        for source in sources:
+            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+            organs_df = getValuesForTree(organs_df, organ_onto_df)
+            relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+            optionsDict['organs'][source] = create_dictionary(relations, parents)
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('observations', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['observations'] = {}
+        for source in sources:
+            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+            observations_df = getValuesForTree(observations_df, observation_onto_df)
+            relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(
+                observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+            optionsDict['observations'][source] = create_dictionary(relations, parents)
+
+        # tmp_dict = copy.deepcopy(queryDict)
+        # tmp_dict.pop('grade', None)
+        # valuesL = list(tmp_dict.values())
+        # if len(valuesL) > 0:
+        #     query_string = ' and '.join(valuesL)
+        #     tmp_df = filtered_tmp.query(query_string)
+        # else:
+        #     tmp_df = filtered_tmp
+        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        # optionsDict['grade'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('pharmacological_action', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+        optionsDict['pharmacological_action'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('cas_number', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
+        optionsDict['cas_number'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('compound_name', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
+        optionsDict['compound_name'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('routes', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
+        optionsDict['routes'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('species', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['species'] = tmp_df.normalised_species.dropna().unique().tolist()
+        optionsDict['species'].sort()
+
+        exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
+        exposure_range.sort()
+        optionsDict['exposure_min'] = int(exposure_range[0])
+        optionsDict['exposure_max'] = int(exposure_range[-1])
+
+        optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'].sort()
+
+
+    plot_info = filtered.groupby(['normalised_species'])['normalised_species'].count()
+    x = plot_info.index
+    y = plot_info.values
 
     results = {
         'x': x,
-        'y': y
+        'y': y,
+        'allOptions': optionsDict,
+        'num_studies': num_studies,
+        'num_structures': num_structures
     }
 
     return Response(results)
