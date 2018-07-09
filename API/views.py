@@ -19,10 +19,10 @@ study_df = pd.read_pickle("API/static/data/study.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain',
+                               'normalised_species', 'normalised_strain', 'source_company',
                                'exposure_period_days', 'report_number']],
-                     findings_df[['study_id', 'source', 'observation_normalised', 'grade',
-                                  'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                     findings_df[['study_id','source', 'observation_normalised', 'grade', 'organ_normalised', 'dose',
+                                'relevance', 'normalised_sex']],
                      how='left', on='study_id', left_index=False, right_index=False,
                      sort=False)
 merged_df = pd.merge(merged_df,
@@ -287,7 +287,6 @@ def findings(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
-            print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
@@ -396,6 +395,8 @@ def findings(request):
     ##############
     # Pagination #
     ##############
+
+    print ('got this far')
 
     page = int(request.GET.get("page"))
 
@@ -747,8 +748,6 @@ def getValuesForTree(df_filter,onto_tree_df):
 
 @api_view(['GET'])
 def plot(request):
-
-
     global merged_df, compound_df
 
     filtered_tmp = merged_df[:]
@@ -861,16 +860,134 @@ def plot(request):
     else:
         filtered = filtered_tmp[:]
 
-        
+    num_studies = len(filtered.study_id.unique().tolist())
+    num_structures = len(filtered.subst_id.unique().tolist())
+    sources = filtered.source.dropna().unique().tolist()
 
-    plot_info=filtered.groupby(['normalised_species'])['normalised_species'].count()
+    optionsDict = {}
+    if not filtered.empty:
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('organs', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['organs'] = {}
+        for source in sources:
+            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
+            organs_df = getValuesForTree(organs_df, organ_onto_df)
+            relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+            optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-    x=plot_info.index
-    y=plot_info.values
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('observations', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['observations'] = {}
+        for source in sources:
+            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            # Create nested dictionary for angular treeviews
+            observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
+            observations_df = getValuesForTree(observations_df, observation_onto_df)
+            relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            parents = set(relations.keys()) & set(
+                observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+            optionsDict['observations'][source] = create_dictionary(relations, parents)
+
+        # tmp_dict = copy.deepcopy(queryDict)
+        # tmp_dict.pop('grade', None)
+        # valuesL = list(tmp_dict.values())
+        # if len(valuesL) > 0:
+        #     query_string = ' and '.join(valuesL)
+        #     tmp_df = filtered_tmp.query(query_string)
+        # else:
+        #     tmp_df = filtered_tmp
+        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
+        # optionsDict['grade'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('pharmacological_action', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+        optionsDict['pharmacological_action'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('cas_number', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
+        optionsDict['cas_number'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('compound_name', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
+        optionsDict['compound_name'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('routes', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
+        optionsDict['routes'].sort()
+
+        tmp_dict = copy.deepcopy(queryDict)
+        tmp_dict.pop('species', None)
+        valuesL = list(tmp_dict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = filtered_tmp.query(query_string)
+        else:
+            tmp_df = filtered_tmp
+        optionsDict['species'] = tmp_df.normalised_species.dropna().unique().tolist()
+        optionsDict['species'].sort()
+
+        exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
+        exposure_range.sort()
+        optionsDict['exposure_min'] = int(exposure_range[0])
+        optionsDict['exposure_max'] = int(exposure_range[-1])
+
+        optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'].sort()
+
+
+    plot_info = filtered.groupby(['normalised_species'])['normalised_species'].count()
+    x = plot_info.index
+    y = plot_info.values
 
     results = {
         'x': x,
-        'y': y
+        'y': y,
+        'allOptions': optionsDict,
+        'num_studies': num_studies,
+        'num_structures': num_structures
     }
 
     return Response(results)
