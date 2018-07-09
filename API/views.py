@@ -31,6 +31,9 @@ merged_df = pd.merge(merged_df,
                      how='left', on='subst_id', left_index=False, right_index=False,
                      sort=False)
 
+def get_stats(group):
+    return {'min': group.min(), 'max': group.max()}
+
 @api_view(['GET'])
 def source(request):
     global find_df
@@ -73,8 +76,8 @@ def initFindings(request):
     optionsDict['sources'] = merged_df.source.dropna().unique().tolist()
     optionsDict['sources'].sort()
 
-    optionsDict['grades'] = merged_df.grade.dropna().unique().tolist()
-    optionsDict['grades'].sort()
+    # optionsDict['grades'] = merged_df.grade.dropna().unique().tolist()
+    # optionsDict['grades'].sort()
 
     optionsDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
     optionsDict['routes'].sort()
@@ -141,8 +144,25 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    # output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
-    #                   on='subst_id', left_index=False, right_index=False, sort=False)
+    #############
+    # Aggregate #
+    #############
+    group_df = merged_df.groupby(('subst_id'))
+    # Get the number of studies per substance
+    count_df = group_df.study_id.nunique().to_frame().reset_index()
+    # Get the list of sudies IDs
+    # studies_list_df = group_df.report_number.apply(lambda x: '; '.join(set(x))).reset_index()
+    # Get the global dose range per substance
+    range_df = merged_df[merged_df.dose > 0]
+    range_df = range_df.groupby(('subst_id')).dose.apply(get_stats).unstack().reset_index()
+    # Get all stats into a single dataframe
+    stats_df = pd.merge(count_df, range_df, how='inner', on='subst_id', 
+                        left_index=False, right_index=False, sort=False)
+    # stats_df = pd.merge(stats_df, studies_list_df, how='left', on='subst_id', 
+    #                     left_index=False, right_index=False, sort=False)
+    stats_df.columns = ['subst_id', 'study_count', 'dose_max', 'dose_min'] #, 
+                        # 'report_number_list']
+
     output = merged_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
@@ -163,7 +183,7 @@ def initFindings(request):
 @api_view(['GET'])
 def findings(request):
 
-    global merged_df, compound_df
+    global merged_df
 
     filtered_tmp = merged_df[:]
 
@@ -275,8 +295,6 @@ def findings(request):
     else:
         filtered = filtered_tmp[:]
 
-    num_studies = len(filtered.study_id.unique().tolist())
-    num_structures = len(filtered.subst_id.unique().tolist())
     sources = filtered.source.dropna().unique().tolist()
 
     optionsDict = {}
@@ -286,8 +304,6 @@ def findings(request):
         valuesL = list(tmp_dict.values())
         if len(valuesL) > 0:
             query_string = ' and '.join(valuesL)
-            print ("------------111-----------")
-            print(query_string)
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
@@ -397,8 +413,6 @@ def findings(request):
     # Pagination #
     ##############
 
-    print ('got this far')
-
     page = int(request.GET.get("page"))
 
     if page != 0:
@@ -428,10 +442,36 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    # output = pd.merge(filtered[init:end], compound_df[['subst_id', 'smiles']], how='left', on='subst_id',
-    #                   left_index=False,
-    #                   right_index=False, sort=False)
-    output = filtered[init:end].fillna(value="-").to_dict('records')
+    #############
+    # Aggregate #
+    #############
+
+    num_studies = len(filtered.study_id.unique().tolist())
+    num_structures = len(filtered.subst_id.unique().tolist())
+
+    print (num_studies, num_structures)
+
+    group_df = filtered.groupby(('subst_id'))
+    print (group_df)
+    # Get the number of studies per substance
+    count_df = group_df.study_id.nunique().to_frame().reset_index()
+    print (count_df)
+    # Get the list of sudies IDs
+    # studies_list_df = group_df.report_number.apply(lambda x: '; '.join(set(x))).reset_index()
+    # Get the global dose range per substance
+    range_df = filtered[filtered.dose > 0]
+    range_df = range_df.groupby(('subst_id')).dose.apply(get_stats).unstack().reset_index()
+    # Get all stats into a single dataframe
+    stats_df = pd.merge(count_df, range_df, how='inner', on='subst_id', 
+                        left_index=False, right_index=False, sort=False)
+    # stats_df = pd.merge(stats_df, studies_list_df, how='left', on='subst_id', 
+    #                     left_index=False, right_index=False, sort=False)
+    stats_df.columns = ['subst_id', 'study_count', 'dose_max', 'dose_min'] #, 
+                        # 'report_number_list']
+    print (stats_df)
+
+    # output = filtered[init:end].fillna(value="-").to_dict('records')
+    output = stats_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
         'data': output,
@@ -750,120 +790,7 @@ def getValuesForTree(df_filter,onto_tree_df):
 @api_view(['GET'])
 def plot(request):
 
-
-    global merged_df, compound_df
-
-    filtered_tmp = merged_df[:]
-
-    # Relevancy
-    relevant = request.GET.get("treatmentRelated")
-    if relevant:
-        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
-
-    # Sex
-    sex = request.GET.get("sex")
-    if sex:
-        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
-
-    # Exposure
-    min_exposure = request.GET.get("min_exposure")
-    max_exposure = request.GET.get("max_exposure")
-    if min_exposure and max_exposure:
-        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
-                                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
-
-    queryDict = {}
-    # Pharmacological action
-    all_pharm = request.GET.getlist("pharmacological_action")
-    if len(all_pharm) > 0:
-        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
-
-    # Pharmacological action
-    all_compound_name = request.GET.getlist("compound_name")
-    if len(all_compound_name) > 0:
-        queryDict['compound_name'] = 'common_name == @all_compound_name'
-
-    # CAS number
-    all_cas_number = request.GET.getlist("cas_number")
-    if len(all_cas_number) > 0:
-        queryDict['cas_number'] = 'cas_number == @all_cas_number'
-
-    # Administration route
-    all_routes = request.GET.getlist("routes")
-    if len(all_routes) > 0:
-        queryDict['routes'] = 'normalised_administration_route == @all_routes'
-
-    # Species
-    all_species = request.GET.getlist("species")
-    if len(all_species) > 0:
-        queryDict['species'] = 'normalised_species == @all_species'
-
-    ##
-    ## Filter organs, observations and grades by category
-    ##
-
-    # Organs
-    all_organs = request.GET.getlist("organs")
-    if len(all_organs) > 0:
-        all_organs = all_organs[0].split(', ')
-        tmp_dict = {}
-        for v in all_organs:
-            category, val = v.split(' | ')
-            if category not in tmp_dict:
-                tmp_dict[category] = [val]
-            else:
-                tmp_dict[category].append(val)
-        queryList = []
-        for category in tmp_dict:
-            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
-        queryDict['organs'] = ' and '.join(list(queryList))
-
-    # Observations
-    all_observations = request.GET.getlist("observations")
-    if len(all_observations) > 0:
-        all_observations = all_observations[0].split(', ')
-        tmp_dict = {}
-        for v in all_observations:
-            category, val = v.split(' | ')
-            if category not in tmp_dict:
-                tmp_dict[category] = [val]
-            else:
-                tmp_dict[category].append(val)
-        queryList = []
-        for category in tmp_dict:
-            tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
-        queryDict['observations'] = ' and '.join(list(queryList))
-
-    # Grade
-    # all_grades = request.GET.getlist("grade")
-    # if len(all_grades) > 0:
-    #     all_grades = all_grades[0].split(', ')
-    #     tmp_dict = {}
-    #     for v in all_grades:
-    #         category, val = v.split(' | ')
-    #         if category not in tmp_dict:
-    #             tmp_dict[category] = [val]
-    #         else:
-    #             tmp_dict[category].append(val)
-    #     queryList = []
-    #     for category in tmp_dict:
-    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
-    #     queryDict['grades'] = ' and '.join(list(queryList))
-
-    #####################
-    # Apply all filters #
-    #####################
-    query_string = ''
-    if queryDict != {}:
-        query_string = ' and '.join(list(queryDict.values()))
-        filtered = filtered_tmp.query(query_string)
-    else:
-        filtered = filtered_tmp[:]
-
-        
+    (filtered, queryDict) = runFilter(request)
 
     plot_info=filtered.groupby(['normalised_species'])['normalised_species'].count()
 
