@@ -18,6 +18,7 @@ def get_stats(group):
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 # Get the dose range for each study
 info_df = pd.read_pickle("API/static/data/aminals_per_group_per_sex.pkl")
+info_df.study_id = info_df.study_id.astype(int).astype(str)
 range_df = info_df[info_df.dose > 0]
 range_df = range_df.groupby(('study_id')).dose.apply(get_stats).unstack().reset_index()[['study_id','max','min']]
 range_df.columns = ['study_id','dose_max','dose_min']
@@ -25,24 +26,26 @@ range_df.columns = ['study_id','dose_max','dose_min']
 # Load dataframes with information on studies, compounds and findings
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
+findings_df.study_id = findings_df.study_id.astype(int).astype(str)
 study_df = pd.read_pickle("API/static/data/study.pkl")
+study_df.study_id = study_df.study_id.astype(int).astype(str)
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
-merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain', 'source_company',
-                               'exposure_period_days', 'report_number']],
-                     findings_df[['study_id','source', 'observation_normalised', 'grade', 'organ_normalised', 'dose',
-                                'relevance', 'normalised_sex']],
-                     how='left', on='study_id', left_index=False, right_index=False,
-                     sort=False)
-merged_df = pd.merge(merged_df,
-                     compound_df[['subst_id', 'smiles', 'common_name', 'cas_number',
-                                    'pharmacological_action']],
-                     how='left', on='subst_id', left_index=False, right_index=False,
-                     sort=False)
-merged_df = pd.merge(merged_df, range_df,
-                     how='left', on='study_id', left_index=False, right_index=False,
-                     sort=False)
+study_df = pd.merge(study_df, range_df,
+                    how='left', on='study_id', left_index=False, right_index=False,
+                    sort=False)
+study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
+                            'normalised_species', 'normalised_strain', 'source_company',
+                            'exposure_period_days', 'report_number']],
+                         compound_df[['subst_id', 'smiles', 'common_name', 'cas_number', 
+                            'pharmacological_action']],
+                         how='left', on='subst_id', left_index=False, right_index=False,
+                         sort=False)
+all_df = pd.merge(study_cmpd_df,
+                  findings_df[['study_id','source', 'observation_normalised', 'grade', 
+                                'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                  how='left', on='study_id', left_index=False, right_index=False,
+                  sort=False)
 
 @api_view(['GET'])
 def source(request):
@@ -76,38 +79,38 @@ def source(request):
 
 @api_view(['GET'])
 def initFindings(request):
-    global merged_df
+    global all_df, study_df
 
-    num_studies = len(merged_df.study_id.unique().tolist())
-    num_structures = len(merged_df.subst_id.unique().tolist())
+    num_studies = len(all_df.study_id.unique().tolist())
+    num_structures = len(all_df.subst_id.unique().tolist())
 
     optionsDict = {}
 
-    optionsDict['sources'] = merged_df.source.dropna().unique().tolist()
+    optionsDict['sources'] = all_df.source.dropna().unique().tolist()
     optionsDict['sources'].sort()
 
-    # optionsDict['grades'] = merged_df.grade.dropna().unique().tolist()
+    # optionsDict['grades'] = all_df.grade.dropna().unique().tolist()
     # optionsDict['grades'].sort()
 
-    optionsDict['routes'] = merged_df.normalised_administration_route.dropna().unique().tolist()
+    optionsDict['routes'] = all_df.normalised_administration_route.dropna().unique().tolist()
     optionsDict['routes'].sort()
 
-    optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+    optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
     optionsDict['sex'].sort()
 
-    optionsDict['species'] = merged_df.normalised_species.dropna().unique().tolist()
+    optionsDict['species'] = all_df.normalised_species.dropna().unique().tolist()
     optionsDict['species'].sort()
 
-    optionsDict['pharmacological_action'] = merged_df.pharmacological_action.dropna().unique().tolist()
+    optionsDict['pharmacological_action'] = all_df.pharmacological_action.dropna().unique().tolist()
     optionsDict['pharmacological_action'].sort()
 
-    optionsDict['compound_name'] = merged_df.common_name.dropna().unique().tolist()
+    optionsDict['compound_name'] = all_df.common_name.dropna().unique().tolist()
     optionsDict['compound_name'].sort()
 
-    optionsDict['cas_number'] = merged_df.cas_number.dropna().unique().tolist()
+    optionsDict['cas_number'] = all_df.cas_number.dropna().unique().tolist()
     optionsDict['cas_number'].sort()
 
-    exposure_range = merged_df.exposure_period_days.dropna().unique().tolist()
+    exposure_range = all_df.exposure_period_days.dropna().unique().tolist()
     exposure_range.sort()
     optionsDict['exposure_min'] = int(exposure_range[0])
     optionsDict['exposure_max'] = int(exposure_range[-1])
@@ -115,8 +118,7 @@ def initFindings(request):
     optionsDict['organs'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
-
-        organs = merged_df[merged_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
+        organs = all_df[all_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
         organs_df = getValuesForTree(organs_df,organ_onto_df)
@@ -124,7 +126,7 @@ def initFindings(request):
         parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
         optionsDict['organs'][source] = create_dictionary(relations, parents)
 
-        observations = merged_df[merged_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
+        observations = all_df[all_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
         observations_df = getValuesForTree(observations_df,observation_onto_df)
@@ -137,7 +139,7 @@ def initFindings(request):
     ##############
     page = 1
     init = 0
-    total = len(merged_df)
+    total = len(study_df)
     if total < 10:
         end = total
         num_pages = total
@@ -155,26 +157,13 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    #############
-    # Aggregate #
-    #############
-    group_df = merged_df.groupby(('subst_id'))
-    # Get the number of studies per substance
-    count_df = group_df.study_id.nunique().to_frame().reset_index()
-    # Get the list of sudies IDs
-    # studies_list_df = group_df.report_number.apply(lambda x: '; '.join(set(x))).reset_index()
-    # Get the global dose range per substance
-    range_df = merged_df[merged_df.dose > 0]
-    range_df = range_df.groupby(('subst_id')).dose.apply(get_stats).unstack().reset_index()
-    # Get all stats into a single dataframe
-    stats_df = pd.merge(count_df, range_df, how='inner', on='subst_id', 
-                        left_index=False, right_index=False, sort=False)
-    # stats_df = pd.merge(stats_df, studies_list_df, how='left', on='subst_id', 
-    #                     left_index=False, right_index=False, sort=False)
-    stats_df.columns = ['subst_id', 'study_count', 'dose_max', 'dose_min'] #, 
-                        # 'report_number_list']
-
-    output = merged_df[init:end].fillna(value="-").to_dict('records')
+    output = study_df[:]
+    output = output.groupby('subst_id', as_index=False)
+    s = output.study_id.nunique().to_frame()
+    s.columns = ['study_num']
+    a = output.agg(lambda x : '|'.join(x))
+    output = pd.merge(a, s, right_index=True, left_index=True)
+    output = output[init:end].fillna(value="-").to_dict('records')
 
     results = {
         'data': output,
@@ -194,9 +183,9 @@ def initFindings(request):
 @api_view(['GET'])
 def findings(request):
 
-    global merged_df
+    global all_df, study_df
 
-    filtered_tmp = merged_df[:]
+    filtered_tmp = all_df[:]
 
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
@@ -417,8 +406,24 @@ def findings(request):
         optionsDict['exposure_min'] = int(exposure_range[0])
         optionsDict['exposure_max'] = int(exposure_range[-1])
 
-        optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
         optionsDict['sex'].sort()
+
+    #############
+    # Aggregate #
+    #############
+
+    num_studies = len(filtered.study_id.unique().tolist())
+    num_structures = len(filtered.subst_id.unique().tolist())
+
+    output = study_df[:]
+    output = output[output.study_id.isin(filtered.study_id)]
+    output = output.groupby('subst_id', as_index=False)
+    s = output.study_id.nunique().to_frame()
+    s.columns = ['study_num']
+    a = output.agg(lambda x : '|'.join(x))
+    output = pd.merge(a, s, right_index=True, left_index=True)
+    output = output.groupby('subst_id', as_index=False).agg(lambda x : '|'.join(x))
 
     ##############
     # Pagination #
@@ -433,7 +438,7 @@ def findings(request):
         init = 0
         end = len(filtered)
 
-    num_pages = int(len(filtered) / 10)
+    num_pages = int(len(output) / 10)
 
     # Range of pages to show
     if page < 4:
@@ -453,36 +458,8 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    #############
-    # Aggregate #
-    #############
-
-    num_studies = len(filtered.study_id.unique().tolist())
-    num_structures = len(filtered.subst_id.unique().tolist())
-
-    print (num_studies, num_structures)
-
-    group_df = filtered.groupby(('subst_id'))
-    print (group_df)
-    # Get the number of studies per substance
-    count_df = group_df.study_id.nunique().to_frame().reset_index()
-    print (count_df)
-    # Get the list of sudies IDs
-    # studies_list_df = group_df.report_number.apply(lambda x: '; '.join(set(x))).reset_index()
-    # Get the global dose range per substance
-    range_df = filtered[filtered.dose > 0]
-    range_df = range_df.groupby(('subst_id')).dose.apply(get_stats).unstack().reset_index()
-    # Get all stats into a single dataframe
-    stats_df = pd.merge(count_df, range_df, how='inner', on='subst_id', 
-                        left_index=False, right_index=False, sort=False)
-    # stats_df = pd.merge(stats_df, studies_list_df, how='left', on='subst_id', 
-    #                     left_index=False, right_index=False, sort=False)
-    stats_df.columns = ['subst_id', 'study_count', 'dose_max', 'dose_min'] #, 
-                        # 'report_number_list']
-    print (stats_df)
-
     # output = filtered[init:end].fillna(value="-").to_dict('records')
-    output = stats_df[init:end].fillna(value="-").to_dict('records')
+    output = output[init:end].fillna(value="-").to_dict('records')
 
     results = {
         'data': output,
@@ -800,9 +777,9 @@ def getValuesForTree(df_filter,onto_tree_df):
 
 @api_view(['GET'])
 def plot(request):
-    global merged_df, compound_df
+    global all_df, compound_df
 
-    filtered_tmp = merged_df[:]
+    filtered_tmp = all_df[:]
 
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
@@ -1026,7 +1003,7 @@ def plot(request):
         optionsDict['exposure_min'] = int(exposure_range[0])
         optionsDict['exposure_max'] = int(exposure_range[-1])
 
-        optionsDict['sex'] = merged_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
         optionsDict['sex'].sort()
 
 
