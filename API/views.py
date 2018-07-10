@@ -9,7 +9,7 @@ import pandas as pd
 import json
 import copy
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import FindingSerializer
+from .serializers import FindingSerializer, InitFindingSerializer
 from API.utils import extract
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
@@ -19,7 +19,7 @@ study_df = pd.read_pickle("API/static/data/study.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 merged_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                               'normalised_species', 'normalised_strain', 'source_company',
+                               'normalised_species', 'normalised_strain', #'source_company',
                                'exposure_period_days', 'report_number']],
                      findings_df[['study_id','source', 'observation_normalised', 'grade', 'organ_normalised', 'dose',
                                 'relevance', 'normalised_sex']],
@@ -144,9 +144,15 @@ def initFindings(request):
 
     # output = pd.merge(merged_df[init:end], compound_df[['subst_id', 'smiles']], how='left',
     #                   on='subst_id', left_index=False, right_index=False, sort=False)
+
+    plot_info = merged_df.groupby(['normalised_species'])['normalised_species'].count()
+    x = plot_info.index
+    y = plot_info.values
     output = merged_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
+        'x': x,
+        'y': y,
         'data': output,
         'allOptions': optionsDict,
         'range_pages': range_pages,
@@ -158,7 +164,7 @@ def initFindings(request):
         'num_structures': num_structures
     }
 
-    send_data = FindingSerializer(results, many=False).data
+    send_data = InitFindingSerializer(results, many=False).data
     return Response(send_data)
 
 @api_view(['GET'])
