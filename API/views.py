@@ -17,7 +17,7 @@ def get_stats(group):
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 # Get the dose range for each study
-info_df = pd.read_pickle("API/static/data/aminals_per_group_per_sex.pkl")
+info_df = pd.read_pickle("API/static/data/animals_per_group_per_sex.pkl")
 info_df.study_id = info_df.study_id.astype(int).astype(str)
 range_df = info_df[info_df.dose > 0]
 range_df = range_df.groupby(('study_id')).dose.apply(get_stats).unstack().reset_index()[['study_id','max','min']]
