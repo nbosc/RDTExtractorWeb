@@ -159,13 +159,22 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-
     output = study_df[:]
-    output = output.groupby('subst_id', as_index=False)
-    s = output.study_id.nunique().to_frame()
-    s.columns = ['study_num']
-    a = output.agg(lambda x : '|'.join(x))
-    output = pd.merge(a, s, right_index=True, left_index=True)
+    d= {}
+    for column in output.columns:
+        if column == 'study_id':
+            d[column] = [lambda x : '|'.join(['%s' %y for y in x]), 'count']
+        elif column != 'subst_id':
+            d[column] = lambda x : '|'.join(['%s' %y for y in x])
+    output = output.groupby('subst_id', as_index=False).agg(d)
+    output = pd.DataFrame(output)
+    cols = []
+    for (col1, col2) in output.columns.values:
+        if col1 == 'study_id' and col2 == 'count':
+            cols.append('_'.join([col1, col2]))
+        else:
+            cols.append(col1)
+    output.columns = cols
     output = output[init:end].fillna(value="-").to_dict('records')
 
     results = {
@@ -180,7 +189,7 @@ def initFindings(request):
         'num_structures': num_structures
     }
 
-    send_data = InitFindingSerializer(results, many=False).data
+    send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
 @api_view(['GET'])
@@ -418,15 +427,24 @@ def findings(request):
 
     num_studies = len(filtered.study_id.unique().tolist())
     num_structures = len(filtered.subst_id.unique().tolist())
-
+    
     output = study_df[:]
     output = output[output.study_id.isin(filtered.study_id)]
-    output = output.groupby('subst_id', as_index=False)
-    s = output.study_id.nunique().to_frame()
-    s.columns = ['study_num']
-    a = output.agg(lambda x : '|'.join(x))
-    output = pd.merge(a, s, right_index=True, left_index=True)
-    output = output.groupby('subst_id', as_index=False).agg(lambda x : '|'.join(x))
+    d= {}
+    for column in output.columns:
+        if column == 'study_id':
+            d[column] = [lambda x : '|'.join(['%s' %y for y in x]), 'count']
+        elif column != 'subst_id':
+            d[column] = lambda x : '|'.join(['%s' %y for y in x])
+    output = output.groupby('subst_id', as_index=False).agg(d)
+    output = pd.DataFrame(output)
+    cols = []
+    for (col1, col2) in output.columns.values:
+        if col1 == 'study_id' and col2 == 'count':
+            cols.append('_'.join([col1, col2]))
+        else:
+            cols.append(col1)
+    output.columns = cols
 
     ##############
     # Pagination #
