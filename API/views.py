@@ -38,8 +38,8 @@ study_df = pd.merge(study_df, range_df,
 study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                             'normalised_species', 'normalised_strain', 'source_company',
                             'exposure_period_days', 'report_number']],
-                         compound_df[['subst_id', 'smiles', 'common_name', 'cas_number', 
-                            'pharmacological_action']],
+                         compound_df[['subst_id', 'smiles', 'status', 'common_name',
+                            'cas_number','pharmacological_action']],
                          how='left', on='subst_id', left_index=False, right_index=False,
                          sort=False)
 all_df = pd.merge(study_cmpd_df,
@@ -47,6 +47,26 @@ all_df = pd.merge(study_cmpd_df,
                                 'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
                   how='left', on='study_id', left_index=False, right_index=False,
                   sort=False)
+
+# Get the summary of data per single substance
+study_count_df = all_df[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
+study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+
+# Merge target/action
+withAction = compound_df[compound_df.action.notnull()]
+withAction['targetAction'] = withAction.target+' : '+withAction.action
+noAction = compound_df[~compound_df.action.notnull()]
+noAction['targetAction'] = noAction.target
+target_df = pd.concat([withAction, noAction], ignore_index=True)[['subst_id', 'targetAction']]
+target_df = target_df.groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+
+# Generate output dataframe
+subst_info_df = pd.merge(target_df, study_count_df, 
+                how='left', on='subst_id', left_index=False, right_index=False, 
+                sort=False)
+subst_info_df = subst_info_df.drop_duplicates()
 
 
 @api_view(['GET'])
@@ -81,7 +101,7 @@ def source(request):
 
 @api_view(['GET'])
 def initFindings(request):
-    global all_df, study_df
+    global all_df, compound_df, subst_info_df
 
     num_studies = len(all_df.study_id.unique().tolist())
     num_structures = len(all_df.subst_id.unique().tolist())
@@ -141,13 +161,13 @@ def initFindings(request):
     ##############
     page = 1
     init = 0
-    total = len(study_df)
-    if total < 10:
+    total = len(compound_df)
+    if total < 5:
         end = total
         num_pages = total
     else:
-        end = 10
-        num_pages = int(total / 10)
+        end = 5
+        num_pages = int(total / 5)
 
     # Range of pages to show
     previous = 0
@@ -159,22 +179,13 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = study_df[:]
-    d= {}
-    for column in output.columns:
-        if column == 'study_id':
-            d[column] = [lambda x : '|'.join(['%s' %y for y in x]), 'count']
-        elif column != 'subst_id':
-            d[column] = lambda x : '|'.join(['%s' %y for y in x])
-    output = output.groupby('subst_id', as_index=False).agg(d)
-    output = pd.DataFrame(output)
-    cols = []
-    for (col1, col2) in output.columns.values:
-        if col1 == 'study_id' and col2 == 'count':
-            cols.append('_'.join([col1, col2]))
-        else:
-            cols.append(col1)
-    output.columns = cols
+    output = pd.merge(compound_df, subst_info_df, 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
+    output.drop(['target', 'action'], axis=1, inplace=True)
+    output = output.drop_duplicates()
+    output.common_name = output.common_name.str.replace(', ', '\n')
+    output.pharmacological_action = output.pharmacological_action.str.replace(', ', '\n')
     output = output[init:end].fillna(value="-").to_dict('records')
 
     results = {
@@ -425,26 +436,19 @@ def findings(request):
     # Aggregate #
     #############
 
-    num_studies = len(filtered.study_id.unique().tolist())
-    num_structures = len(filtered.subst_id.unique().tolist())
+    num_studies = filtered.study_id.nunique()
+    num_structures = filtered.subst_id.nunique()
     
-    output = study_df[:]
-    output = output[output.study_id.isin(filtered.study_id)]
-    d= {}
-    for column in output.columns:
-        if column == 'study_id':
-            d[column] = [lambda x : '|'.join(['%s' %y for y in x]), 'count']
-        elif column != 'subst_id':
-            d[column] = lambda x : '|'.join(['%s' %y for y in x])
-    output = output.groupby('subst_id', as_index=False).agg(d)
-    output = pd.DataFrame(output)
-    cols = []
-    for (col1, col2) in output.columns.values:
-        if col1 == 'study_id' and col2 == 'count':
-            cols.append('_'.join([col1, col2]))
-        else:
-            cols.append(col1)
-    output.columns = cols
+    output = pd.merge(filtered[['subst_id']], compound_df, 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
+    output = pd.merge(output, subst_info_df, 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
+    output.drop(['target', 'action'], axis=1, inplace=True)
+    output = output.drop_duplicates()
+    output.common_name = output.common_name.str.replace(', ', '\n')
+    output.pharmacological_action = output.pharmacological_action.str.replace(', ', '\n')
 
     ##############
     # Pagination #
@@ -453,13 +457,13 @@ def findings(request):
     page = int(request.GET.get("page"))
 
     if page != 0:
-        init = (int(page) - 1) * 10
-        end = init + 10
+        init = (int(page) - 1) * 5
+        end = init + 5
     else:
         init = 0
         end = len(filtered)
 
-    num_pages = int(len(output) / 10)
+    num_pages = int(len(output) / 5)
 
     # Range of pages to show
     if page < 4:
