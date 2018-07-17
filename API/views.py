@@ -64,7 +64,7 @@ target_df = target_df.groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_ind
 
 # Generate output dataframe
 subst_info_df = pd.merge(target_df, study_count_df, 
-                how='left', on='subst_id', left_index=False, right_index=False, 
+                how='outer', on='subst_id', left_index=False, right_index=False, 
                 sort=False)
 subst_info_df = subst_info_df.drop_duplicates()
 
@@ -438,11 +438,21 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
+
+    # Get the summary of data per single substance
+    filered_study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+    filered_study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
+    filered_study_count_df['count'] = filered_study_count_df.normalised_species + ': ' + filered_study_count_df.study_count.astype(int).astype(str)
+    filered_study_count_df = filered_study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+    info_df = pd.merge(target_df, filered_study_count_df, 
+                how='outer', on='subst_id', left_index=False, right_index=False, 
+                sort=False)
+    info_df = info_df.drop_duplicates()
     
-    output = pd.merge(filtered[['subst_id']], compound_df, 
+    output = pd.merge(filtered[['subst_id']].drop_duplicates(), compound_df, 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
-    output = pd.merge(output, subst_info_df, 
+    output = pd.merge(output, info_df, 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
     output.drop(['target', 'action'], axis=1, inplace=True)
