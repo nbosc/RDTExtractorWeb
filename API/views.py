@@ -122,19 +122,21 @@ def initFindings(request):
     for source in optionsDict['sources']:
         organs = all_df[all_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
-        organs_df = getValuesForTree(organs_df,organ_onto_df)
-        relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-        optionsDict['organs'][source] = create_dictionary(relations, parents)
+        #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
+        #organs_df = getValuesForTree(organs_df,organ_onto_df)
+        #relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        #parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+        #optionsDict['organs'][source] = create_dictionary(relations, parents)
+        optionsDict['organs'][source] = organs
 
         observations = all_df[all_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
-        observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
-        observations_df = getValuesForTree(observations_df,observation_onto_df)
-        relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-        optionsDict['observations'][source] = create_dictionary(relations, parents)
+        #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
+        #observations_df = getValuesForTree(observations_df,observation_onto_df)
+        #relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+        #parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+        #optionsDict['observations'][source] = create_dictionary(relations, parents)
+        optionsDict['observations'][source] = observations
 
     ##############
     # Pagination #
@@ -180,7 +182,7 @@ def initFindings(request):
         'num_structures': num_structures
     }
 
-    send_data = InitFindingSerializer(results, many=False).data
+    send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
 @api_view(['GET'])
@@ -298,7 +300,7 @@ def findings(request):
     else:
         filtered = filtered_tmp[:]
 
-    sources = filtered.source.dropna().unique().tolist()
+    sources = all_df.source.dropna().unique().tolist()
 
     optionsDict = {}
     if not filtered.empty:
@@ -314,11 +316,12 @@ def findings(request):
         for source in sources:
             organs = tmp_df[tmp_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
-            organs_df = getValuesForTree(organs_df, organ_onto_df)
-            relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-            parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-            optionsDict['organs'][source] = create_dictionary(relations, parents)
+            #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
+            #organs_df = getValuesForTree(organs_df, organ_onto_df)
+            #relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            #parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
+            #optionsDict['organs'][source] = create_dictionary(relations, parents)
+            optionsDict['organs'][source] = organs;
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -332,13 +335,14 @@ def findings(request):
         for source in sources:
             observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
-            observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
-            observations_df = getValuesForTree(observations_df, observation_onto_df)
-            relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-            parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-            optionsDict['observations'][source] = create_dictionary(relations, parents)
+            #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
+            #observations_df = getValuesForTree(observations_df, observation_onto_df)
+            #relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
+            #parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
+            #optionsDict['observations'][source] = create_dictionary(relations, parents)
+            optionsDict['observations'][source] = observations
 
-        # tmp_dict = copy.deepcopy(queryDict)
+            # tmp_dict = copy.deepcopy(queryDict)
         # tmp_dict.pop('grade', None)
         # valuesL = list(tmp_dict.values())
         # if len(valuesL) > 0:
