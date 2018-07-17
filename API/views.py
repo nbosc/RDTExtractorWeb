@@ -724,6 +724,24 @@ def study(request):
         'study': res.fillna(value="-")
     }
     return Response(results)
+    
+@api_view(['GET'])
+def substance(request):
+    id = request.GET.get("id")
+
+    tmp = study_df[study_df.subst_id == id].groupby('subst_id').agg(lambda x : ', '.join(x)).reset_index()
+
+    res = pd.merge(subst_info_df[subst_info_df.subst_id == id], compound_df,
+                   how='left', on='subst_id', left_index=False,
+                   right_index=False, sort=False)
+    res = pd.merge(res, tmp,
+                   how='left', on='subst_id', left_index=False,
+                   right_index=False, sort=False)
+
+    results = {
+        'substance': res.fillna(value="-")
+    }
+    return Response(results)
 
 # @api_view(['GET'])
 # def connectDB(request):
