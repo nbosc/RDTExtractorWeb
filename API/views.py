@@ -262,10 +262,10 @@ def findings(request):
     # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
-        all_organs = all_organs[0].split(', ')
+        all_organs = all_organs[0].split('@')
         tmp_dict = {}
         for v in all_organs:
-            category, val = v.split(' | ')
+            category, val = v.split('|')
             if category not in tmp_dict:
                 tmp_dict[category] = [val]
             else:
@@ -279,10 +279,10 @@ def findings(request):
     # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
-        all_observations = all_observations[0].split(', ')
+        all_observations = all_observations[0].split('@')
         tmp_dict = {}
         for v in all_observations:
-            category, val = v.split(' | ')
+            category, val = v.split('|')
             if category not in tmp_dict:
                 tmp_dict[category] = [val]
             else:
