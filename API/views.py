@@ -239,6 +239,9 @@ def findings(request):
     all_compound_name = request.GET.getlist("compound_name")
     if len(all_compound_name) > 0:
         queryDict['compound_name'] = 'common_name == @all_compound_name'
+        print ('debug')
+        print (all_compound_name)
+        print (queryDict['compound_name'])
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
@@ -266,10 +269,13 @@ def findings(request):
         tmp_dict = {}
         for v in all_organs:
             category, val = v.split('|')
+            # Expand based on the ontology
+            expanded_val = list(organ_onto_df[organ_onto_df.parent_term == val].child_term)
+            expanded_val = [val]+expanded_val
             if category not in tmp_dict:
-                tmp_dict[category] = [val]
+                tmp_dict[category] = expanded_val
             else:
-                tmp_dict[category].append(val)
+                tmp_dict[category].extend(expanded_val)
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
@@ -283,6 +289,13 @@ def findings(request):
         tmp_dict = {}
         for v in all_observations:
             category, val = v.split('|')
+            # Expand based on the ontology
+            expanded_val = list(observation_onto_df[observation_onto_df.parent_term == val].child_term)
+            expanded_val = [val]+expanded_val
+            if category not in tmp_dict:
+                tmp_dict[category] = expanded_val
+            else:
+                tmp_dict[category].extend(expanded_val)
             if category not in tmp_dict:
                 tmp_dict[category] = [val]
             else:
