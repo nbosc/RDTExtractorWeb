@@ -29,8 +29,8 @@ findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzi
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
-organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
-observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
+#organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+#observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
 study_df = pd.merge(study_df, range_df,
                     how='left', on='study_id', left_index=False, right_index=False,
@@ -38,8 +38,8 @@ study_df = pd.merge(study_df, range_df,
 study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                             'normalised_species', 'normalised_strain', 'source_company',
                             'exposure_period_days', 'report_number']],
-                         compound_df[['subst_id', 'smiles', 'status', 'common_name',
-                            'cas_number','pharmacological_action']],
+                         compound_df[['subst_id', 'smiles', 'status','common_name','cas_number',
+                                      'pharmacological_action']],
                          how='left', on='subst_id', left_index=False, right_index=False,
                          sort=False)
 all_df = pd.merge(study_cmpd_df,
