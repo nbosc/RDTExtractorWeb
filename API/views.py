@@ -32,6 +32,20 @@ study_df.study_id = study_df.study_id.astype(int).astype(str)
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
+# Merge target/action
+withAction = compound_df[compound_df.action.notnull()]
+withAction.loc[:,'targetAction'] = withAction.target+' : '+withAction.action
+noAction = compound_df[~compound_df.action.notnull()]
+noAction.loc[:,'targetAction'] = noAction.target
+target_concat_df = pd.concat([withAction, noAction], ignore_index=True)[['subst_id', 'targetAction']]
+target_df = target_concat_df.groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+target_df.columns = ['subst_id', 'targetActionList']
+target_df = pd.merge(target_df, target_concat_df, how='left', on='subst_id', 
+                     left_index=False, right_index=False, sort=False)
+compound_df = pd.merge(compound_df, target_df, how='left', on='subst_id', 
+                     left_index=False, right_index=False, sort=False)
+compound_df.drop(['target', 'action', 'pharmacological_action'], axis=1, inplace=True)
+
 study_df = pd.merge(study_df, range_df,
                     how='left', on='study_id', left_index=False, right_index=False,
                     sort=False)
@@ -39,35 +53,26 @@ study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administr
                             'normalised_species', 'normalised_strain', 'source_company',
                             'exposure_period_days', 'report_number']],
                          compound_df[['subst_id', 'smiles', 'status', 'common_name',
-                            'cas_number','pharmacological_action']],
+                            'cas_number','targetActionList', 'targetAction']],
                          how='left', on='subst_id', left_index=False, right_index=False,
                          sort=False)
 all_df = pd.merge(study_cmpd_df,
-                  findings_df[['study_id','source', 'observation_normalised', 'grade', 
-                                'organ_normalised', 'dose', 'relevance', 'normalised_sex']],
+                  findings_df[['study_id','source', 'observation', 'parameter', 'dose', 
+                               'relevance', 'sex']],
                   how='left', on='study_id', left_index=False, right_index=False,
                   sort=False)
 
 # Get the summary of data per single substance
 study_count_df = all_df[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
 study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
 study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
-
-# Merge target/action
-withAction = compound_df[compound_df.action.notnull()]
-withAction['targetAction'] = withAction.target+' : '+withAction.action
-noAction = compound_df[~compound_df.action.notnull()]
-noAction['targetAction'] = noAction.target
-target_df = pd.concat([withAction, noAction], ignore_index=True)[['subst_id', 'targetAction']]
-target_df = target_df.groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
 # Generate output dataframe
 subst_info_df = pd.merge(target_df, study_count_df, 
-                how='outer', on='subst_id', left_index=False, right_index=False, 
-                sort=False)
+                        how='left', on='subst_id', left_index=False, right_index=False, 
+                        sort=False)
 subst_info_df = subst_info_df.drop_duplicates()
-
 
 @api_view(['GET'])
 def source(request):
@@ -95,7 +100,7 @@ def source(request):
         tmp_table.append([study_id, relevance, observation, organ, dose])
         print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
     find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                               'observation_normalised', 'organ_normalised', 'dose'])"""
+                                               'observation', 'parameter', 'dose'])"""
 
     pass
 
@@ -111,19 +116,16 @@ def initFindings(request):
     optionsDict['sources'] = all_df.source.dropna().unique().tolist()
     optionsDict['sources'].sort()
 
-    # optionsDict['grades'] = all_df.grade.dropna().unique().tolist()
-    # optionsDict['grades'].sort()
-
     optionsDict['routes'] = all_df.normalised_administration_route.dropna().unique().tolist()
     optionsDict['routes'].sort()
 
-    optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
+    optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
     optionsDict['sex'].sort()
 
     optionsDict['species'] = all_df.normalised_species.dropna().unique().tolist()
     optionsDict['species'].sort()
 
-    optionsDict['pharmacological_action'] = all_df.pharmacological_action.dropna().unique().tolist()
+    optionsDict['pharmacological_action'] = target_df.targetAction.dropna().unique().tolist()
     optionsDict['pharmacological_action'].sort()
 
     optionsDict['compound_name'] = all_df.common_name.dropna().unique().tolist()
@@ -140,7 +142,7 @@ def initFindings(request):
     optionsDict['organs'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
-        organs = all_df[all_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
+        organs = all_df[all_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
         #organs_df = getValuesForTree(organs_df,organ_onto_df)
@@ -149,7 +151,7 @@ def initFindings(request):
         #optionsDict['organs'][source] = create_dictionary(relations, parents)
         optionsDict['organs'][source] = organs
 
-        observations = all_df[all_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
+        observations = all_df[all_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
         # Create nested dictionary for angular treeviews
         #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
         #observations_df = getValuesForTree(observations_df,observation_onto_df)
@@ -173,7 +175,7 @@ def initFindings(request):
 
     # Range of pages to show
     previous = 0
-    nexts = 7
+    nexts = min([7, num_pages])
     range_pages = range(1, num_pages + 1)[previous:nexts]
     previous_page = page - 1
     next_page = page + 1
@@ -181,14 +183,15 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output = pd.merge(compound_df, subst_info_df, 
+    output_df = pd.merge(compound_df, subst_info_df, 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
-    output.drop(['target', 'action'], axis=1, inplace=True)
-    output = output.drop_duplicates()
-    output.common_name = output.common_name.str.replace(', ', '\n')
-    output.pharmacological_action = output.pharmacological_action.str.replace(', ', '\n')
-    output = output[init:end].fillna(value="-").to_dict('records')
+    output_df = pd.merge(output_df, study_count_df, 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
+    output_df = output_df.drop_duplicates()
+    output_df.common_name = output_df.common_name.str.replace(', ', '\n')
+    output = output_df[init:end].fillna(value="-").to_dict('records')
 
     results = {
         'data': output,
@@ -220,7 +223,7 @@ def findings(request):
     # Sex
     sex = request.GET.get("sex")
     if sex:
-        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+        filtered_tmp = filtered_tmp[filtered_tmp.sex == sex]
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -233,7 +236,7 @@ def findings(request):
     # Pharmacological action
     all_pharm = request.GET.getlist("pharmacological_action")
     if len(all_pharm) > 0:
-        queryDict['pharmacological_action'] = 'pharmacological_action == @all_pharm'
+        queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
 
     # Pharmacological action
     all_compound_name = request.GET.getlist("compound_name")
@@ -273,7 +276,7 @@ def findings(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and organ_normalised == %s)' %(category.strip(), tmp_list))
+            queryList.append('(source == \'%s\' and parameter == %s)' %(category.strip(), tmp_list))
         queryDict['organs'] = ' and '.join(list(queryList))
 
     # Observations
@@ -290,25 +293,8 @@ def findings(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation_normalised == %s)' %(category.strip(), tmp_list))
+            queryList.append('(source == \'%s\' and observation == %s)' %(category.strip(), tmp_list))
         queryDict['observations'] = ' and '.join(list(queryList))
-
-    # Grade
-    # all_grades = request.GET.getlist("grade")
-    # if len(all_grades) > 0:
-    #     all_grades = all_grades[0].split(', ')
-    #     tmp_dict = {}
-    #     for v in all_grades:
-    #         category, val = v.split(' | ')
-    #         if category not in tmp_dict:
-    #             tmp_dict[category] = [val]
-    #         else:
-    #             tmp_dict[category].append(val)
-    #     queryList = []
-    #     for category in tmp_dict:
-    #         tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-    #         queryList.append('(source == \'%s\' and grade == %s)' %(category.strip(), tmp_list))
-    #     queryDict['grades'] = ' and '.join(list(queryList))
 
     #####################
     # Apply all filters #
@@ -334,14 +320,14 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['organs'] = {}
         for source in sources:
-            organs = tmp_df[tmp_df.source.str.lower() == source.lower()].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
             #organs_df = getValuesForTree(organs_df, organ_onto_df)
             #relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
             #parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
             #optionsDict['organs'][source] = create_dictionary(relations, parents)
-            optionsDict['organs'][source] = organs;
+            optionsDict['organs'][source] = organs
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('observations', None)
@@ -353,7 +339,7 @@ def findings(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = {}
         for source in sources:
-            observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
             #observations_df = getValuesForTree(observations_df, observation_onto_df)
@@ -363,16 +349,7 @@ def findings(request):
             optionsDict['observations'][source] = observations
 
             # tmp_dict = copy.deepcopy(queryDict)
-        # tmp_dict.pop('grade', None)
-        # valuesL = list(tmp_dict.values())
-        # if len(valuesL) > 0:
-        #     query_string = ' and '.join(valuesL)
-        #     tmp_df = filtered_tmp.query(query_string)
-        # else:
-        #     tmp_df = filtered_tmp
-        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
-        # optionsDict['grade'].sort()
-
+        
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('pharmacological_action', None)
         valuesL = list(tmp_dict.values())
@@ -381,7 +358,7 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['pharmacological_action'] = tmp_df.pharmacological_action.dropna().unique().tolist()
+        optionsDict['pharmacological_action'] = tmp_df.targetAction.dropna().unique().tolist()
         optionsDict['pharmacological_action'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
@@ -433,7 +410,7 @@ def findings(request):
         optionsDict['exposure_min'] = int(exposure_range[0])
         optionsDict['exposure_max'] = int(exposure_range[-1])
 
-        optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
         optionsDict['sex'].sort()
 
     #############
@@ -442,27 +419,17 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
-
-    # Get the summary of data per single substance
-    filered_study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
-    filered_study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-    filered_study_count_df['count'] = filered_study_count_df.normalised_species + ': ' + filered_study_count_df.study_count.astype(int).astype(str)
-    filered_study_count_df = filered_study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
-    info_df = pd.merge(target_df, filered_study_count_df, 
-                how='outer', on='subst_id', left_index=False, right_index=False, 
-                sort=False)
-    info_df = info_df.drop_duplicates()
     
-    output = pd.merge(filtered[['subst_id']].drop_duplicates(), compound_df, 
+    output = pd.merge(filtered[['subst_id']].drop_duplicates(), 
+                    compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
+                            'smiles', 'status', 'targetActionList']].drop_duplicates(), 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
-    output = pd.merge(output, info_df, 
+    output = pd.merge(output, study_count_df, 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
-    output.drop(['target', 'action'], axis=1, inplace=True)
     output = output.drop_duplicates()
     output.common_name = output.common_name.str.replace(', ', '\n')
-    output.pharmacological_action = output.pharmacological_action.str.replace(', ', '\n')
 
     ##############
     # Pagination #
@@ -482,9 +449,8 @@ def findings(request):
     # Range of pages to show
     if page < 4:
         previous = 0
-        nexts = 7
+        nexts = min([7, num_pages])
     elif page > (num_pages - 4):
-
         previous = num_pages - 7
         nexts = num_pages
     else:
@@ -497,7 +463,6 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    # output = filtered[init:end].fillna(value="-").to_dict('records')
     output = output[init:end].fillna(value="-").to_dict('records')
 
     results = {
@@ -545,23 +510,23 @@ def qualitative(request):
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
-    filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                  'relevance', 'normalised_sex']],
+    filtered = pd.merge(filtered[['study_id', 'observation', 'parameter', 'dose', \
+                                  'relevance', 'sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
                                   'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
     if sex:
-        filtered = filtered[filtered.normalised_sex.str.lower() == sex[0].lower()]
+        filtered = filtered[filtered.sex.str.lower() == sex[0].lower()]
     if relevant:
         filtered = filtered[filtered.relevance == 'treatment related']
     if len(all_organs) > 0:
         filter_dict['organs'] = all_organs
-        filtered = filtered[filtered['organ_normalised'].isin(all_organs)]
+        filtered = filtered[filtered['parameter'].isin(all_organs)]
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
-        filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
+        filtered = filtered[filtered['observation'].isin(all_observation)]
 
     ###################################
     # Get stats for relevant findings #
@@ -584,10 +549,10 @@ def qualitative(request):
     # Aggragate by substance and finding #
     ######################################
     # Define finding as organ+observation
-    filtered_piv.organ_normalised = filtered_piv.organ_normalised.fillna('NA')
-    filtered_piv.observation_normalised = filtered_piv.observation_normalised.fillna('NA')
+    filtered_piv.parameter = filtered_piv.parameter.fillna('NA')
+    filtered_piv.observation = filtered_piv.observation.fillna('NA')
     filtered_piv['finding'] = filtered_piv.apply(
-        lambda row: row.organ_normalised + '_' + row.observation_normalised, axis=1)
+        lambda row: row.parameter + '_' + row.observation, axis=1)
     filtered_piv = filtered_piv[['subst_id', 'finding', 'dose']]
 
     # Aggregate by substance and finding (as defined above), keeping the minimum dose
@@ -647,23 +612,23 @@ def quantitative(request):
     filtered = extract.filter_study(filter_dict, study_df)
     filtered = findings_df[findings_df.study_id.isin(filtered.study_id)]
 
-    filtered = pd.merge(filtered[['study_id', 'observation_normalised', 'organ_normalised', 'dose', \
-                                  'relevance', 'normalised_sex']],
+    filtered = pd.merge(filtered[['study_id', 'observation', 'parameter', 'dose', \
+                                  'relevance', 'sex']],
                         study_df[['study_id', 'subst_id', 'normalised_administration_route', \
                                   'normalised_species', 'exposure_period_days', 'report_number']],
                         how='left', on='study_id', left_index=False,
                         right_index=False, sort=False)
 
     if sex:
-        filtered = filtered[filtered.normalised_sex.str.lower() == sex[0].lower()]
+        filtered = filtered[filtered.sex.str.lower() == sex[0].lower()]
     if relevant:
         filtered = filtered[filtered.relevance == 'treatment related']
     if len(all_organs) > 0:
         filter_dict['organs'] = all_organs
-        filtered = filtered[filtered['organ_normalised'].isin(all_organs)]
+        filtered = filtered[filtered['parameter'].isin(all_organs)]
     if len(all_observation) > 0:
         filter_dict['observations'] = all_observation
-        filtered = filtered[filtered['observation_normalised'].isin(all_observation)]
+        filtered = filtered[filtered['observation'].isin(all_observation)]
 
     ###################################
     # Get stats for relevant findings #
@@ -686,10 +651,10 @@ def quantitative(request):
     # Aggragate by substance and finding #
     ######################################
     # Define finding as organ+observation
-    filtered_piv.organ_normalised = filtered_piv.organ_normalised.fillna('NA')
-    filtered_piv.observation_normalised = filtered_piv.observation_normalised.fillna('NA')
+    filtered_piv.parameter = filtered_piv.parameter.fillna('NA')
+    filtered_piv.observation = filtered_piv.observation.fillna('NA')
     filtered_piv['finding'] = filtered_piv.apply(
-        lambda row: row.organ_normalised + '_' + row.observation_normalised, axis=1)
+        lambda row: row.parameter + '_' + row.observation, axis=1)
     filtered_piv = filtered_piv[['subst_id', 'finding', 'dose']]
 
     # Aggregate by substance and finding (as defined above), keeping the minimum dose
@@ -846,7 +811,7 @@ def plot(request):
     # Sex
     sex = request.GET.get("sex")
     if sex:
-        filtered_tmp = filtered_tmp[filtered_tmp.normalised_sex == sex]
+        filtered_tmp = filtered_tmp[filtered_tmp.sex == sex]
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -899,7 +864,7 @@ def plot(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and organ_normalised == %s)' % (category.strip(), tmp_list))
+            queryList.append('(source == \'%s\' and parameter == %s)' % (category.strip(), tmp_list))
         queryDict['organs'] = ' and '.join(list(queryList))
 
     # Observations
@@ -916,7 +881,7 @@ def plot(request):
         queryList = []
         for category in tmp_dict:
             tmp_list = '[%s]' % (', '.join(['\'%s\'' % x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation_normalised == %s)' % (category.strip(), tmp_list))
+            queryList.append('(source == \'%s\' and observation == %s)' % (category.strip(), tmp_list))
         queryDict['observations'] = ' and '.join(list(queryList))
 
     # Grade
@@ -962,7 +927,7 @@ def plot(request):
             tmp_df = filtered_tmp
         optionsDict['organs'] = {}
         for source in sources:
-            organs = tmp_df[tmp_df.source == source].organ_normalised.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source == source].parameter.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             organs_df = organ_onto_df[organ_onto_df.child_term.isin(organs)]
             organs_df = getValuesForTree(organs_df, organ_onto_df)
@@ -980,7 +945,7 @@ def plot(request):
             tmp_df = filtered_tmp
         optionsDict['observations'] = {}
         for source in sources:
-            observations = tmp_df[tmp_df.source == source].observation_normalised.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source == source].observation.dropna().unique().tolist()
             # Create nested dictionary for angular treeviews
             observations_df = observation_onto_df[observation_onto_df.child_term.isin(observations)]
             observations_df = getValuesForTree(observations_df, observation_onto_df)
@@ -988,17 +953,6 @@ def plot(request):
             parents = set(relations.keys()) & set(
                 observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
             optionsDict['observations'][source] = create_dictionary(relations, parents)
-
-        # tmp_dict = copy.deepcopy(queryDict)
-        # tmp_dict.pop('grade', None)
-        # valuesL = list(tmp_dict.values())
-        # if len(valuesL) > 0:
-        #     query_string = ' and '.join(valuesL)
-        #     tmp_df = filtered_tmp.query(query_string)
-        # else:
-        #     tmp_df = filtered_tmp
-        # optionsDict['grade'] = tmp_df.grade.dropna().unique().tolist()
-        # optionsDict['grade'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('pharmacological_action', None)
@@ -1060,9 +1014,8 @@ def plot(request):
         optionsDict['exposure_min'] = int(exposure_range[0])
         optionsDict['exposure_max'] = int(exposure_range[-1])
 
-        optionsDict['sex'] = all_df.normalised_sex.dropna().unique().tolist()
+        optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
         optionsDict['sex'].sort()
-
 
     plot_info = filtered.groupby(['normalised_species'])['normalised_species'].count()
     x = plot_info.index
