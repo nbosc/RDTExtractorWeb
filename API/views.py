@@ -183,10 +183,7 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output_df = pd.merge(compound_df, subst_info_df, 
-                    how='left', on='subst_id', left_index=False, right_index=False, 
-                    sort=False)
-    output_df = pd.merge(output_df, study_count_df, 
+    output_df = pd.merge(compound_df, study_count_df, 
                     how='left', on='subst_id', left_index=False, right_index=False, 
                     sort=False)
     output_df = output_df.drop_duplicates()
