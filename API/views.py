@@ -183,9 +183,11 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output_df = pd.merge(compound_df, study_count_df, 
-                    how='left', on='subst_id', left_index=False, right_index=False, 
-                    sort=False)
+    output_df = pd.merge(compound_df[['subst_id', 'cas_number','common_name', 'smiles',
+                                        'targetActionList']], 
+                         study_count_df, 
+                         how='left', on='subst_id', left_index=False, right_index=False, 
+                         sort=False)
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
     output = output_df[init:end].fillna(value="-").to_dict('records')
