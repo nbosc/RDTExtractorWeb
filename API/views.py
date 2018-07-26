@@ -238,10 +238,10 @@ def findings(request):
     # Pharmacological action
     all_compound_name = request.GET.getlist("compound_name")
     if len(all_compound_name) > 0:
+        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
+        all_compound_name = all_compound_name+plus_signs
+        all_compound_name = list(set(all_compound_name))
         queryDict['compound_name'] = 'common_name == @all_compound_name'
-        print ('debug')
-        print (all_compound_name)
-        print (queryDict['compound_name'])
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
