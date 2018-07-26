@@ -235,9 +235,10 @@ def findings(request):
     if len(all_pharm) > 0:
         queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
 
-    # Pharmacological action
+    # Compound name
     all_compound_name = request.GET.getlist("compound_name")
     if len(all_compound_name) > 0:
+        # Solve issue with plus signs in compound names being converted to spaces
         plus_signs = [x.replace(' ', '+') for x in all_compound_name]
         all_compound_name = all_compound_name+plus_signs
         all_compound_name = list(set(all_compound_name))
