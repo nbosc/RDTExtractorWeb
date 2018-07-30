@@ -183,9 +183,11 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output_df = pd.merge(compound_df, study_count_df, 
-                    how='left', on='subst_id', left_index=False, right_index=False, 
-                    sort=False)
+    output_df = pd.merge(compound_df[['subst_id', 'cas_number','common_name', 'smiles',
+                                        'targetActionList']], 
+                         study_count_df, 
+                         how='left', on='subst_id', left_index=False, right_index=False, 
+                         sort=False)
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
     output = output_df[init:end].fillna(value="-").to_dict('records')
@@ -235,13 +237,14 @@ def findings(request):
     if len(all_pharm) > 0:
         queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
 
-    # Pharmacological action
+    # Compound name
     all_compound_name = request.GET.getlist("compound_name")
     if len(all_compound_name) > 0:
+        # Solve issue with plus signs in compound names being converted to spaces
+        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
+        all_compound_name = all_compound_name+plus_signs
+        all_compound_name = list(set(all_compound_name))
         queryDict['compound_name'] = 'common_name == @all_compound_name'
-        print ('debug')
-        print (all_compound_name)
-        print (queryDict['compound_name'])
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
