@@ -10,7 +10,7 @@ import json
 import copy
 import math
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import FindingSerializer #, PlotSerializer
+from .serializers import FindingSerializer
 from API.utils import extract
 
 def get_stats(group):
@@ -30,8 +30,8 @@ findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzi
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
-organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
-observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
+#organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+#observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
 # Merge target/action
 withAction = compound_df[compound_df.action.notnull()]
@@ -58,7 +58,7 @@ study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administr
                          how='left', on='subst_id', left_index=False, right_index=False,
                          sort=False)
 all_df = pd.merge(study_cmpd_df,
-                  findings_df[['study_id','source', 'observation', 'parameter', 'dose', 
+                  findings_df[['study_id','source', 'observation', 'parameter', 'dose',
                                'relevance', 'sex']],
                   how='left', on='study_id', left_index=False, right_index=False,
                   sort=False)
@@ -452,6 +452,7 @@ def findings(request):
     print (filtered)
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
+
     num_findings = len(filtered)
 
     ##PLOT INFO
