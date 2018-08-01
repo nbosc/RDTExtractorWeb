@@ -30,8 +30,8 @@ findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzi
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
-#organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
-#observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
+organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
 # Merge target/action
 withAction = compound_df[compound_df.action.notnull()]
@@ -449,10 +449,8 @@ def findings(request):
     # Aggregate #
     #############
 
-    print (filtered)
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
-
     num_findings = len(filtered)
 
     ##PLOT INFO
@@ -483,9 +481,6 @@ def findings(request):
                     sort=False)
     output = output.drop_duplicates()
     output.common_name = output.common_name.str.replace(', ', '\n')
-
-    print('\n')
-    print (output)
 
     ##############
     # Pagination #
