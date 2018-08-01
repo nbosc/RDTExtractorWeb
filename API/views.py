@@ -212,6 +212,7 @@ def initFindings(request):
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
     output = output_df[init:end].fillna(value="-").to_dict('records')
 
+
     results = {
         'data': output,
         'allOptions': optionsDict,
@@ -467,9 +468,9 @@ def findings(request):
         'normalised_administration_route'].count()
     plot_info['normalised_administration_route'] = [normalised_administration_route.index,
                                                     normalised_administration_route.values]
-    # Sex
-    sex = filtered.groupby(['sex'])['sex'].count()
-    plot_info['sex'] = [sex.index, sex.values]
+    # Source
+    source = filtered.groupby(['source'])['source'].count()
+    plot_info['source'] = [source.index, source.values]
 
     output = pd.merge(filtered[['subst_id']].drop_duplicates(), 
                     compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 

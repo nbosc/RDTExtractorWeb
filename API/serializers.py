@@ -12,4 +12,5 @@ class FindingSerializer (serializers.Serializer):
     next_page = serializers.IntegerField()
     num_studies = serializers.IntegerField()
     num_structures = serializers.IntegerField()
+    num_findings = serializers.IntegerField()
 #    connStatus = serializers.CharField()
