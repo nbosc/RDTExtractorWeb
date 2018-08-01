@@ -8,6 +8,7 @@ import cx_Oracle
 import pandas as pd
 import json
 import copy
+import math
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import FindingSerializer
 from API.utils import extract
@@ -29,8 +30,8 @@ findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzi
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
-#organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
-#observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
+organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
 # Merge target/action
 withAction = compound_df[compound_df.action.notnull()]
@@ -172,7 +173,7 @@ def initFindings(request):
         num_pages = total
     else:
         end = 5
-        num_pages = int(total / 5)
+        num_pages = math.ceil(total / 5)
 
     # Range of pages to show
     previous = 0
@@ -184,15 +185,11 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-
-
-
     output_df = pd.merge(compound_df[['subst_id', 'cas_number','common_name', 'smiles',
                                         'targetActionList']], 
                          study_count_df, 
                          how='left', on='subst_id', left_index=False, right_index=False, 
                          sort=False)
-    print(len(output_df))
     plot_info = {}
 
     # Specie
@@ -455,7 +452,6 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
-
     num_findings = len(filtered)
 
     ##PLOT INFO
@@ -471,6 +467,11 @@ def findings(request):
     # Source
     source = filtered.groupby(['source'])['source'].count()
     plot_info['source'] = [source.index, source.values]
+    
+    study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+    study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
+    study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+    study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
     output = pd.merge(filtered[['subst_id']].drop_duplicates(), 
                     compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
@@ -490,13 +491,13 @@ def findings(request):
     page = int(request.GET.get("page"))
 
     if page != 0:
-        init = (int(page) - 1) * 5
+        init = (page - 1) * 5
         end = init + 5
     else:
         init = 0
         end = len(filtered)
 
-    num_pages = int(len(output) / 5)
+    num_pages = math.ceil(len(output) / 5)
 
     # Range of pages to show
     if page < 4:
@@ -855,7 +856,6 @@ def getValuesForTree(df_filter,onto_tree_df):
 @api_view(['GET'])
 def plot(request):
 
-
     global all_df, study_df
 
     filtered_tmp = all_df[:]
@@ -1080,25 +1080,24 @@ def plot(request):
     num_structures = filtered.subst_id.nunique()
     num_findings = len(filtered)
 
-
-
-    output = pd.merge(filtered[['subst_id']].drop_duplicates(),
-                      compound_df[['subst_id', 'cas_number', 'common_name', 'company_id',
-                                   'smiles', 'status', 'targetActionList']].drop_duplicates(),
-                      how='left', on='subst_id', left_index=False, right_index=False,
-                      sort=False)
-    output = pd.merge(output, study_count_df,
-                      how='left', on='subst_id', left_index=False, right_index=False,
-                      sort=False)
-
+    study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+    study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
+    study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+    study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+    output = pd.merge(filtered[['subst_id']].drop_duplicates(), 
+                    compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
+                            'smiles', 'status', 'targetActionList']].drop_duplicates(), 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
+    output = pd.merge(output, study_count_df, 
+                    how='left', on='subst_id', left_index=False, right_index=False, 
+                    sort=False)
     output = output.drop_duplicates()
-
     output.common_name = output.common_name.str.replace(', ', '\n')
-
 
     plot_info = {}
 
-    # Specie
+    # Species
     normalised_species=filtered.groupby(['normalised_species'])['normalised_species'].count()
     plot_info['normalised_species']=[normalised_species.index,normalised_species.values]
     # Route
