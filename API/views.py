@@ -27,6 +27,7 @@ range_df.columns = ['study_id','dose_max','dose_min']
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
+findings_df.loc[(findings_df.relevance != 'Treatment related'), 'relevance'] = 'No related'
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
@@ -197,16 +198,20 @@ def initFindings(request):
 
     # Specie
     normalised_species = study_df.groupby(['normalised_species'])['normalised_species'].count()
+    normalised_species.sort_values(ascending=False, inplace=True)
     plot_info['normalised_species'] = [normalised_species.index, normalised_species.values]
 
-    # Route
-    normalised_administration_route = study_df.groupby(['normalised_administration_route'])[
-        'normalised_administration_route'].count()
-    plot_info['normalised_administration_route'] = [normalised_administration_route.index,
-                                                    normalised_administration_route.values]
-    # Sex
+    # Relevance
+    relevance = findings_df.groupby(['relevance'])['relevance'].count()
+    relevance.sort_values(ascending=False, inplace=True)
+    plot_info['relevance'] = [relevance.index, relevance.values]
+
+    # Source
     source = findings_df.groupby(['source'])['source'].count()
+    source.sort_values(ascending=False, inplace=True)
     plot_info['source'] = [source.index, source.values]
+
+
 
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
@@ -460,15 +465,20 @@ def findings(request):
     plot_info = {}
     # Specie
     normalised_species = filtered.groupby(['normalised_species'])['normalised_species'].count()
+    normalised_species.sort_values(ascending=False, inplace=True)
     plot_info['normalised_species'] = [normalised_species.index, normalised_species.values]
-    # Route
-    normalised_administration_route = filtered.groupby(['normalised_administration_route'])[
-        'normalised_administration_route'].count()
-    plot_info['normalised_administration_route'] = [normalised_administration_route.index,
-                                                    normalised_administration_route.values]
-    # Sex
-    sex = filtered.groupby(['sex'])['sex'].count()
-    plot_info['sex'] = [sex.index, sex.values]
+
+    # Treatment related
+    relevance = filtered.groupby(['relevance'])['relevance'].count()
+    relevance.sort_values(ascending=False, inplace=True)
+    plot_info['relevance'] = [relevance.index, relevance.values]
+
+    # Source
+    source = filtered.groupby(['source'])['source'].count()
+    source.sort_values(ascending=False, inplace=True)
+    plot_info['source'] = [source.index, source.values]
+
+
     
     output = pd.merge(filtered[['subst_id']].drop_duplicates(), 
                     compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
