@@ -15,11 +15,3 @@ class FindingSerializer (serializers.Serializer):
     num_findings = serializers.IntegerField()
 #    connStatus = serializers.CharField()
 
-class PlotSerializer (serializers.Serializer):
-
-    allOptions = serializers.DictField()
-    plotInfo = serializers.DictField()
-    num_studies = serializers.IntegerField()
-    num_structures = serializers.IntegerField()
-    num_findings = serializers.IntegerField()
-#    connStatus = serializers.CharField()
