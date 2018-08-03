@@ -1,0 +1,2333 @@
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["main"],{
+
+/***/ "./node_modules/moment/locale sync recursive ^\\.\\/.*$":
+/*!**************************************************!*\
+  !*** ./node_modules/moment/locale sync ^\.\/.*$ ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./af": "./node_modules/moment/locale/af.js",
+	"./af.js": "./node_modules/moment/locale/af.js",
+	"./ar": "./node_modules/moment/locale/ar.js",
+	"./ar-dz": "./node_modules/moment/locale/ar-dz.js",
+	"./ar-dz.js": "./node_modules/moment/locale/ar-dz.js",
+	"./ar-kw": "./node_modules/moment/locale/ar-kw.js",
+	"./ar-kw.js": "./node_modules/moment/locale/ar-kw.js",
+	"./ar-ly": "./node_modules/moment/locale/ar-ly.js",
+	"./ar-ly.js": "./node_modules/moment/locale/ar-ly.js",
+	"./ar-ma": "./node_modules/moment/locale/ar-ma.js",
+	"./ar-ma.js": "./node_modules/moment/locale/ar-ma.js",
+	"./ar-sa": "./node_modules/moment/locale/ar-sa.js",
+	"./ar-sa.js": "./node_modules/moment/locale/ar-sa.js",
+	"./ar-tn": "./node_modules/moment/locale/ar-tn.js",
+	"./ar-tn.js": "./node_modules/moment/locale/ar-tn.js",
+	"./ar.js": "./node_modules/moment/locale/ar.js",
+	"./az": "./node_modules/moment/locale/az.js",
+	"./az.js": "./node_modules/moment/locale/az.js",
+	"./be": "./node_modules/moment/locale/be.js",
+	"./be.js": "./node_modules/moment/locale/be.js",
+	"./bg": "./node_modules/moment/locale/bg.js",
+	"./bg.js": "./node_modules/moment/locale/bg.js",
+	"./bm": "./node_modules/moment/locale/bm.js",
+	"./bm.js": "./node_modules/moment/locale/bm.js",
+	"./bn": "./node_modules/moment/locale/bn.js",
+	"./bn.js": "./node_modules/moment/locale/bn.js",
+	"./bo": "./node_modules/moment/locale/bo.js",
+	"./bo.js": "./node_modules/moment/locale/bo.js",
+	"./br": "./node_modules/moment/locale/br.js",
+	"./br.js": "./node_modules/moment/locale/br.js",
+	"./bs": "./node_modules/moment/locale/bs.js",
+	"./bs.js": "./node_modules/moment/locale/bs.js",
+	"./ca": "./node_modules/moment/locale/ca.js",
+	"./ca.js": "./node_modules/moment/locale/ca.js",
+	"./cs": "./node_modules/moment/locale/cs.js",
+	"./cs.js": "./node_modules/moment/locale/cs.js",
+	"./cv": "./node_modules/moment/locale/cv.js",
+	"./cv.js": "./node_modules/moment/locale/cv.js",
+	"./cy": "./node_modules/moment/locale/cy.js",
+	"./cy.js": "./node_modules/moment/locale/cy.js",
+	"./da": "./node_modules/moment/locale/da.js",
+	"./da.js": "./node_modules/moment/locale/da.js",
+	"./de": "./node_modules/moment/locale/de.js",
+	"./de-at": "./node_modules/moment/locale/de-at.js",
+	"./de-at.js": "./node_modules/moment/locale/de-at.js",
+	"./de-ch": "./node_modules/moment/locale/de-ch.js",
+	"./de-ch.js": "./node_modules/moment/locale/de-ch.js",
+	"./de.js": "./node_modules/moment/locale/de.js",
+	"./dv": "./node_modules/moment/locale/dv.js",
+	"./dv.js": "./node_modules/moment/locale/dv.js",
+	"./el": "./node_modules/moment/locale/el.js",
+	"./el.js": "./node_modules/moment/locale/el.js",
+	"./en-au": "./node_modules/moment/locale/en-au.js",
+	"./en-au.js": "./node_modules/moment/locale/en-au.js",
+	"./en-ca": "./node_modules/moment/locale/en-ca.js",
+	"./en-ca.js": "./node_modules/moment/locale/en-ca.js",
+	"./en-gb": "./node_modules/moment/locale/en-gb.js",
+	"./en-gb.js": "./node_modules/moment/locale/en-gb.js",
+	"./en-ie": "./node_modules/moment/locale/en-ie.js",
+	"./en-ie.js": "./node_modules/moment/locale/en-ie.js",
+	"./en-il": "./node_modules/moment/locale/en-il.js",
+	"./en-il.js": "./node_modules/moment/locale/en-il.js",
+	"./en-nz": "./node_modules/moment/locale/en-nz.js",
+	"./en-nz.js": "./node_modules/moment/locale/en-nz.js",
+	"./eo": "./node_modules/moment/locale/eo.js",
+	"./eo.js": "./node_modules/moment/locale/eo.js",
+	"./es": "./node_modules/moment/locale/es.js",
+	"./es-do": "./node_modules/moment/locale/es-do.js",
+	"./es-do.js": "./node_modules/moment/locale/es-do.js",
+	"./es-us": "./node_modules/moment/locale/es-us.js",
+	"./es-us.js": "./node_modules/moment/locale/es-us.js",
+	"./es.js": "./node_modules/moment/locale/es.js",
+	"./et": "./node_modules/moment/locale/et.js",
+	"./et.js": "./node_modules/moment/locale/et.js",
+	"./eu": "./node_modules/moment/locale/eu.js",
+	"./eu.js": "./node_modules/moment/locale/eu.js",
+	"./fa": "./node_modules/moment/locale/fa.js",
+	"./fa.js": "./node_modules/moment/locale/fa.js",
+	"./fi": "./node_modules/moment/locale/fi.js",
+	"./fi.js": "./node_modules/moment/locale/fi.js",
+	"./fo": "./node_modules/moment/locale/fo.js",
+	"./fo.js": "./node_modules/moment/locale/fo.js",
+	"./fr": "./node_modules/moment/locale/fr.js",
+	"./fr-ca": "./node_modules/moment/locale/fr-ca.js",
+	"./fr-ca.js": "./node_modules/moment/locale/fr-ca.js",
+	"./fr-ch": "./node_modules/moment/locale/fr-ch.js",
+	"./fr-ch.js": "./node_modules/moment/locale/fr-ch.js",
+	"./fr.js": "./node_modules/moment/locale/fr.js",
+	"./fy": "./node_modules/moment/locale/fy.js",
+	"./fy.js": "./node_modules/moment/locale/fy.js",
+	"./gd": "./node_modules/moment/locale/gd.js",
+	"./gd.js": "./node_modules/moment/locale/gd.js",
+	"./gl": "./node_modules/moment/locale/gl.js",
+	"./gl.js": "./node_modules/moment/locale/gl.js",
+	"./gom-latn": "./node_modules/moment/locale/gom-latn.js",
+	"./gom-latn.js": "./node_modules/moment/locale/gom-latn.js",
+	"./gu": "./node_modules/moment/locale/gu.js",
+	"./gu.js": "./node_modules/moment/locale/gu.js",
+	"./he": "./node_modules/moment/locale/he.js",
+	"./he.js": "./node_modules/moment/locale/he.js",
+	"./hi": "./node_modules/moment/locale/hi.js",
+	"./hi.js": "./node_modules/moment/locale/hi.js",
+	"./hr": "./node_modules/moment/locale/hr.js",
+	"./hr.js": "./node_modules/moment/locale/hr.js",
+	"./hu": "./node_modules/moment/locale/hu.js",
+	"./hu.js": "./node_modules/moment/locale/hu.js",
+	"./hy-am": "./node_modules/moment/locale/hy-am.js",
+	"./hy-am.js": "./node_modules/moment/locale/hy-am.js",
+	"./id": "./node_modules/moment/locale/id.js",
+	"./id.js": "./node_modules/moment/locale/id.js",
+	"./is": "./node_modules/moment/locale/is.js",
+	"./is.js": "./node_modules/moment/locale/is.js",
+	"./it": "./node_modules/moment/locale/it.js",
+	"./it.js": "./node_modules/moment/locale/it.js",
+	"./ja": "./node_modules/moment/locale/ja.js",
+	"./ja.js": "./node_modules/moment/locale/ja.js",
+	"./jv": "./node_modules/moment/locale/jv.js",
+	"./jv.js": "./node_modules/moment/locale/jv.js",
+	"./ka": "./node_modules/moment/locale/ka.js",
+	"./ka.js": "./node_modules/moment/locale/ka.js",
+	"./kk": "./node_modules/moment/locale/kk.js",
+	"./kk.js": "./node_modules/moment/locale/kk.js",
+	"./km": "./node_modules/moment/locale/km.js",
+	"./km.js": "./node_modules/moment/locale/km.js",
+	"./kn": "./node_modules/moment/locale/kn.js",
+	"./kn.js": "./node_modules/moment/locale/kn.js",
+	"./ko": "./node_modules/moment/locale/ko.js",
+	"./ko.js": "./node_modules/moment/locale/ko.js",
+	"./ky": "./node_modules/moment/locale/ky.js",
+	"./ky.js": "./node_modules/moment/locale/ky.js",
+	"./lb": "./node_modules/moment/locale/lb.js",
+	"./lb.js": "./node_modules/moment/locale/lb.js",
+	"./lo": "./node_modules/moment/locale/lo.js",
+	"./lo.js": "./node_modules/moment/locale/lo.js",
+	"./lt": "./node_modules/moment/locale/lt.js",
+	"./lt.js": "./node_modules/moment/locale/lt.js",
+	"./lv": "./node_modules/moment/locale/lv.js",
+	"./lv.js": "./node_modules/moment/locale/lv.js",
+	"./me": "./node_modules/moment/locale/me.js",
+	"./me.js": "./node_modules/moment/locale/me.js",
+	"./mi": "./node_modules/moment/locale/mi.js",
+	"./mi.js": "./node_modules/moment/locale/mi.js",
+	"./mk": "./node_modules/moment/locale/mk.js",
+	"./mk.js": "./node_modules/moment/locale/mk.js",
+	"./ml": "./node_modules/moment/locale/ml.js",
+	"./ml.js": "./node_modules/moment/locale/ml.js",
+	"./mn": "./node_modules/moment/locale/mn.js",
+	"./mn.js": "./node_modules/moment/locale/mn.js",
+	"./mr": "./node_modules/moment/locale/mr.js",
+	"./mr.js": "./node_modules/moment/locale/mr.js",
+	"./ms": "./node_modules/moment/locale/ms.js",
+	"./ms-my": "./node_modules/moment/locale/ms-my.js",
+	"./ms-my.js": "./node_modules/moment/locale/ms-my.js",
+	"./ms.js": "./node_modules/moment/locale/ms.js",
+	"./mt": "./node_modules/moment/locale/mt.js",
+	"./mt.js": "./node_modules/moment/locale/mt.js",
+	"./my": "./node_modules/moment/locale/my.js",
+	"./my.js": "./node_modules/moment/locale/my.js",
+	"./nb": "./node_modules/moment/locale/nb.js",
+	"./nb.js": "./node_modules/moment/locale/nb.js",
+	"./ne": "./node_modules/moment/locale/ne.js",
+	"./ne.js": "./node_modules/moment/locale/ne.js",
+	"./nl": "./node_modules/moment/locale/nl.js",
+	"./nl-be": "./node_modules/moment/locale/nl-be.js",
+	"./nl-be.js": "./node_modules/moment/locale/nl-be.js",
+	"./nl.js": "./node_modules/moment/locale/nl.js",
+	"./nn": "./node_modules/moment/locale/nn.js",
+	"./nn.js": "./node_modules/moment/locale/nn.js",
+	"./pa-in": "./node_modules/moment/locale/pa-in.js",
+	"./pa-in.js": "./node_modules/moment/locale/pa-in.js",
+	"./pl": "./node_modules/moment/locale/pl.js",
+	"./pl.js": "./node_modules/moment/locale/pl.js",
+	"./pt": "./node_modules/moment/locale/pt.js",
+	"./pt-br": "./node_modules/moment/locale/pt-br.js",
+	"./pt-br.js": "./node_modules/moment/locale/pt-br.js",
+	"./pt.js": "./node_modules/moment/locale/pt.js",
+	"./ro": "./node_modules/moment/locale/ro.js",
+	"./ro.js": "./node_modules/moment/locale/ro.js",
+	"./ru": "./node_modules/moment/locale/ru.js",
+	"./ru.js": "./node_modules/moment/locale/ru.js",
+	"./sd": "./node_modules/moment/locale/sd.js",
+	"./sd.js": "./node_modules/moment/locale/sd.js",
+	"./se": "./node_modules/moment/locale/se.js",
+	"./se.js": "./node_modules/moment/locale/se.js",
+	"./si": "./node_modules/moment/locale/si.js",
+	"./si.js": "./node_modules/moment/locale/si.js",
+	"./sk": "./node_modules/moment/locale/sk.js",
+	"./sk.js": "./node_modules/moment/locale/sk.js",
+	"./sl": "./node_modules/moment/locale/sl.js",
+	"./sl.js": "./node_modules/moment/locale/sl.js",
+	"./sq": "./node_modules/moment/locale/sq.js",
+	"./sq.js": "./node_modules/moment/locale/sq.js",
+	"./sr": "./node_modules/moment/locale/sr.js",
+	"./sr-cyrl": "./node_modules/moment/locale/sr-cyrl.js",
+	"./sr-cyrl.js": "./node_modules/moment/locale/sr-cyrl.js",
+	"./sr.js": "./node_modules/moment/locale/sr.js",
+	"./ss": "./node_modules/moment/locale/ss.js",
+	"./ss.js": "./node_modules/moment/locale/ss.js",
+	"./sv": "./node_modules/moment/locale/sv.js",
+	"./sv.js": "./node_modules/moment/locale/sv.js",
+	"./sw": "./node_modules/moment/locale/sw.js",
+	"./sw.js": "./node_modules/moment/locale/sw.js",
+	"./ta": "./node_modules/moment/locale/ta.js",
+	"./ta.js": "./node_modules/moment/locale/ta.js",
+	"./te": "./node_modules/moment/locale/te.js",
+	"./te.js": "./node_modules/moment/locale/te.js",
+	"./tet": "./node_modules/moment/locale/tet.js",
+	"./tet.js": "./node_modules/moment/locale/tet.js",
+	"./tg": "./node_modules/moment/locale/tg.js",
+	"./tg.js": "./node_modules/moment/locale/tg.js",
+	"./th": "./node_modules/moment/locale/th.js",
+	"./th.js": "./node_modules/moment/locale/th.js",
+	"./tl-ph": "./node_modules/moment/locale/tl-ph.js",
+	"./tl-ph.js": "./node_modules/moment/locale/tl-ph.js",
+	"./tlh": "./node_modules/moment/locale/tlh.js",
+	"./tlh.js": "./node_modules/moment/locale/tlh.js",
+	"./tr": "./node_modules/moment/locale/tr.js",
+	"./tr.js": "./node_modules/moment/locale/tr.js",
+	"./tzl": "./node_modules/moment/locale/tzl.js",
+	"./tzl.js": "./node_modules/moment/locale/tzl.js",
+	"./tzm": "./node_modules/moment/locale/tzm.js",
+	"./tzm-latn": "./node_modules/moment/locale/tzm-latn.js",
+	"./tzm-latn.js": "./node_modules/moment/locale/tzm-latn.js",
+	"./tzm.js": "./node_modules/moment/locale/tzm.js",
+	"./ug-cn": "./node_modules/moment/locale/ug-cn.js",
+	"./ug-cn.js": "./node_modules/moment/locale/ug-cn.js",
+	"./uk": "./node_modules/moment/locale/uk.js",
+	"./uk.js": "./node_modules/moment/locale/uk.js",
+	"./ur": "./node_modules/moment/locale/ur.js",
+	"./ur.js": "./node_modules/moment/locale/ur.js",
+	"./uz": "./node_modules/moment/locale/uz.js",
+	"./uz-latn": "./node_modules/moment/locale/uz-latn.js",
+	"./uz-latn.js": "./node_modules/moment/locale/uz-latn.js",
+	"./uz.js": "./node_modules/moment/locale/uz.js",
+	"./vi": "./node_modules/moment/locale/vi.js",
+	"./vi.js": "./node_modules/moment/locale/vi.js",
+	"./x-pseudo": "./node_modules/moment/locale/x-pseudo.js",
+	"./x-pseudo.js": "./node_modules/moment/locale/x-pseudo.js",
+	"./yo": "./node_modules/moment/locale/yo.js",
+	"./yo.js": "./node_modules/moment/locale/yo.js",
+	"./zh-cn": "./node_modules/moment/locale/zh-cn.js",
+	"./zh-cn.js": "./node_modules/moment/locale/zh-cn.js",
+	"./zh-hk": "./node_modules/moment/locale/zh-hk.js",
+	"./zh-hk.js": "./node_modules/moment/locale/zh-hk.js",
+	"./zh-tw": "./node_modules/moment/locale/zh-tw.js",
+	"./zh-tw.js": "./node_modules/moment/locale/zh-tw.js"
+};
+
+
+function webpackContext(req) {
+	var id = webpackContextResolve(req);
+	var module = __webpack_require__(id);
+	return module;
+}
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) { // check for number or string
+		var e = new Error('Cannot find module "' + req + '".');
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	}
+	return id;
+}
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
+
+/***/ }),
+
+/***/ "./src/$$_lazy_route_resource lazy recursive":
+/*!**********************************************************!*\
+  !*** ./src/$$_lazy_route_resource lazy namespace object ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncaught exception popping up in devtools
+	return Promise.resolve().then(function() {
+		var e = new Error('Cannot find module "' + req + '".');
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	});
+}
+webpackEmptyAsyncContext.keys = function() { return []; };
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+module.exports = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = "./src/$$_lazy_route_resource lazy recursive";
+
+/***/ }),
+
+/***/ "./src/app/app-routing.module.ts":
+/*!***************************************!*\
+  !*** ./src/app/app-routing.module.ts ***!
+  \***************************************/
+/*! exports provided: AppRoutingModule */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppRoutingModule", function() { return AppRoutingModule; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm5/common.js");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
+/* harmony import */ var _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar/sidebar.component */ "./src/app/sidebar/sidebar.component.ts");
+/* harmony import */ var _table_table_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./table/table.component */ "./src/app/table/table.component.ts");
+/* harmony import */ var _plot_plot_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./plot/plot.component */ "./src/app/plot/plot.component.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+
+
+
+
+var routes = [
+    // {
+    //   path:'connect',
+    //   component: ConnectComponent
+    // },
+    {
+        path: 'sidebar',
+        component: _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_3__["SidebarComponent"]
+    },
+    {
+        path: 'plot',
+        component: _plot_plot_component__WEBPACK_IMPORTED_MODULE_5__["PlotComponent"]
+    },
+    {
+        path: 'table',
+        component: _table_table_component__WEBPACK_IMPORTED_MODULE_4__["TableComponent"]
+    },
+    // {
+    //   path:'explore',
+    //   component: ExploreComponent
+    // },
+    // {
+    //   path:'browse',
+    //   component: BrowseComponent
+    // },
+    {
+        path: '',
+        redirectTo: '/plot',
+        pathMatch: 'full'
+    }
+];
+var AppRoutingModule = /** @class */ (function () {
+    function AppRoutingModule() {
+    }
+    AppRoutingModule = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"])({
+            imports: [
+                _angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"].forRoot(routes)
+            ],
+            exports: [_angular_router__WEBPACK_IMPORTED_MODULE_2__["RouterModule"]],
+            declarations: []
+        })
+    ], AppRoutingModule);
+    return AppRoutingModule;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/app.component.css":
+/*!***********************************!*\
+  !*** ./src/app/app.component.css ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".sidenav {\r\n    height: 100%;\r\n    width: 0;\r\n    position: fixed;\r\n    z-index: 1;\r\n    top: 0;\r\n    left: 0;\r\n    background-color: whitesmoke;\r\n    overflow: hidden;\r\n    transition: 0.5s;\r\n    padding-top: 60px;\r\n    padding-left: 10px;\r\n    padding-right: 10px;\r\n}\r\n\r\n.sidenav a {\r\n    padding: 8px 8px 8px 32px;\r\n    text-decoration: none;\r\n    font-size: 25px;\r\n    color: #818181;\r\n    display: block;\r\n    transition: 0.3s;\r\n}\r\n\r\n.sidenav a:hover {\r\n    color: #f1f1f1;\r\n}\r\n\r\n.sidenav .closebtn {\r\n    position: absolute;\r\n    top: 0;\r\n    right: 25px;\r\n    font-size: 36px;\r\n    margin-left: 50px;\r\n}\r\n\r\n#main {\r\n    transition: margin-left .5s;\r\n    padding: 16px;\r\n    width: 100%;\r\n}\r\n\r\n@media screen and (max-height: 450px) {\r\n    .sidenav {padding-top: 15px;}\r\n    .sidenav a {font-size: 18px;}\r\n}"
+
+/***/ }),
+
+/***/ "./src/app/app.component.html":
+/*!************************************!*\
+  !*** ./src/app/app.component.html ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<!-- Collapsible sidebar -->\n<div id=\"mySidenav\" class=\"sidenav\">\n    <app-sidebar></app-sidebar>\n</div>\n<!-- Main content -->\n<div id=\"main\">\n    <app-home></app-home>\n    <app-tabs></app-tabs>\n</div>\n"
+
+/***/ }),
+
+/***/ "./src/app/app.component.ts":
+/*!**********************************!*\
+  !*** ./src/app/app.component.ts ***!
+  \**********************************/
+/*! exports provided: AppComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppComponent", function() { return AppComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var AppComponent = /** @class */ (function () {
+    function AppComponent() {
+        this.title = 'RDTExtractor';
+    }
+    AppComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-root',
+            template: __webpack_require__(/*! ./app.component.html */ "./src/app/app.component.html"),
+            styles: [__webpack_require__(/*! ./app.component.css */ "./src/app/app.component.css")]
+        })
+    ], AppComponent);
+    return AppComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/app.module.ts":
+/*!*******************************!*\
+  !*** ./src/app/app.module.ts ***!
+  \*******************************/
+/*! exports provided: AppModule */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppModule", function() { return AppModule; });
+/* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/forms */ "./node_modules/@angular/forms/fesm5/forms.js");
+/* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
+/* harmony import */ var _home_home_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./home/home.component */ "./src/app/home/home.component.ts");
+/* harmony import */ var _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sidebar/sidebar.component */ "./src/app/sidebar/sidebar.component.ts");
+/* harmony import */ var _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./tabs/tabs.component */ "./src/app/tabs/tabs.component.ts");
+/* harmony import */ var _table_table_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./table/table.component */ "./src/app/table/table.component.ts");
+/* harmony import */ var _plot_plot_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./plot/plot.component */ "./src/app/plot/plot.component.ts");
+/* harmony import */ var _panel_panel_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./panel/panel.component */ "./src/app/panel/panel.component.ts");
+/* harmony import */ var _capitalize_pipe__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./capitalize.pipe */ "./src/app/capitalize.pipe.ts");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
+/* harmony import */ var _explore_explore_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./explore/explore.component */ "./src/app/explore/explore.component.ts");
+/* harmony import */ var _connect_connect_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./connect/connect.component */ "./src/app/connect/connect.component.ts");
+/* harmony import */ var _browse_browse_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./browse/browse.component */ "./src/app/browse/browse.component.ts");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ng2-ion-range-slider */ "./node_modules/ng2-ion-range-slider/index.js");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
+/* harmony import */ var _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./dialog/dialog.component */ "./src/app/dialog/dialog.component.ts");
+/* harmony import */ var ngx_treeview__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ngx-treeview */ "./node_modules/ngx-treeview/src/index.js");
+/* harmony import */ var angular_font_awesome__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! angular-font-awesome */ "./node_modules/angular-font-awesome/dist/angular-font-awesome.es5.js");
+/* harmony import */ var _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./disabled-on-selector.directive */ "./src/app/disabled-on-selector.directive.ts");
+/* harmony import */ var ngx_drag_drop__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ngx-drag-drop */ "./node_modules/ngx-drag-drop/ngx-drag-drop.es5.js");
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ng2-charts */ "./node_modules/ng2-charts/index.js");
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_24___default = /*#__PURE__*/__webpack_require__.n(ng2_charts__WEBPACK_IMPORTED_MODULE_24__);
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "./node_modules/@ng-bootstrap/ng-bootstrap/index.js");
+/* harmony import */ var ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ngx-select-dropdown */ "./node_modules/ngx-select-dropdown/dist/index.js");
+/* harmony import */ var _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./mono-plot/mono-plot.component */ "./src/app/mono-plot/mono-plot.component.ts");
+/* harmony import */ var _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./loading-spinner/loading-spinner.component */ "./src/app/loading-spinner/loading-spinner.component.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./globals */ "./src/app/globals.ts");
+/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ngx-tooltip */ "./node_modules/ngx-tooltip/index.js");
+/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__);
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//import { SubstanceModalComponent } from './substance-modal/substance-modal.component';
+
+
+
+
+
+
+
+
+
+
+
+// import { ModalMoleculeComponent } from './modal-molecule/modal-molecule.component';
+var AppModule = /** @class */ (function () {
+    function AppModule() {
+    }
+    AppModule = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["NgModule"])({
+            declarations: [
+                _app_component__WEBPACK_IMPORTED_MODULE_3__["AppComponent"],
+                _home_home_component__WEBPACK_IMPORTED_MODULE_4__["HomeComponent"],
+                _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_5__["SidebarComponent"],
+                _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_6__["TabsComponent"],
+                _table_table_component__WEBPACK_IMPORTED_MODULE_7__["TableComponent"],
+                _plot_plot_component__WEBPACK_IMPORTED_MODULE_8__["PlotComponent"],
+                _panel_panel_component__WEBPACK_IMPORTED_MODULE_9__["PanelComponent"],
+                _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_28__["LoadingSpinnerComponent"],
+                _capitalize_pipe__WEBPACK_IMPORTED_MODULE_10__["CapitalizePipe"],
+                _explore_explore_component__WEBPACK_IMPORTED_MODULE_14__["ExploreComponent"],
+                _connect_connect_component__WEBPACK_IMPORTED_MODULE_15__["ConnectComponent"],
+                _browse_browse_component__WEBPACK_IMPORTED_MODULE_16__["BrowseComponent"],
+                _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],
+                //SubstanceModalComponent,
+                _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_22__["DisabledOnSelectorDirective"],
+                _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_27__["MonoPlotComponent"],
+            ],
+            imports: [
+                _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
+                _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"],
+                _angular_common_http__WEBPACK_IMPORTED_MODULE_11__["HttpClientModule"],
+                _app_routing_module__WEBPACK_IMPORTED_MODULE_13__["AppRoutingModule"],
+                ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__["IonRangeSliderModule"],
+                ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_18__["ModalDialogModule"].forRoot(),
+                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"],
+                ngx_treeview__WEBPACK_IMPORTED_MODULE_20__["TreeviewModule"].forRoot(),
+                _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_25__["NgbModule"].forRoot(),
+                angular_font_awesome__WEBPACK_IMPORTED_MODULE_21__["AngularFontAwesomeModule"],
+                ngx_drag_drop__WEBPACK_IMPORTED_MODULE_23__["DndModule"],
+                ng2_charts__WEBPACK_IMPORTED_MODULE_24__["ChartsModule"],
+                ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_26__["SelectDropDownModule"],
+                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"]
+            ],
+            providers: [_findings_service__WEBPACK_IMPORTED_MODULE_12__["FindingsService"], _globals__WEBPACK_IMPORTED_MODULE_29__["Globals"]],
+            entryComponents: [_dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],],
+            bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_3__["AppComponent"]]
+        })
+    ], AppModule);
+    return AppModule;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/browse/browse.component.css":
+/*!*********************************************!*\
+  !*** ./src/app/browse/browse.component.css ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ "./src/app/browse/browse.component.html":
+/*!**********************************************!*\
+  !*** ./src/app/browse/browse.component.html ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "\n<ul class=\"nav nav-tabs\" role=\"tablist\">\n        <li class=\"nav-item\">\n          <a class=\"nav-link active\" href=\"#profile\" role=\"tab\" data-toggle=\"tab\">profile</a>\n        </li>\n        <li class=\"nav-item\">\n          <a class=\"nav-link\" href=\"#buzz\" role=\"tab\" data-toggle=\"tab\">buzz</a>\n        </li>\n        <li class=\"nav-item\">\n          <a class=\"nav-link\" href=\"#references\" role=\"tab\" data-toggle=\"tab\">references</a>\n        </li>\n      </ul>\n      \n      <!-- Tab panes -->\n      <div class=\"tab-content\">\n        <div role=\"tabpanel\" class=\"tab-pane fade in active\" id=\"profile\">...</div>\n        <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"buzz\">bbb</div>\n        <div role=\"tabpanel\" class=\"tab-pane fade\" id=\"references\">ccc</div>\n      </div>"
+
+/***/ }),
+
+/***/ "./src/app/browse/browse.component.ts":
+/*!********************************************!*\
+  !*** ./src/app/browse/browse.component.ts ***!
+  \********************************************/
+/*! exports provided: BrowseComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BrowseComponent", function() { return BrowseComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var BrowseComponent = /** @class */ (function () {
+    function BrowseComponent() {
+    }
+    BrowseComponent.prototype.ngOnInit = function () {
+    };
+    BrowseComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-browse',
+            template: __webpack_require__(/*! ./browse.component.html */ "./src/app/browse/browse.component.html"),
+            styles: [__webpack_require__(/*! ./browse.component.css */ "./src/app/browse/browse.component.css")]
+        }),
+        __metadata("design:paramtypes", [])
+    ], BrowseComponent);
+    return BrowseComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/capitalize.pipe.ts":
+/*!************************************!*\
+  !*** ./src/app/capitalize.pipe.ts ***!
+  \************************************/
+/*! exports provided: CapitalizePipe */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CapitalizePipe", function() { return CapitalizePipe; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var CapitalizePipe = /** @class */ (function () {
+    function CapitalizePipe() {
+    }
+    CapitalizePipe.prototype.transform = function (value, words) {
+        if (value) {
+            if (words) {
+                return value.replace(/\b\w/g, function (first) { return first.toLocaleUpperCase(); });
+            }
+            else {
+                return value.charAt(0).toUpperCase() + value.slice(1);
+            }
+        }
+        return value;
+    };
+    CapitalizePipe = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Pipe"])({
+            name: 'capitalize'
+        })
+    ], CapitalizePipe);
+    return CapitalizePipe;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/connect/connect.component.css":
+/*!***********************************************!*\
+  !*** ./src/app/connect/connect.component.css ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "::-webkit-input-placeholder {\r\n    color: gainsboro;\r\n}\n:-ms-input-placeholder {\r\n    color: gainsboro;\r\n}\n::-ms-input-placeholder {\r\n    color: gainsboro;\r\n}\n::placeholder {\r\n    color: gainsboro;\r\n}"
+
+/***/ }),
+
+/***/ "./src/app/connect/connect.component.html":
+/*!************************************************!*\
+  !*** ./src/app/connect/connect.component.html ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<br>\n<div class=\"row\">\n    <div class=\"col-lg-11 offset-lg-1\">\n        <h3>Connect to the database:</h3>\n    </div>\n</div>\n<br>\n<div class=\"row\">\n    <div class=\"col-lg-4 offset-md-1\">\n        <div class=\"row\">\n            <div class=\"form-inline col-lg-4\">\n                <label for=\"usr\">Host:</label>\n            </div>\n            <div class=\"form-inline col-lg-8\">\n                <input type=\"text\" class=\"form-control\" [(ngModel)]=\"host\" placeholder=\"Host\">\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"form-inline col-lg-4\">\n                <label for=\"usr\">Port:</label>\n            </div>\n            <div class=\"form-inline col-lg-8\">\n                <input type=\"text\" class=\"form-control\" [(ngModel)]=\"port\" value=\"1521\">\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"form-inline col-lg-4\">\n                <label for=\"usr\">SID:</label>\n            </div>\n            <div class=\"form-inline col-lg-8\">\n                <input type=\"text\" class=\"form-control\" [(ngModel)]=\"sid\" placeholder=\"SID\">\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"form-inline col-lg-4\">\n                <label for=\"usr\">User:</label>\n            </div>\n            <div class=\"form-inline col-lg-8\">\n                <input type=\"text\" class=\"form-control\" [(ngModel)]=\"user\" placeholder=\"User\">\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"form-inline col-lg-4\">\n                <label for=\"usr\">Password:</label>\n            </div>\n            <div class=\"form-inline col-lg-8\">\n                <input type=\"password\" class=\"form-control\" [(ngModel)]=\"password\" placeholder=\"Password\">\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"row mt-4\">\n       \n    <div class=\"col-lg-2 offset-md-1\">\n        <button type=\"button\" class=\"btn\" style=\"margin-left: 20px\" id=\"check_connection\" (click)=\"checkConnection()\"> Connect </button>\n    </div>\n    <div class=\"form-inline col-lg-2\" id=\"info_database\">\n        {{ connectionStatus }}\n    </div>\n</div>\n    \n"
+
+/***/ }),
+
+/***/ "./src/app/connect/connect.component.ts":
+/*!**********************************************!*\
+  !*** ./src/app/connect/connect.component.ts ***!
+  \**********************************************/
+/*! exports provided: ConnectComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConnectComponent", function() { return ConnectComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+var ConnectComponent = /** @class */ (function () {
+    function ConnectComponent(httpClient, findService) {
+        this.httpClient = httpClient;
+        this.findService = findService;
+        this.port = 1521;
+        this.connectionStatus = "No connected";
+    }
+    ConnectComponent.prototype.ngOnInit = function () {
+    };
+    ConnectComponent.prototype.checkConnection = function () {
+        if (this.host && this.port && this.sid && this.user && this.password) {
+            // this.findService.searchFinding(this.search_form,1).subscribe(table_info => this.findService.changeTable(table_info));
+            this.connectionStatus = "Connecting...";
+        }
+        else {
+            this.connectionStatus = "Missing data!";
+        }
+    };
+    ConnectComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-connect',
+            template: __webpack_require__(/*! ./connect.component.html */ "./src/app/connect/connect.component.html"),
+            styles: [__webpack_require__(/*! ./connect.component.css */ "./src/app/connect/connect.component.css")]
+        }),
+        __metadata("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpClient"], _findings_service__WEBPACK_IMPORTED_MODULE_2__["FindingsService"]])
+    ], ConnectComponent);
+    return ConnectComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/dialog/dialog.component.css":
+/*!*********************************************!*\
+  !*** ./src/app/dialog/dialog.component.css ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "host { \n    background: lightblue; \n    display: block; \n    padding: 5px \n}\n.fakeimg {\n    height: 200px;\n    background: #aaa;\n}"
+
+/***/ }),
+
+/***/ "./src/app/dialog/dialog.component.html":
+/*!**********************************************!*\
+  !*** ./src/app/dialog/dialog.component.html ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"container-fluid shadow p-4 bg-white rounded text-monospace \">\n    <div >\n        <canvas class=\"border\" id=\"canvas\"></canvas>\n    </div>\n</div>\n    \n      \n          "
+
+/***/ }),
+
+/***/ "./src/app/dialog/dialog.component.ts":
+/*!********************************************!*\
+  !*** ./src/app/dialog/dialog.component.ts ***!
+  \********************************************/
+/*! exports provided: CustomModalComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CustomModalComponent", function() { return CustomModalComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var smiles_drawer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! smiles-drawer */ "./node_modules/smiles-drawer/app.js");
+/* harmony import */ var smiles_drawer__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(smiles_drawer__WEBPACK_IMPORTED_MODULE_2__);
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+var CustomModalComponent = /** @class */ (function () {
+    function CustomModalComponent(findService) {
+        this.findService = findService;
+    }
+    CustomModalComponent.prototype.dialogInit = function (reference, options) {
+        //this.findService.getStudy(options.data).subscribe(study => {this.parentInfo=study.study});
+        this.smiles = options.data;
+    };
+    CustomModalComponent.prototype.ngAfterViewInit = function () {
+        var options = { 'width': 400, 'height': 400 };
+        var smilesDrawer = new smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["Drawer"](options);
+        smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["parse"](this.smiles, function (tree) {
+            smilesDrawer.draw(tree, "canvas", 'light', false);
+        }, function (err) {
+            console.log(err);
+        });
+    };
+    CustomModalComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-custom-modal',
+            template: __webpack_require__(/*! ./dialog.component.html */ "./src/app/dialog/dialog.component.html"),
+            styles: [__webpack_require__(/*! ./dialog.component.css */ "./src/app/dialog/dialog.component.css")]
+        }),
+        __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"]])
+    ], CustomModalComponent);
+    return CustomModalComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/disabled-on-selector.directive.ts":
+/*!***************************************************!*\
+  !*** ./src/app/disabled-on-selector.directive.ts ***!
+  \***************************************************/
+/*! exports provided: DisabledOnSelectorDirective */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DisabledOnSelectorDirective", function() { return DisabledOnSelectorDirective; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var DisabledOnSelectorDirective = /** @class */ (function () {
+    function DisabledOnSelectorDirective(el, renderer2) {
+        this.el = el;
+        this.renderer2 = renderer2;
+        this.nativeElement = el.nativeElement;
+    }
+    DisabledOnSelectorDirective.prototype.ngOnChanges = function () {
+        var elements = this.nativeElement.querySelectorAll(this.ngxDisabledOnSelector);
+        for (var i = 0; i < elements.length; i++) {
+            this.renderer2.setProperty(elements[i], 'disabled', this.disabled);
+        }
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])('ngxDisabledOnSelector'),
+        __metadata("design:type", String)
+    ], DisabledOnSelectorDirective.prototype, "ngxDisabledOnSelector", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], DisabledOnSelectorDirective.prototype, "disabled", void 0);
+    DisabledOnSelectorDirective = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Directive"])({
+            selector: '[ngxDisabledOnSelector]'
+        }),
+        __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"],
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]])
+    ], DisabledOnSelectorDirective);
+    return DisabledOnSelectorDirective;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/explore/explore.component.css":
+/*!***********************************************!*\
+  !*** ./src/app/explore/explore.component.css ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ "./src/app/explore/explore.component.html":
+/*!************************************************!*\
+  !*** ./src/app/explore/explore.component.html ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<h5>Multi Select Dropdown</h5>\n    <div class=\"row\">\n        <div class=\"col s12 l6\">\n            <ngx-select-dropdown (change)=\"changeValue($event)\" [multiple]=\"true\" [(value)]=\"multiSelect\" [config]=\"config\" [options]=\"stringOptions\"></ngx-select-dropdown>\n        </div>\n        <div class=\"col s12 l6 flow-text\" >\n          <p style=\"margin: 0;\">Selected Options:-</p>\n          <p style=\"margin: 0;\" *ngFor=\"let user of multiSelect\"><strong>Name:</strong> {{user}}</p>\n        </div>\n    </div>\n"
+
+/***/ }),
+
+/***/ "./src/app/explore/explore.component.ts":
+/*!**********************************************!*\
+  !*** ./src/app/explore/explore.component.ts ***!
+  \**********************************************/
+/*! exports provided: ExploreComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ExploreComponent", function() { return ExploreComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var ExploreComponent = /** @class */ (function () {
+    function ExploreComponent() {
+        this.title = 'app';
+        this.tab = 1;
+        this.multiSelect = ["Amie Franklin"];
+        this.stringOptions = [
+            "Burns Dalton", "Mcintyre Lawson", "Amie Franklin", "Jocelyn Horton", "Fischer Erickson", "Medina Underwood", "Goldie Barber"
+        ];
+        this.config = {
+            //displayKey:"name", //if objects array passed which key to be displayed defaults to description
+            search: true,
+        };
+    }
+    ExploreComponent.prototype.changeValue = function ($event) {
+        console.log($event);
+    };
+    ExploreComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-explore',
+            template: __webpack_require__(/*! ./explore.component.html */ "./src/app/explore/explore.component.html"),
+            styles: [__webpack_require__(/*! ./explore.component.css */ "./src/app/explore/explore.component.css")]
+        })
+    ], ExploreComponent);
+    return ExploreComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/findings.service.ts":
+/*!*************************************!*\
+  !*** ./src/app/findings.service.ts ***!
+  \*************************************/
+/*! exports provided: FindingsService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FindingsService", function() { return FindingsService; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+var FindingsService = /** @class */ (function () {
+    function FindingsService(http) {
+        this.http = http;
+        this.table_form = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
+        this.currentTable = this.table_form.asObservable();
+        this.plot_info = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
+        this.currentPlot = this.plot_info.asObservable();
+        this.searchFormTable = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
+        this.currentSearchFormTable = this.searchFormTable.asObservable();
+        this.categoriesSearchForm = new rxjs__WEBPACK_IMPORTED_MODULE_1__["BehaviorSubject"]({});
+        this.currentCategoriesSearchForm = this.categoriesSearchForm.asObservable();
+        this.apiRoot = 'http://localhost:8000/api';
+    }
+    FindingsService.prototype.changeTable = function (table) {
+        this.table_form.next(table);
+    };
+    FindingsService.prototype.changePlot = function (plot) {
+        this.plot_info.next(plot);
+    };
+    FindingsService.prototype.changeSearchFormTable = function (table) {
+        this.searchFormTable.next(table);
+    };
+    FindingsService.prototype.changeCategoriesSearchForm = function (table) {
+        this.categoriesSearchForm.next(table);
+    };
+    FindingsService.prototype.initFinding = function () {
+        var url = this.apiRoot + "/initFindings";
+        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
+        params = params.set('page', '1');
+        return this.http.get(url, { params: params });
+    };
+    FindingsService.prototype.searchFinding = function (search_filter, categories_search_filter, page) {
+        var url = this.apiRoot + "/findings";
+        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]({ fromObject: search_filter });
+        var organ_list = [];
+        var observation_list = [];
+        var grade_list = [];
+        var new_value;
+        Object.keys(categories_search_filter).forEach(function (category) {
+            Object.keys(categories_search_filter[category]).forEach(function (key) {
+                if (!(categories_search_filter[category][key] == undefined)) {
+                    for (var i = 0, len = categories_search_filter[category][key].length; i < len; i++) {
+                        var filter_value = categories_search_filter[category][key][i];
+                        new_value = category;
+                        new_value = new_value.concat('|', filter_value);
+                        if (key === "organs") {
+                            organ_list.push(new_value);
+                        }
+                        else if (key === "observations") {
+                            observation_list.push(new_value);
+                        }
+                        else if (key === "grades") {
+                            grade_list.push(new_value);
+                        }
+                    }
+                }
+            });
+        });
+        if (organ_list.length > 0) {
+            params = params.set("organs", organ_list.join('@'));
+        }
+        if (observation_list.length > 0) {
+            params = params.set("observations", observation_list.join('@'));
+        }
+        if (grade_list.length > 0) {
+            params = params.set("grades", grade_list.join('@'));
+        }
+        params = params.set('page', page.toString());
+        return this.http.get(url, { params: params });
+    };
+    FindingsService.prototype.getStudy = function (study_id) {
+        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
+        params = params.set('id', study_id.toString());
+        return this.http.get(this.apiRoot + '/study', { params: params });
+    };
+    FindingsService.prototype.getSubstance = function (substance_id) {
+        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
+        params = params.set('id', substance_id.toString());
+        return this.http.get(this.apiRoot + '/substance', { params: params });
+    };
+    FindingsService.prototype.getplot = function (search_filter, categories_search_filter) {
+        var url = this.apiRoot + "/plot";
+        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]({ fromObject: search_filter });
+        var organ_list = [];
+        var observation_list = [];
+        var grade_list = [];
+        var new_value;
+        Object.keys(categories_search_filter).forEach(function (category) {
+            Object.keys(categories_search_filter[category]).forEach(function (key) {
+                if (!(categories_search_filter[category][key] == undefined)) {
+                    for (var i = 0, len = categories_search_filter[category][key].length; i < len; i++) {
+                        var filter_value = categories_search_filter[category][key][i];
+                        new_value = category;
+                        new_value = new_value.concat(' | ', filter_value);
+                        if (key === "organs") {
+                            organ_list.push(new_value);
+                        }
+                        else if (key === "observations") {
+                            observation_list.push(new_value);
+                        }
+                        else if (key === "grades") {
+                            grade_list.push(new_value);
+                        }
+                    }
+                }
+            });
+        });
+        if (organ_list.length > 0) {
+            params = params.set("organs", organ_list.join(', '));
+        }
+        if (observation_list.length > 0) {
+            params = params.set("observations", observation_list.join(', '));
+        }
+        if (grade_list.length > 0) {
+            params = params.set("grades", grade_list.join(', '));
+        }
+        return this.http.get(url, { params: params });
+    };
+    FindingsService = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])(),
+        __metadata("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"]])
+    ], FindingsService);
+    return FindingsService;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/globals.ts":
+/*!****************************!*\
+  !*** ./src/app/globals.ts ***!
+  \****************************/
+/*! exports provided: Globals */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Globals", function() { return Globals; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var Globals = /** @class */ (function () {
+    function Globals() {
+        this.showSpinner = false;
+        this.totalStructures = 0;
+        this.totalStudies = 0;
+        this.totalFindings = 0;
+    }
+    Globals = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])()
+    ], Globals);
+    return Globals;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/home/home.component.css":
+/*!*****************************************!*\
+  !*** ./src/app/home/home.component.css ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ "./src/app/home/home.component.html":
+/*!******************************************!*\
+  !*** ./src/app/home/home.component.html ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"page-header\">\n    <div class=\"container text-center\">\n        <h1>RDTextractor</h1>\n    </div>\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/home/home.component.ts":
+/*!****************************************!*\
+  !*** ./src/app/home/home.component.ts ***!
+  \****************************************/
+/*! exports provided: HomeComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HomeComponent", function() { return HomeComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var HomeComponent = /** @class */ (function () {
+    function HomeComponent() {
+    }
+    HomeComponent.prototype.ngOnInit = function () {
+    };
+    HomeComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-home',
+            template: __webpack_require__(/*! ./home.component.html */ "./src/app/home/home.component.html"),
+            styles: [__webpack_require__(/*! ./home.component.css */ "./src/app/home/home.component.css")]
+        }),
+        __metadata("design:paramtypes", [])
+    ], HomeComponent);
+    return HomeComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/loading-spinner/loading-spinner.component.css":
+/*!***************************************************************!*\
+  !*** ./src/app/loading-spinner/loading-spinner.component.css ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".spinner {\n    margin: 100px;\n    width: 100px;\n    height: 80px;\n    text-align: center;\n    font-size: 10px;\n  }\n  \n  .spinner > div {\n    background-color: #3f9cff;\n    height: 100%;\n    width: 10px; \n    margin:5px;\n    display: inline-block;\n    \n    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;\n    animation: sk-stretchdelay 1.2s infinite ease-in-out;\n  }\n  \n  .spinner .rect2 {\n    -webkit-animation-delay: -1.1s;\n    animation-delay: -1.1s;\n  }\n  \n  .spinner .rect3 {\n    -webkit-animation-delay: -1.0s;\n    animation-delay: -1.0s;\n  }\n  \n  .spinner .rect4 {\n    -webkit-animation-delay: -0.9s;\n    animation-delay: -0.9s;\n  }\n  \n  .spinner .rect5 {\n    -webkit-animation-delay: -0.8s;\n    animation-delay: -0.8s;\n  }\n  \n  @-webkit-keyframes sk-stretchdelay {\n    0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  \n    20% { -webkit-transform: scaleY(1.0) }\n  }\n  \n  @keyframes sk-stretchdelay {\n    0%, 40%, 100% { \n      transform: scaleY(0.4);\n      -webkit-transform: scaleY(0.4);\n    }  20% { \n      transform: scaleY(1.0);\n      -webkit-transform: scaleY(1.0);\n    }\n  }"
+
+/***/ }),
+
+/***/ "./src/app/loading-spinner/loading-spinner.component.html":
+/*!****************************************************************!*\
+  !*** ./src/app/loading-spinner/loading-spinner.component.html ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"spinner\">\n  <div class=\"rect1\"></div>\n  <div class=\"rect2\"></div>\n  <div class=\"rect3\"></div>\n  <div class=\"rect4\"></div>\n  <div class=\"rect5\"></div>\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/loading-spinner/loading-spinner.component.ts":
+/*!**************************************************************!*\
+  !*** ./src/app/loading-spinner/loading-spinner.component.ts ***!
+  \**************************************************************/
+/*! exports provided: LoadingSpinnerComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LoadingSpinnerComponent", function() { return LoadingSpinnerComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var LoadingSpinnerComponent = /** @class */ (function () {
+    function LoadingSpinnerComponent() {
+    }
+    LoadingSpinnerComponent.prototype.ngOnInit = function () {
+    };
+    LoadingSpinnerComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-loading-spinner',
+            template: __webpack_require__(/*! ./loading-spinner.component.html */ "./src/app/loading-spinner/loading-spinner.component.html"),
+            styles: [__webpack_require__(/*! ./loading-spinner.component.css */ "./src/app/loading-spinner/loading-spinner.component.css")]
+        }),
+        __metadata("design:paramtypes", [])
+    ], LoadingSpinnerComponent);
+    return LoadingSpinnerComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/mono-plot/mono-plot.component.css":
+/*!***************************************************!*\
+  !*** ./src/app/mono-plot/mono-plot.component.css ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ""
+
+/***/ }),
+
+/***/ "./src/app/mono-plot/mono-plot.component.html":
+/*!****************************************************!*\
+  !*** ./src/app/mono-plot/mono-plot.component.html ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select\" [(ngModel)]=\"chartType\">\n                      <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">{{chart.name}}</option>\n                  </select>\n              </div>\n          </div>\n         <!-- <div class=\"row align-items-center\">\n              <div class=\"col\">\n                  <div class=\"card-body\" dndDropzone\n                  dndEffectAllowed=\"move\"\n                  (dndDrop)=\"onDrop($event, xAxis)\">\n      \n                    <span class=\"badge badge-pill badge-primary\" *ngFor=\"let x of xAxis\"\n                                    [dndDraggable]=\"x\"\n                                    dndEffectAllowed=\"move\"\n                                    (dndMoved)=\"onDragged(x, xAxis)\">\n                        {{x}}<br>\n                        </span>\n                  </div>\n              </div>\n          </div>-->\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\">\n                <canvas baseChart #chart \n                [data]=\"data\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\"></canvas>\n        </div>\n    </div>\n    <!--<div class=\"row\">\n        <div class=\"col-4 card offset-5\">    \n            <div class=\"card-body\" dndDropzone\n                    dndEffectAllowed=\"move\"\n                    (dndDrop)=\"onDrop($event, yAxis)\">\n        \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let y of yAxis\"\n                            [dndDraggable]=\"y\"\n                            dndEffectAllowed=\"move\"\n                            (dndMoved)=\"onDragged(y, yAxis)\">\n                    {{y}}\n                </span>\n            </div>\n        </div>\n        \n    </div>-->\n</div>\n"
+
+/***/ }),
+
+/***/ "./src/app/mono-plot/mono-plot.component.ts":
+/*!**************************************************!*\
+  !*** ./src/app/mono-plot/mono-plot.component.ts ***!
+  \**************************************************/
+/*! exports provided: MonoPlotComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MonoPlotComponent", function() { return MonoPlotComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! chart.piecelabel.js */ "./node_modules/chart.piecelabel.js/src/Chart.PieceLabel.js");
+/* harmony import */ var chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1__);
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+var MonoPlotComponent = /** @class */ (function () {
+    function MonoPlotComponent() {
+        this.chartType = 'line';
+        this.legend = true;
+        this.charts = [
+            //{id: 'line', name: "Line"},
+            { id: 'pie', name: "Pie" },
+            { id: 'doughnut', name: "Doughnut" },
+            //{id: 'horizontalBar', name: "Horizontal Bar"},
+            { id: 'bar', name: "Verical Bar" },
+        ];
+        this.xAxis = [];
+        this.yAxis = [];
+    }
+    MonoPlotComponent.prototype.ngAfterViewInit = function () {
+        this.options = {
+            responsive: true,
+            title: {
+                display: true,
+                text: this.title,
+                fontSize: 20
+            },
+            pieceLabel: {
+                render: function (args) {
+                    var label = args.label, value = args.value;
+                    return label + ': ' + value;
+                },
+                arc: true,
+                fontColor: '#000',
+                position: 'outside',
+                showZero: true,
+                legend: {
+                    display: false,
+                    labels: {
+                        fontColor: 'rgb(255, 99, 132)'
+                    }
+                }
+            }
+        };
+        //this.labels=['Download Sales', 'In-Store Sales', 'Mail-Order Sales']
+        //this.data=[350, 450, 100]
+    };
+    MonoPlotComponent.prototype.onDrop = function (event, list) {
+        var index = event.index;
+        if (typeof index === "undefined") {
+            index = list.length;
+        }
+        list.splice(index, 0, event.data);
+        if (this.xAxis.length > 0 && this.yAxis.length > 0) {
+            alert("Both");
+        }
+    };
+    MonoPlotComponent.prototype.onDragged = function (item, list) {
+        var index = list.indexOf(item);
+        list.splice(index, 1);
+    };
+    MonoPlotComponent.prototype.chartClicked = function (e) {
+        console.log(e);
+    };
+    MonoPlotComponent.prototype.chartHovered = function (e) {
+        console.log(e);
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Array)
+    ], MonoPlotComponent.prototype, "data", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Array)
+    ], MonoPlotComponent.prototype, "labels", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Array)
+    ], MonoPlotComponent.prototype, "datasets", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", String)
+    ], MonoPlotComponent.prototype, "chartType", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], MonoPlotComponent.prototype, "legend", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Object)
+    ], MonoPlotComponent.prototype, "options", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", String)
+    ], MonoPlotComponent.prototype, "title", void 0);
+    MonoPlotComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-mono-plot',
+            template: __webpack_require__(/*! ./mono-plot.component.html */ "./src/app/mono-plot/mono-plot.component.html"),
+            styles: [__webpack_require__(/*! ./mono-plot.component.css */ "./src/app/mono-plot/mono-plot.component.css")]
+        }),
+        __metadata("design:paramtypes", [])
+    ], MonoPlotComponent);
+    return MonoPlotComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/panel/panel.component.css":
+/*!*******************************************!*\
+  !*** ./src/app/panel/panel.component.css ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".close {\n    padding-left: 10px;\n    color: rgb(114, 114, 114);\n    float: left;\n    font-size: 125%;\n    cursor: pointer;\n}\nul {\n    list-style-type: none;\n    margin: 5px;\n    padding: 0;\n}\nul li {\n    font-size: 85%;\n}"
+
+/***/ }),
+
+/***/ "./src/app/panel/panel.component.html":
+/*!********************************************!*\
+  !*** ./src/app/panel/panel.component.html ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "\n<div *ngIf=\"categoryForm; else regularPanel\">\n    <div *ngFor=\"let category of objectKeys(categories_search_form)\">\n            <div *ngFor=\"let value of categories_search_form[category][key]\">\n                <span>\n                    <!-- <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button> -->\n                    &nbsp;{{category}} | {{ value }}\n                </span>       \n        </div>\n       \n    </div>\n</div>\n\n<ng-template #regularPanel>\n    <ul *ngIf=\"search_form[key]\">\n        <li *ngFor=\"let value of search_form[key]\">\n            <span>\n                <!-- <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button> -->\n                &nbsp;{{ value }}\n            </span> \n        </li>\n    </ul>\n</ng-template>"
+
+/***/ }),
+
+/***/ "./src/app/panel/panel.component.ts":
+/*!******************************************!*\
+  !*** ./src/app/panel/panel.component.ts ***!
+  \******************************************/
+/*! exports provided: PanelComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PanelComponent", function() { return PanelComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+var PanelComponent = /** @class */ (function () {
+    //@Output() relevantClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    function PanelComponent(findService) {
+        this.findService = findService;
+        this.objectKeys = Object.keys;
+        this.search_form = {};
+        this.categories_search_form = {};
+    }
+    PanelComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.findService.currentSearchFormTable.subscribe(function (searchFormTable) { return _this.search_form = searchFormTable; });
+        this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) { return _this.categories_search_form = categoriesSearchForm; });
+        this.findService.currentTable.subscribe();
+    };
+    PanelComponent.prototype.removeThis = function (key, value, category) {
+        if (category === undefined) {
+            this.search_form[key].splice(value, 1);
+            if (this.search_form[key].length == 0) {
+                delete this.search_form[key];
+            }
+            this.findService.changeSearchFormTable(this.search_form);
+        }
+        else {
+            this.categories_search_form[category][key].splice(value, 1);
+            if (this.categories_search_form[category][key].length == 0) {
+                delete this.categories_search_form[category][key];
+                if (Object.keys(this.categories_search_form[category]).length == 0) {
+                    this.categories_search_form[category] = null;
+                }
+            }
+            this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        }
+        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info => this.findService.changeTable(table_info));
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", String)
+    ], PanelComponent.prototype, "key", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
+        __metadata("design:type", Boolean)
+    ], PanelComponent.prototype, "categoryForm", void 0);
+    PanelComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-panel',
+            template: __webpack_require__(/*! ./panel.component.html */ "./src/app/panel/panel.component.html"),
+            styles: [__webpack_require__(/*! ./panel.component.css */ "./src/app/panel/panel.component.css")]
+        }),
+        __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"]])
+    ], PanelComponent);
+    return PanelComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/plot.ts":
+/*!*************************!*\
+  !*** ./src/app/plot.ts ***!
+  \*************************/
+/*! exports provided: Plot */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Plot", function() { return Plot; });
+var Plot = /** @class */ (function () {
+    function Plot() {
+    }
+    return Plot;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/plot/plot.component.css":
+/*!*****************************************!*\
+  !*** ./src/app/plot/plot.component.css ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".table-striped{\n    font-size: 20px;\n  }"
+
+/***/ }),
+
+/***/ "./src/app/plot/plot.component.html":
+/*!******************************************!*\
+  !*** ./src/app/plot/plot.component.html ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "\n<div class=\"container-fluid\">\n<!--    <div class=\"row align-items-center\">\n        <div class=\"col-2 card\">\n            <div class=\"card-header\">Fruits</div>\n            <div class=\"card-body\" dndDropzone\n            dndEffectAllowed=\"move\"\n            (dndDrop)=\"onDrop($event, fruits)\">\n            \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let fruit of fruits\"\n                                [dndDraggable]=\"fruit\"\n                                \n                                dndEffectAllowed=\"move\"\n                                (dndMoved)=\"onDragged(fruit, fruits)\">\n                    {{fruit}}\n                </span>\n            </div>  \n        </div>-->\n        <div class=\"col-10\">\n            <div class=\"row\"  >\n                <div class=\"col-lg-4\" *ngFor=\"let plot of objectKeys(plots)\" >\n                \n                    <app-mono-plot [data]=plots[plot].data [labels]=plots[plot].labels [chartType]=plots[plot].chartType [title]=plots[plot].title></app-mono-plot>\n        \n                    <table class=\"table table-striped\">\n                        <thead>\n                          <tr>\n                            <th scope=\"col\">{{plot}}</th>\n                            <th scope=\"col\"><span>#Num </span><span *ngIf=\"plot=='Species'\">Species</span><span *ngIf=\"plot=='Source' || plot=='Treatment'\">Findings</span></th>\n                          </tr>\n                        </thead>\n                        <tbody>\n                          <tr *ngFor=\"let data of plots[plot].data;let i=index \">\n                            <td>{{plots[plot].labels[i]}}</td>\n                            <td>{{data}}</td>\n                          </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n        </div>\n    <!--</div>-->\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/plot/plot.component.ts":
+/*!****************************************!*\
+  !*** ./src/app/plot/plot.component.ts ***!
+  \****************************************/
+/*! exports provided: PlotComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlotComponent", function() { return PlotComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
+/* harmony import */ var _plot__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../plot */ "./src/app/plot.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+var PlotComponent = /** @class */ (function () {
+    function PlotComponent(findService, _router, globals) {
+        this.findService = findService;
+        this._router = _router;
+        this.globals = globals;
+        this.objectKeys = Object.keys;
+        this.plot_info = {};
+        this.search_form = {};
+        this.categories_search_form = {};
+        this.firstTime = true;
+        this.fruits = [
+            "Molecules",
+            "Studies",
+            "Species",
+            "Routes",
+            "Sources",
+            "Pharmacological action",
+            "Category",
+            "Sex",
+            "Treatment Related",
+            "Organs",
+            "Observations"
+        ];
+    }
+    PlotComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.findService.currentTable.subscribe(function (table_info) {
+            _this.plot_info = table_info['plotInfo'];
+            if (!_this.firstTime) {
+                _this.plots['Studies'].labels = ['Selected', 'NO Selected'];
+                _this.plots['Structures'].labels = ['Selected', 'NO Selected'];
+                _this.plots['Findings'].labels = ['Selected', 'NO Selected'];
+                _this.plots['Species'].labels = _this.plot_info['normalised_species'][0];
+                _this.plots['Treatment'].labels = _this.plot_info['relevance'][0];
+                _this.plots['Source'].labels = _this.plot_info['source'][0];
+                setTimeout(function () {
+                    _this.plots['Studies'].data = [_this.globals.totalStudies - table_info['num_studies'], table_info['num_studies']];
+                    _this.plots['Structures'].data = [_this.globals.totalStructures - table_info['num_structures'], table_info['num_structures']];
+                    _this.plots['Findings'].data = [_this.globals.totalFindings - table_info['num_findings'], table_info['num_findings']];
+                    _this.plots['Species'].data = _this.plot_info['normalised_species'][1];
+                    _this.plots['Treatment'].data = _this.plot_info['relevance'][1];
+                    _this.plots['Source'].data = _this.plot_info['source'][1];
+                }, 50);
+            }
+            _this.firstTime = false;
+        });
+        this.plots = [];
+        this.plotID = 1;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = [this.globals.totalStructures, 0];
+        a.labels = ['Selected', 'NO Selected'];
+        a.chartType = 'pie';
+        a.title = "Structures";
+        this.plots['Structures'] = a;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = [this.globals.totalStudies, 0];
+        a.labels = ['Selected', 'NO Selected'];
+        a.chartType = 'pie';
+        a.title = "Studies";
+        this.plots['Studies'] = a;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = [this.globals.totalFindings, 0];
+        a.labels = ['Selected', 'NO Selected'];
+        a.chartType = 'pie';
+        a.title = "Findings";
+        this.plots['Findings'] = a;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = this.plot_info['normalised_species'][1];
+        a.labels = this.plot_info['normalised_species'][0];
+        a.chartType = 'pie';
+        a.title = "Species";
+        this.plots['Species'] = a;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = this.plot_info['relevance'][1];
+        a.labels = this.plot_info['relevance'][0];
+        a.title = "Treatment related";
+        a.chartType = 'pie';
+        this.plots['Treatment'] = a;
+        var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
+        a.id = this.plotID;
+        this.plotID++;
+        a.data = this.plot_info['source'][1];
+        a.labels = this.plot_info['source'][0];
+        a.title = "Source";
+        a.chartType = 'pie';
+        this.plots['Source'] = a;
+    };
+    PlotComponent.prototype.ngAfterViewInit = function () {
+        var _this = this;
+        this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) { return _this.categories_search_form = categoriesSearchForm; });
+        this.findService.currentSearchFormTable.subscribe(function (searchFormTable) { return _this.search_form = searchFormTable; });
+    };
+    PlotComponent.prototype.onDragged = function (item, list) {
+        //const index = list.indexOf( item );
+        //list.splice( index, 1 );
+    };
+    PlotComponent.prototype.onDrop = function (event, list) {
+        /*let index = event.index;
+        if( typeof index === "undefined" ) {
+          index = list.length;
+        }
+    
+        list.splice( index, 0, event.data );*/
+    };
+    PlotComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-plot',
+            template: __webpack_require__(/*! ./plot.component.html */ "./src/app/plot/plot.component.html"),
+            styles: [__webpack_require__(/*! ./plot.component.css */ "./src/app/plot/plot.component.css")]
+        }),
+        __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"],
+            _globals__WEBPACK_IMPORTED_MODULE_4__["Globals"]])
+    ], PlotComponent);
+    return PlotComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/sidebar/sidebar.component.css":
+/*!***********************************************!*\
+  !*** ./src/app/sidebar/sidebar.component.css ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".card-header {\r\n    padding: 0px;\r\n}\r\n\r\n.card-body {\r\n    padding: 10px;\r\n}\r\n\r\n.form-control-sm {\r\n    width: 100%;\r\n    border: 0px;\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.form-control-sm:disabled {\r\n    background-color: gray;\r\n}\r\n\r\n.form-control {\r\n    width: 100%;\r\n}\r\n\r\n.closebtn {\r\n    position: absolute;\r\n    top: 0;\r\n    right: 25px;\r\n    font-size: 36px;\r\n    margin-left: 50px;\r\n}\r\n\r\n#filterContainer {\r\n    padding: 8px 8px 8px 32px;\r\n    text-decoration: none;\r\n    font-size: 18px;\r\n    color: #818181;\r\n    display: block;\r\n    transition: 0.3s;\r\n}\r\n\r\n[data-toggle=\"collapse\"]:after {\r\n    display: inline-block;\r\n    font: normal normal normal 10px/1 FontAwesome;\r\n    font-size: inherit;\r\n    text-rendering: auto;\r\n    -webkit-font-smoothing: antialiased;\r\n    -moz-osx-font-smoothing: grayscale;\r\n    content: \"\\f054\";\r\n    -webkit-transform: rotate(90deg) ;\r\n            transform: rotate(90deg) ;\r\n    transition: all linear 0.25s;\r\n\r\n}\r\n\r\n[data-toggle=\"collapse\"].collapsed:after {\r\n    -webkit-transform: rotate(0deg) ;\r\n            transform: rotate(0deg) ;\r\n}"
+
+/***/ }),
+
+/***/ "./src/app/sidebar/sidebar.component.html":
+/*!************************************************!*\
+  !*** ./src/app/sidebar/sidebar.component.html ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<ul *ngFor=\"let specie of search_form['species']\">\n    <li>{{specie}}</li>\n</ul>\n<a id=\"filterContainer\" href=\"javascript:void(0)\" class=\"closebtn\" (click)=\"closeNav()\">&times;</a>\n<br>\n\n<div id=\"FilterAccordion\" role=\"tablist\">\n    <div class=\"card\">\n        <div class=\"card-header\" role=\"tab\" id=\"CompoundHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#CompoundCard\" aria-expanded=\"true\" aria-controls=\"CompoundCard\">\n                Compound\n            </button>          \n        </div>\n        <div id=\"CompoundCard\" class=\"collapse show\" aria-labelledby=\"CompoundHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <!-- <button type=\"button\" class=\"btn btn-link\" (click)=\"openSketchModal()\">Sketch</button> \n                <br> -->\n                <p class=\"font-weight-bold\">Name:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'compound_name')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['compound_name']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['compound_name']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'compound_name'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">CAS number:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'cas_number')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['cas_number']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['cas_number']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'cas_number'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"PharmacologyHeading\"> \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#PharmacologyCard\" aria-expanded=\"true\" aria-controls=\"PharmacologyCard\">\n                Pharmacology\n            </button>   \n        </div>\n        <div id=\"PharmacologyCard\" class=\"collapse show\" aria-labelledby=\"PharmacologyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Pharmacological action:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'pharmacological_action')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['pharmacological_action']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['pharmacological_action']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'pharmacological_action'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"StudyHeading\">            \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#StudyCard\" aria-expanded=\"true\" aria-controls=\"StudyCard\">\n                Study\n            </button>             \n        </div>\n        <div id=\"StudyCard\" class=\"collapse show\" aria-labelledby=\"StudyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Species:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'species')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['species']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['species']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'species'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Route:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'routes')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['routes']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['routes']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'routes'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Exposure period (days):</p>\n                <div>\n                    <ion-range-slider #sliderElement\n                        type=\"double\"\n                        [min]=\"minExposure\"\n                        [max]=\"maxExposure\"\n                        (onFinish)=\"addSliderInfo($event)\">\n                    </ion-range-slider>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"FindingHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#FindingCard\" aria-expanded=\"true\" aria-controls=\"FindingCard\">\n                Finding\n            </button>\n        </div>\n        <div id=\"FindingCard\" class=\"collapse show\" aria-labelledby=\"FindingHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Sex:</p>\n                <div class=\"form-inline\">\n                    <div class=\"custom-control custom-checkbox\" *ngFor=\"let value of sex\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" name=\"sex\" \n                        id=\"{{value}}\" (change)=\"addSearchCheckBox($event,'sex')\" \n                        value={{value}}  [(ngModel)]=\"this[value]\">\n                        <label class=\"custom-control-label\" for=\"{{value}}\">\n                            {{ value }}&nbsp;&nbsp;&nbsp;&nbsp;\n                        </label>\n                    </div>\n                </div>\n                <br>\n                <div class=\"form-inline\">\n                    <br>\n                    <div class=\"custom-control custom-checkbox\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" \n                        id=\"treatmentRelated\"  value=\"relevant\" \n                        (click)=\"addSearchCheckBox($event,'treatmentRelated')\" \n                        [(ngModel)]=relevant_form>\n                        <label class=\"custom-control-label\" for=\"treatmentRelated\">\n                            &nbsp;Treatment-related only\n                        </label>\n                    </div>                   \n                </div>\n                <br>\n                <p class=\"font-weight-bold\">Category:</p>\n                <div class=\"form-inline\">\n                    <select class=\"custom-select\" id=\"category\" style=\"width:100%\" \n                        (change)=\"selectCategory($event)\">\n                        <option disabled selected>-- select --</option>\n                        <option *ngFor=\"let source of sources\">{{source}}</option>\n                    </select>\n                </div>\n                <br>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">Parameter:</p>\n                <div class=\"row\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'organs')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['organs']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['organs']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                <br>\n                <app-panel [key]= \"'organs'\" [categoryForm]=\"true\"></app-panel>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!hasCategory\">Observation:</p>\n                <div class=\"row\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'observations')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['observations']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['observations']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                 <br>\n                <app-panel [key]= \"'observations'\" [categoryForm]=\"true\"></app-panel>\n            </div>\n        </div>\n    </div>\n</div>\n<br>\n<div class=\"card\">\n    <div class=\"card-body\">\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_structures }} of {{totalStructures}} </font> substances\n        </div>\n        <progress id=\"structuresProgress\" [value]=\"table_info['num_structures']*100/totalStructures\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_studies }} of {{totalStudies}} </font> studies\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n    </div>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"resetFilters()\" style=\"background-color: lightgray\"> Reset Filters </button>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"download()\" style=\"background-color: lightgray\"> Export </button>\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/sidebar/sidebar.component.ts":
+/*!**********************************************!*\
+  !*** ./src/app/sidebar/sidebar.component.ts ***!
+  \**********************************************/
+/*! exports provided: SidebarComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SidebarComponent", function() { return SidebarComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ng2-ion-range-slider */ "./node_modules/ng2-ion-range-slider/index.js");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var ngx_treeview__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ngx-treeview */ "./node_modules/ngx-treeview/src/index.js");
+/* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+//import { SketchModalComponent } from '../sketch/sketch.component';
+
+
+var SidebarComponent = /** @class */ (function () {
+    function SidebarComponent(httpClient, modalDialogService, viewContainer, findService, _router, globals) {
+        this.httpClient = httpClient;
+        this.modalDialogService = modalDialogService;
+        this.viewContainer = viewContainer;
+        this.findService = findService;
+        this._router = _router;
+        this.globals = globals;
+        this.F = false;
+        this.M = false;
+        this.BOTH = false;
+        this.sex = [];
+        this.sources = [];
+        this.hasCategory = false;
+        this.firstTimeSearch = false;
+        this.firstTimeCategorySearch = false;
+        this.objectKeys = Object.keys;
+        this.search_form = {};
+        this.categories_search_form = {};
+        this.table_info = {};
+        this.categoryOptionsSelected = {};
+        this.categoryOptions = {};
+        this.config_select = {
+            //displayKey:"name", //if objects array passed which key to be displayed defaults to description
+            search: true,
+            height: '300px',
+            placeholder: 'select'
+        };
+        this.router = _router;
+    }
+    SidebarComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.globals.showSpinner = true;
+        this.findService.currentTable.subscribe(function (table_info) { return _this.table_info = table_info; });
+        this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) {
+            _this.categories_search_form = categoriesSearchForm;
+            if (_this.firstTimeCategorySearch) {
+                if (_this.request) {
+                    _this.request.unsubscribe();
+                }
+                /*Case TABLE*/
+                _this.globals.showSpinner = true;
+                _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (table_info) {
+                    _this.findService.changeTable(table_info);
+                    for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
+                        var source = _a[_i];
+                        _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
+                        _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
+                        _this.categoryOptionsSelected[source]['organs'] = _this.categories_search_form[source]['organs'];
+                        _this.categoryOptionsSelected[source]['observations'] = _this.categories_search_form[source]['observations'];
+                    }
+                    _this.globals.showSpinner = false;
+                });
+            }
+            _this.firstTimeCategorySearch = true;
+        });
+        this.findService.currentSearchFormTable.subscribe(function (searchFormTable) {
+            _this.search_form = searchFormTable;
+            if (_this.firstTimeSearch) {
+                if (_this.request) {
+                    _this.request.unsubscribe();
+                }
+                _this.globals.showSpinner = true;
+                _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (table_info) {
+                    for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
+                        var source = _a[_i];
+                        _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
+                        _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
+                    }
+                    _this.findService.changeTable(table_info);
+                    _this.globals.showSpinner = false;
+                });
+            }
+            _this.firstTimeSearch = true;
+        });
+        /*FIRST time*/
+        this.findService.initFinding().subscribe(function (table_info) {
+            _this.totalStructures = table_info['num_structures'];
+            _this.totalStudies = table_info['num_studies'];
+            _this.minExposure = table_info['allOptions']['exposure_min'];
+            _this.maxExposure = table_info['allOptions']['exposure_max'];
+            _this.globals.totalStructures = table_info['num_structures'];
+            _this.globals.totalStudies = table_info['num_studies'];
+            _this.globals.totalFindings = table_info['num_findings'];
+            _this.sex = table_info['allOptions']['sex'];
+            _this.sources = table_info['allOptions']['sources'];
+            for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
+                var source = _a[_i];
+                _this.selectedCategory = source;
+                _this.categories_search_form[source] = {};
+                _this.categories_search_form[source]['organs'] = [];
+                _this.categories_search_form[source]['observations'] = [];
+                _this.categoryOptions[source] = {};
+                _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
+                _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
+                _this.categoryOptionsSelected[source] = {};
+                _this.categoryOptionsSelected[source]['organs'] = [];
+                _this.categoryOptionsSelected[source]['observations'] = [];
+            }
+            _this.findService.changeTable(table_info);
+            _this.findService.changePlot(table_info);
+            _this.globals.showSpinner = false;
+        });
+    };
+    SidebarComponent.prototype.selectCategory = function (event) {
+        this.hasCategory = true;
+        this.selectedCategory = event.target.value;
+        //this.items_organs=this.createTreeview(this.table_info['allOptions']['organs'][this.selectedCategory],this.selectedCategory,'organs');
+        //this.items_observations=this.createTreeview(this.table_info['allOptions']['observations'][this.selectedCategory],this.selectedCategory,'observations');
+        if (!(event.target.value in this.categories_search_form)) {
+            this.categories_search_form[event.target.value] = null;
+        }
+    };
+    SidebarComponent.prototype.isCategoryFiltered = function (category) {
+        if (category in this.categories_search_form) {
+            if (this.categories_search_form[category] == undefined) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return false;
+        }
+    };
+    SidebarComponent.prototype.addSearchSelect = function (event) {
+        console.log(event);
+        // If the key(field of search) is already inserted   
+        if (event.target.id in this.search_form) {
+            // If the value(name to search) is already inserted
+            if (this.search_form[event.target.id].indexOf(event.target.value) == -1) {
+                this.search_form[event.target.id].push(event.target.value);
+            }
+        }
+        else {
+            this.search_form[event.target.id] = [event.target.value];
+        }
+        this.findService.changeSearchFormTable(this.search_form);
+        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info => this.findService.changeTable(table_info));
+    };
+    SidebarComponent.prototype.addSearchCheckBox = function (event, id) {
+        if (this.sex.indexOf(event.target.value) != -1) {
+            if (event.target.checked) {
+                if (event.target.value == "F") {
+                    this.M = false;
+                    this.BOTH = false;
+                }
+                else if (event.target.value == "M") {
+                    this.F = false;
+                    this.BOTH = false;
+                }
+                else {
+                    this.M = false;
+                    this.F = false;
+                }
+            }
+        }
+        if (event.target.checked) {
+            this.search_form[id] = [event.target.value];
+        }
+        else {
+            delete this.search_form[id];
+        }
+        this.findService.changeSearchFormTable(this.search_form);
+        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
+    };
+    SidebarComponent.prototype.addSliderInfo = function ($event) {
+        this.search_form['min_exposure'] = $event.from;
+        this.search_form['max_exposure'] = $event.to;
+        this.findService.changeSearchFormTable(this.search_form);
+        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
+    };
+    SidebarComponent.prototype.resetFilters = function () {
+        this.search_form = {};
+        for (var _i = 0, _a = this.sources; _i < _a.length; _i++) {
+            var source = _a[_i];
+            this.categories_search_form[source] = [];
+            this.categories_search_form[source] = [];
+        }
+        this.relevant_form = false;
+        this.BOTH = false;
+        this.F = false;
+        this.M = false;
+        this.sliderElement.reset();
+        this.hasCategory = false;
+        this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        this.findService.changeSearchFormTable(this.search_form);
+        // document.getElementsByTagName("ngx-select-dropdown")[0].reset( );
+        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
+        //document.getElementById('category').selectedIndex = "0";
+    };
+    /* openSketchModal() {
+       this.modalDialogService.openDialog(this.viewContainer, {
+         title: 'Compound seach',
+         childComponent: SketchModalComponent,
+         settings: {
+           closeButtonClass: 'close theme-icon-close',
+           modalDialogClass: "modal-dialog modal-dialog-centered modal-lg"
+         },
+         data: "Test"
+       });
+     }*/
+    SidebarComponent.prototype.closeNav = function () {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("mySidenav").style.overflow = "hidden";
+        document.getElementById("main").style.marginLeft = "25px";
+    };
+    SidebarComponent.prototype.addCategory = function ($event, type) {
+        this.categories_search_form[this.selectedCategory][type] = $event.value;
+        this.findService.changeCategoriesSearchForm(this.categories_search_form);
+    };
+    SidebarComponent.prototype.addSearchForm = function ($event, type) {
+        this.search_form[type] = $event.value;
+        this.findService.changeSearchFormTable(this.search_form);
+    };
+    SidebarComponent.prototype.tof = function (x) {
+        var count = 0;
+        for (var i in x) {
+            count++;
+        }
+        return count;
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])('sliderElement'),
+        __metadata("design:type", ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_3__["IonRangeSliderComponent"])
+    ], SidebarComponent.prototype, "sliderElement", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])('organs'),
+        __metadata("design:type", Array)
+    ], SidebarComponent.prototype, "organs", void 0);
+    SidebarComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-sidebar',
+            template: __webpack_require__(/*! ./sidebar.component.html */ "./src/app/sidebar/sidebar.component.html"),
+            styles: [__webpack_require__(/*! ./sidebar.component.css */ "./src/app/sidebar/sidebar.component.css")],
+            providers: [
+                { provide: ngx_treeview__WEBPACK_IMPORTED_MODULE_4__["TreeviewEventParser"], useClass: ngx_treeview__WEBPACK_IMPORTED_MODULE_4__["DownlineTreeviewEventParser"] }
+            ]
+        }),
+        __metadata("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpClient"],
+            ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_5__["ModalDialogService"],
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"],
+            _findings_service__WEBPACK_IMPORTED_MODULE_2__["FindingsService"],
+            _angular_router__WEBPACK_IMPORTED_MODULE_6__["Router"],
+            _globals__WEBPACK_IMPORTED_MODULE_7__["Globals"]])
+    ], SidebarComponent);
+    return SidebarComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/table/table.component.css":
+/*!*******************************************!*\
+  !*** ./src/app/table/table.component.css ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.table {\r\n    width: 95%;\r\n}\r\n\r\n.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th\r\n{\r\n    padding:8px; \r\n}\r\n\r\n::ng-deep .tooltip-inner {\r\n    background-color: #FFFFFF;\r\n    color: #FFFFFF;\r\n    border-color: darkgray;\r\n}"
+
+/***/ }),
+
+/***/ "./src/app/table/table.component.html":
+/*!********************************************!*\
+  !*** ./src/app/table/table.component.html ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<table class=\"table table-hover\" ng-controller=\"myController\">\n    <thead>\n      <tr class=\"text-left\" bgcolor=lightgray>\n        <th>Compound</th>\n        <th>Name</th>\n        <th>CAS no.</th>\n        <th>Pharmacological action</th>\n        <th>Studies per species</th>\n      </tr>\n    </thead>\n    <tbody *ngIf=\"globals.showSpinner\">\n      <tr class=\"justify-content-center\"><td colspan=\"5\" align=\"center\"><app-loading-spinner></app-loading-spinner></td></tr>\n    </tbody>\n    <tbody *ngIf=\"!globals.showSpinner\">\n        <tr *ngFor=\"let row of table_info.data; let i = index\" class=\"text-left\">\n          <td class=\"align-middle text-center\" style=\"border-right: 1px solid lightgray\">\n            <img *ngIf=\"row.smiles==='-'\" src=\"assets/img/No_Image_Available.png\" width=\"80\" height=\"80\" class=\"mx-auto d-block\"> \n            <div *ngIf=\"row.smiles!=='-'\" (click)=\"openCustomModal(row.smiles)\">\n              <canvas #cmp id=\"{{row.subst_id}}\">{{row.smiles}}</canvas>\n            </div>\n            <br>{{row.subst_id}}\n          </td>          \n          <td class=\"align-middle\"><pre>{{row.common_name}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.cas_number}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.targetActionList}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.count}}</pre></td>\n        </tr>\n    </tbody>\n  </table>\n\n  <!--PAGINATION-->\n  <nav class=\"nav justify-content-center\" *ngIf=\"table_info.num_pages > 0\">\n    <ul class=\"pagination\">\n      <div *ngIf=\" table_info.previous_page > 0;then previous else no_previous\"></div>\n      <ng-template #previous>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(1)\">First</a> </li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.previous_page)\">&laquo;</a></li>\n      </ng-template>\n      <ng-template #no_previous>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">First</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&laquo;</a></li>\n      </ng-template>       \n      <ng-container *ngFor=\"let i of table_info.range_pages\">        \n        <li class=\"page-item active\" *ngIf =\"table_info.page == i\" >\n            <a class=\"page-link\">{{ i }} <span class=\"sr-only\">(current)</span></a>\n        </li>\n        <li class=\"page-item\" *ngIf=\"table_info.page != i\">\n          <a class=\"page-link\" (click)= \"Page(i)\"> {{i}} </a>\n        </li>\n      </ng-container>\n      <div *ngIf=\" table_info.next_page > 0;then next else no_next\"></div>\n      <ng-template #next>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.next_page)\">&raquo;</a></li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.num_pages)\" >Last</a> </li>\n      </ng-template> \n    \n      <ng-template #no_next>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&raquo;</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">Last</a></li>\n      </ng-template>        \n    </ul>\n  </nav>"
+
+/***/ }),
+
+/***/ "./src/app/table/table.component.ts":
+/*!******************************************!*\
+  !*** ./src/app/table/table.component.ts ***!
+  \******************************************/
+/*! exports provided: TableComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TableComponent", function() { return TableComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var smiles_drawer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! smiles-drawer */ "./node_modules/smiles-drawer/app.js");
+/* harmony import */ var smiles_drawer__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(smiles_drawer__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
+/* harmony import */ var _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../dialog/dialog.component */ "./src/app/dialog/dialog.component.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+var TableComponent = /** @class */ (function () {
+    function TableComponent(findService, modalDialogService, viewContainer, globals) {
+        this.findService = findService;
+        this.modalDialogService = modalDialogService;
+        this.viewContainer = viewContainer;
+        this.globals = globals;
+        this.table_info = {};
+        this.search_form = {};
+        this.categories_search_form = {};
+        this.currentSubstance = '';
+        this.rowIndex = 0;
+        this.splitRow = {};
+    }
+    TableComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.findService.currentTable.subscribe(function (table_info) { return _this.table_info = table_info; });
+        this.findService.currentSearchFormTable.subscribe(function (searchFormTable) { return _this.search_form = searchFormTable; });
+        this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) { return _this.categories_search_form = categoriesSearchForm; });
+    };
+    TableComponent.prototype.openCustomModal = function (id) {
+        this.modalDialogService.openDialog(this.viewContainer, {
+            childComponent: _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_4__["CustomModalComponent"],
+            settings: {
+                closeButtonClass: 'close theme-icon-close',
+                modalDialogClass: "modal-dialog modal-dialog-centered modal-lg"
+            },
+            data: id
+        });
+    };
+    TableComponent.prototype.ngAfterViewInit = function () {
+        var _this = this;
+        if (this.components !== undefined) {
+            this.components.forEach(function (child) {
+                var options = { 'width': 100, 'height': 75 };
+                var smilesDrawer = new smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["Drawer"](options);
+                smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["parse"](child.nativeElement.textContent, function (tree) {
+                    smilesDrawer.draw(tree, child.nativeElement.id, 'light', false);
+                }, function (err) {
+                    console.log(err);
+                });
+            });
+        }
+        this.components.changes.subscribe(function (component) {
+            if (_this.components !== undefined) {
+                _this.components.forEach(function (child) {
+                    var options = { 'width': 100, 'height': 75 };
+                    var smilesDrawer = new smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["Drawer"](options);
+                    smiles_drawer__WEBPACK_IMPORTED_MODULE_2__["parse"](child.nativeElement.textContent, function (tree) {
+                        smilesDrawer.draw(tree, child.nativeElement.id, 'light', false);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                });
+            }
+        });
+    };
+    TableComponent.prototype.Page = function (page) {
+        var _this = this;
+        //this.spinner.show();
+        this.globals.showSpinner = true;
+        this.findService.searchFinding(this.search_form, this.categories_search_form, page).subscribe(function (res) {
+            _this.table_info = res;
+            //this.spinner.hide(); 
+            _this.globals.showSpinner = false;
+        });
+    };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChildren"])('cmp'),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["QueryList"])
+    ], TableComponent.prototype, "components", void 0);
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChildren"])('cmpTooltip'),
+        __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["QueryList"])
+    ], TableComponent.prototype, "componentsTooltip", void 0);
+    TableComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-table',
+            template: __webpack_require__(/*! ./table.component.html */ "./src/app/table/table.component.html"),
+            styles: [__webpack_require__(/*! ./table.component.css */ "./src/app/table/table.component.css")]
+        }),
+        __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"],
+            ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_3__["ModalDialogService"],
+            _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"],
+            _globals__WEBPACK_IMPORTED_MODULE_5__["Globals"]])
+    ], TableComponent);
+    return TableComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/tabs/tabs.component.css":
+/*!*****************************************!*\
+  !*** ./src/app/tabs/tabs.component.css ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: #666;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}"
+
+/***/ }),
+
+/***/ "./src/app/tabs/tabs.component.html":
+/*!******************************************!*\
+  !*** ./src/app/tabs/tabs.component.html ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <!-- <a class=\"button\" href=\"#connect\" routerLink=\"connect\"> Connect </a> -->\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n    <!-- <a class=\"button\" href=\"#explore\" routerLink=\"explore\"> Explore </a>\n    <a class=\"button\" href=\"#browse\" routerLink=\"browse\"> Browse </a> -->\n    <br>\n    <br>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/tabs/tabs.component.ts":
+/*!****************************************!*\
+  !*** ./src/app/tabs/tabs.component.ts ***!
+  \****************************************/
+/*! exports provided: TabsComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TabsComponent", function() { return TabsComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var TabsComponent = /** @class */ (function () {
+    function TabsComponent() {
+    }
+    TabsComponent.prototype.ngOnInit = function () {
+    };
+    TabsComponent.prototype.toggleNav = function () {
+        if (document.getElementById("mySidenav").style.width === "300px") {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("mySidenav").style.overflow = "hidden";
+            document.getElementById("main").style.marginLeft = "25px";
+            document.getElementById("main").style.width = "100%";
+        }
+        else {
+            document.getElementById("mySidenav").style.width = "300px";
+            document.getElementById("mySidenav").style.overflow = "auto";
+            document.getElementById("main").style.marginLeft = "300px";
+            document.getElementById("main").style.width = "calc(100% - 300px)";
+        }
+    };
+    TabsComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-tabs',
+            template: __webpack_require__(/*! ./tabs.component.html */ "./src/app/tabs/tabs.component.html"),
+            styles: [__webpack_require__(/*! ./tabs.component.css */ "./src/app/tabs/tabs.component.css")]
+        }),
+        __metadata("design:paramtypes", [])
+    ], TabsComponent);
+    return TabsComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/environments/environment.ts":
+/*!*****************************************!*\
+  !*** ./src/environments/environment.ts ***!
+  \*****************************************/
+/*! exports provided: environment */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "environment", function() { return environment; });
+// The file contents for the current environment will overwrite these during build.
+// The build system defaults to the dev environment which uses `environment.ts`, but if you do
+// `ng build --env=prod` then `environment.prod.ts` will be used instead.
+// The list of which env maps to which file can be found in `.angular-cli.json`.
+var environment = {
+    production: false
+};
+
+
+/***/ }),
+
+/***/ "./src/main.ts":
+/*!*********************!*\
+  !*** ./src/main.ts ***!
+  \*********************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/platform-browser-dynamic */ "./node_modules/@angular/platform-browser-dynamic/fesm5/platform-browser-dynamic.js");
+/* harmony import */ var _app_app_module__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./app/app.module */ "./src/app/app.module.ts");
+/* harmony import */ var _environments_environment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./environments/environment */ "./src/environments/environment.ts");
+
+
+
+
+if (_environments_environment__WEBPACK_IMPORTED_MODULE_3__["environment"].production) {
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["enableProdMode"])();
+}
+Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformBrowserDynamic"])().bootstrapModule(_app_app_module__WEBPACK_IMPORTED_MODULE_2__["AppModule"])
+    .catch(function (err) { return console.log(err); });
+
+
+/***/ }),
+
+/***/ 0:
+/*!***************************!*\
+  !*** multi ./src/main.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! /Users/gemmaportaramirez/Desktop/work/Projects/AngularRDTExtractor/src/main.ts */"./src/main.ts");
+
+
+/***/ })
+
+},[[0,"runtime","vendor"]]]);
+//# sourceMappingURL=main.js.map
