@@ -483,7 +483,17 @@ def findings(request):
     normalised_species = filtered.groupby(['normalised_species','study_id']).count()
     normalised_species = normalised_species.reset_index().groupby(['normalised_species'])['normalised_species'].count()
     normalised_species.sort_values(ascending=False, inplace=True)
-    plot_info['normalised_species'] = [normalised_species.index, normalised_species.values]
+    plot_info['normalised_species'] = [[],[]]
+    sum_value = 0
+    for index, value in normalised_species.iteritems():
+        p = float(value)/num_studies
+        if p < 0.015:
+            plot_info['normalised_species'][0].append('Other')
+            plot_info['normalised_species'][1].append(num_studies-sum_value)
+            break
+        sum_value += value
+        plot_info['normalised_species'][0].append(index)
+        plot_info['normalised_species'][1].append(value)
 
     # Treatment related
     relevance = filtered.groupby(['relevance'])['relevance'].count()
@@ -493,7 +503,17 @@ def findings(request):
     # Source
     source = filtered.groupby(['source'])['source'].count()
     source.sort_values(ascending=False, inplace=True)
-    plot_info['source'] = [source.index, source.values]
+    plot_info['source'] = [[], []]
+    sum_value = 0
+    for index, value in source.iteritems():
+        p = float(value)/num_findings
+        if p < 0.015:
+            plot_info['source'][0].append('Other')
+            plot_info['source'][1].append(num_findings-sum_value)
+            break
+        sum_value += value
+        plot_info['source'][0].append(index)
+        plot_info['source'][1].append(value)
 
     study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
     study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
