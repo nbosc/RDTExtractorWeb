@@ -191,12 +191,23 @@ def initFindings(request):
                          study_count_df, 
                          how='left', on='subst_id', left_index=False, right_index=False, 
                          sort=False)
+
     plot_info = {}
 
-    # Specie
+    # Species
     normalised_species = study_df.groupby(['normalised_species'])['normalised_species'].count()
     normalised_species.sort_values(ascending=False, inplace=True)
-    plot_info['normalised_species'] = [normalised_species.index, normalised_species.values]
+    plot_info['normalised_species'] = [[],[]]
+    sum_value = 0
+    for index, value in normalised_species.iteritems():
+        p = float(value)/num_studies
+        if p < 0.015:
+            plot_info['normalised_species'][0].append('Other')
+            plot_info['normalised_species'][1].append(num_studies-sum_value)
+            break
+        sum_value += value
+        plot_info['normalised_species'][0].append(index)
+        plot_info['normalised_species'][1].append(value)
 
     # Relevance
     relevance = findings_df.groupby(['relevance'])['relevance'].count()
@@ -206,14 +217,21 @@ def initFindings(request):
     # Source
     source = findings_df.groupby(['source'])['source'].count()
     source.sort_values(ascending=False, inplace=True)
-    plot_info['source'] = [source.index, source.values]
-
-
+    plot_info['source'] = [[], []]
+    sum_value = 0
+    for index, value in source.iteritems():
+        p = float(value)/num_findings
+        if p < 0.015:
+            plot_info['source'][0].append('Other')
+            plot_info['source'][1].append(num_findings-sum_value)
+            break
+        sum_value += value
+        plot_info['source'][0].append(index)
+        plot_info['source'][1].append(value)
 
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
     output = output_df[init:end].fillna(value="-").to_dict('records')
-
 
     results = {
         'data': output,
