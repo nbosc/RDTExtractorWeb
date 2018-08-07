@@ -28,7 +28,7 @@ range_df.columns = ['study_id','dose_max','dose_min']
 compound_df = pd.read_pickle("API/static/data/compound.pkl")
 findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
 findings_df.study_id = findings_df.study_id.astype(int).astype(str)
-findings_df.loc[(findings_df.relevance != 'Treatment related'), 'relevance'] = 'No related'
+findings_df.loc[(findings_df.relevance != 'Treatment related'), 'relevance'] = 'Not related'
 study_df = pd.read_pickle("API/static/data/study.pkl")
 study_df.study_id = study_df.study_id.astype(int).astype(str)
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
@@ -125,7 +125,7 @@ def initFindings(request):
     optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
     optionsDict['sex'].sort()
 
-    optionsDict['species'] = all_df.normalised_species.dropna().unique().tolist()
+    optionsDict['species'] = all_df[all_df.normalised_species != 'Excluded term'].normalised_species.dropna().unique().tolist()
     optionsDict['species'].sort()
 
     optionsDict['pharmacological_action'] = target_df.targetAction.dropna().unique().tolist()
@@ -479,7 +479,7 @@ def findings(request):
 
     ##PLOT INFO
     plot_info = {}
-    # Specie
+    # Species
     normalised_species = filtered.groupby(['normalised_species','study_id']).count()
     normalised_species = normalised_species.reset_index().groupby(['normalised_species'])['normalised_species'].count()
     normalised_species.sort_values(ascending=False, inplace=True)
@@ -515,7 +515,7 @@ def findings(request):
         plot_info['source'][0].append(index)
         plot_info['source'][1].append(value)
 
-    study_count_df = filtered[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+    study_count_df = filtered.dropna(subset=['normalised_species'])[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
     study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
     study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
     study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
