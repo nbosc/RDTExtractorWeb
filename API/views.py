@@ -458,7 +458,7 @@ def findings(request):
             tmp_df = filtered_tmp.query(query_string)
         else:
             tmp_df = filtered_tmp
-        optionsDict['species'] = tmp_df.normalised_species.dropna().unique().tolist()
+        optionsDict['species'] = tmp_df[tmp_df.normalised_species != 'Excluded term'].normalised_species.dropna().unique().tolist()
         optionsDict['species'].sort()
 
         exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
