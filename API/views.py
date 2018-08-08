@@ -112,7 +112,7 @@ def initFindings(request):
 
     num_studies = len(all_df.study_id.unique().tolist())
     num_structures = len(all_df.subst_id.unique().tolist())
-    num_findings = len(findings_df)
+    num_findings = findings_df.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
 
     optionsDict = {}
 
@@ -475,7 +475,7 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
-    num_findings = len(filtered)
+    num_findings = filtered.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
 
     ##PLOT INFO
     plot_info = {}
