@@ -5,10 +5,6 @@ from API import views
 urlpatterns = [
     url(r'api/initFindings', views.initFindings),
     url(r'api/findings', views.findings),
-    url(r'api/qualitative', views.qualitative),
-    url(r'api/quantitative', views.quantitative),
-    url(r'api/study', views.study),
-    url(r'api/substance', views.substance),
-    url(r'api/plot', views.plot)
+    url(r'api/page', views.page)
     # url(r'api/connectDB', views.connectDB)
 ]

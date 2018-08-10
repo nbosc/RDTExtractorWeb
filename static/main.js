@@ -348,10 +348,10 @@ var routes = [
         path: 'table',
         component: _table_table_component__WEBPACK_IMPORTED_MODULE_4__["TableComponent"]
     },
-    // {
-    //   path:'explore',
-    //   component: ExploreComponent
-    // },
+    //   {
+    //    path:'explore',
+    //    component: ExploreComponent
+    //  },
     // {
     //   path:'browse',
     //   component: BrowseComponent
@@ -483,6 +483,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./globals */ "./src/app/globals.ts");
 /* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ngx-tooltip */ "./node_modules/ngx-tooltip/index.js");
 /* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__);
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ng4-loading-spinner */ "./node_modules/ng4-loading-spinner/ng4-loading-spinner.umd.js");
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31___default = /*#__PURE__*/__webpack_require__.n(ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__);
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -522,6 +524,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 // import { ModalMoleculeComponent } from './modal-molecule/modal-molecule.component';
+
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -559,7 +562,8 @@ var AppModule = /** @class */ (function () {
                 ngx_drag_drop__WEBPACK_IMPORTED_MODULE_23__["DndModule"],
                 ng2_charts__WEBPACK_IMPORTED_MODULE_24__["ChartsModule"],
                 ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_26__["SelectDropDownModule"],
-                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"]
+                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"],
+                ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__["Ng4LoadingSpinnerModule"].forRoot()
             ],
             providers: [_findings_service__WEBPACK_IMPORTED_MODULE_12__["FindingsService"], _globals__WEBPACK_IMPORTED_MODULE_29__["Globals"]],
             entryComponents: [_dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],],
@@ -913,7 +917,7 @@ module.exports = ""
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<h5>Multi Select Dropdown</h5>\n    <div class=\"row\">\n        <div class=\"col s12 l6\">\n            <ngx-select-dropdown (change)=\"changeValue($event)\" [multiple]=\"true\" [(value)]=\"multiSelect\" [config]=\"config\" [options]=\"stringOptions\"></ngx-select-dropdown>\n        </div>\n        <div class=\"col s12 l6 flow-text\" >\n          <p style=\"margin: 0;\">Selected Options:-</p>\n          <p style=\"margin: 0;\" *ngFor=\"let user of multiSelect\"><strong>Name:</strong> {{user}}</p>\n        </div>\n    </div>\n"
+module.exports = "<div class=\"row\">\n        <div class=\"col\">\n<canvas baseChart\n    [chartType]=\"type\"\n    [datasets]=\"datasets\"\n    [labels]=\"labels\"\n    [colors]=\"colors\"></canvas>\n        </div>\n\n</div>"
 
 /***/ }),
 
@@ -937,20 +941,26 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 var ExploreComponent = /** @class */ (function () {
     function ExploreComponent() {
-        this.title = 'app';
-        this.tab = 1;
-        this.multiSelect = ["Amie Franklin"];
-        this.stringOptions = [
-            "Burns Dalton", "Mcintyre Lawson", "Amie Franklin", "Jocelyn Horton", "Fischer Erickson", "Medina Underwood", "Goldie Barber"
+        this.colors = ["#A11E22",
+            "#E8A631",
+            "#E8C098",
+            "#E5E4DA",
+            "#BFB6B3",
+            "#FAAC77",
+            "#C9C980",
+            "#F8EFEE",
+            "#60686F",
+            "#333C3E"
         ];
-        this.config = {
-            //displayKey:"name", //if objects array passed which key to be displayed defaults to description
-            search: true,
-        };
+        this.type = 'doughnut';
+        this.datasets = [
+            {
+                data: [350, 450, 100],
+                backgroundColor: this.colors.slice(0, 3)
+            }
+        ];
+        this.labels = ['Download Sales', 'In-Store Sales', 'Mail-Order Sales'];
     }
-    ExploreComponent.prototype.changeValue = function ($event) {
-        console.log($event);
-    };
     ExploreComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
             selector: 'app-explore',
@@ -1060,53 +1070,10 @@ var FindingsService = /** @class */ (function () {
         params = params.set('page', page.toString());
         return this.http.get(url, { params: params });
     };
-    FindingsService.prototype.getStudy = function (study_id) {
+    FindingsService.prototype.page = function (page) {
         var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
-        params = params.set('id', study_id.toString());
-        return this.http.get(this.apiRoot + '/study', { params: params });
-    };
-    FindingsService.prototype.getSubstance = function (substance_id) {
-        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
-        params = params.set('id', substance_id.toString());
-        return this.http.get(this.apiRoot + '/substance', { params: params });
-    };
-    FindingsService.prototype.getplot = function (search_filter, categories_search_filter) {
-        var url = this.apiRoot + "/plot";
-        var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]({ fromObject: search_filter });
-        var organ_list = [];
-        var observation_list = [];
-        var grade_list = [];
-        var new_value;
-        Object.keys(categories_search_filter).forEach(function (category) {
-            Object.keys(categories_search_filter[category]).forEach(function (key) {
-                if (!(categories_search_filter[category][key] == undefined)) {
-                    for (var i = 0, len = categories_search_filter[category][key].length; i < len; i++) {
-                        var filter_value = categories_search_filter[category][key][i];
-                        new_value = category;
-                        new_value = new_value.concat(' | ', filter_value);
-                        if (key === "organs") {
-                            organ_list.push(new_value);
-                        }
-                        else if (key === "observations") {
-                            observation_list.push(new_value);
-                        }
-                        else if (key === "grades") {
-                            grade_list.push(new_value);
-                        }
-                    }
-                }
-            });
-        });
-        if (organ_list.length > 0) {
-            params = params.set("organs", organ_list.join(', '));
-        }
-        if (observation_list.length > 0) {
-            params = params.set("observations", observation_list.join(', '));
-        }
-        if (grade_list.length > 0) {
-            params = params.set("grades", grade_list.join(', '));
-        }
-        return this.http.get(url, { params: params });
+        params = params.set('page', page.toString());
+        return this.http.get(this.apiRoot + '/page', { params: params });
     };
     FindingsService = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])(),
@@ -1140,8 +1107,8 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 var Globals = /** @class */ (function () {
     function Globals() {
         this.showSpinner = false;
-        this.totalStructures = 0;
         this.totalStudies = 0;
+        this.totalStructures = 0;
         this.totalFindings = 0;
     }
     Globals = __decorate([
@@ -1287,7 +1254,7 @@ var LoadingSpinnerComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ""
+module.exports = "select.btn-mini {\r\n    height: auto;\r\n    line-height: 16px;\r\n    width: 130px;\r\n}"
 
 /***/ }),
 
@@ -1298,7 +1265,7 @@ module.exports = ""
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select\" [(ngModel)]=\"chartType\">\n                      <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">{{chart.name}}</option>\n                  </select>\n              </div>\n          </div>\n         <!-- <div class=\"row align-items-center\">\n              <div class=\"col\">\n                  <div class=\"card-body\" dndDropzone\n                  dndEffectAllowed=\"move\"\n                  (dndDrop)=\"onDrop($event, xAxis)\">\n      \n                    <span class=\"badge badge-pill badge-primary\" *ngFor=\"let x of xAxis\"\n                                    [dndDraggable]=\"x\"\n                                    dndEffectAllowed=\"move\"\n                                    (dndMoved)=\"onDragged(x, xAxis)\">\n                        {{x}}<br>\n                        </span>\n                  </div>\n              </div>\n          </div>-->\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\">\n                <canvas baseChart #chart \n                [data]=\"data\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\"></canvas>\n        </div>\n    </div>\n    <!--<div class=\"row\">\n        <div class=\"col-4 card offset-5\">    \n            <div class=\"card-body\" dndDropzone\n                    dndEffectAllowed=\"move\"\n                    (dndDrop)=\"onDrop($event, yAxis)\">\n        \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let y of yAxis\"\n                            [dndDraggable]=\"y\"\n                            dndEffectAllowed=\"move\"\n                            (dndMoved)=\"onDragged(y, yAxis)\">\n                    {{y}}\n                </span>\n            </div>\n        </div>\n        \n    </div>-->\n</div>\n"
+module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select\" [(ngModel)]=\"chartType\">\n                      <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">{{chart.name}}</option>\n                  </select>\n              </div>\n          </div>\n         <!-- <div class=\"row align-items-center\">\n              <div class=\"col\">\n                  <div class=\"card-body\" dndDropzone\n                  dndEffectAllowed=\"move\"\n                  (dndDrop)=\"onDrop($event, xAxis)\">\n      \n                    <span class=\"badge badge-pill badge-primary\" *ngFor=\"let x of xAxis\"\n                                    [dndDraggable]=\"x\"\n                                    dndEffectAllowed=\"move\"\n                                    (dndMoved)=\"onDragged(x, xAxis)\">\n                        {{x}}<br>\n                        </span>\n                  </div>\n              </div>\n          </div>-->\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\">\n                <canvas baseChart #chart \n                [datasets]=\"datasets\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                [colors]=\"chartsColors\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\"></canvas>\n        </div>\n    </div>\n\n    <!--<div class=\"row\">\n        <div class=\"col-4 card offset-5\">    \n            <div class=\"card-body\" dndDropzone\n                    dndEffectAllowed=\"move\"\n                    (dndDrop)=\"onDrop($event, yAxis)\">\n        \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let y of yAxis\"\n                            [dndDraggable]=\"y\"\n                            dndEffectAllowed=\"move\"\n                            (dndMoved)=\"onDragged(y, yAxis)\">\n                    {{y}}\n                </span>\n            </div>\n        </div>\n        \n    </div>-->\n</div>\n"
 
 /***/ }),
 
@@ -1315,6 +1282,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! chart.piecelabel.js */ "./node_modules/chart.piecelabel.js/src/Chart.PieceLabel.js");
 /* harmony import */ var chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(chart_piecelabel_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ng2-charts */ "./node_modules/ng2-charts/index.js");
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(ng2_charts__WEBPACK_IMPORTED_MODULE_2__);
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1326,10 +1295,23 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 };
 
 
+
 var MonoPlotComponent = /** @class */ (function () {
     function MonoPlotComponent() {
         this.chartType = 'line';
         this.legend = true;
+        this.colors = ["#A11E22",
+            "#E8A631",
+            "#E8C098",
+            "#E5E4DA",
+            "#BFB6B3",
+            "#FAAC77",
+            "#C9C980",
+            "#F8EFEE",
+            "#60686F",
+            "#333C3E"
+        ];
+        this.chartsColors = [{}];
         this.charts = [
             //{id: 'line', name: "Line"},
             { id: 'pie', name: "Pie" },
@@ -1353,7 +1335,7 @@ var MonoPlotComponent = /** @class */ (function () {
                     var label = args.label, value = args.value;
                     return label + ': ' + value;
                 },
-                arc: true,
+                //  arc: true,
                 fontColor: '#000',
                 position: 'outside',
                 showZero: true,
@@ -1363,6 +1345,9 @@ var MonoPlotComponent = /** @class */ (function () {
                         fontColor: 'rgb(255, 99, 132)'
                     }
                 }
+            },
+            legend: {
+                position: 'right'
             }
         };
         //this.labels=['Download Sales', 'In-Store Sales', 'Mail-Order Sales']
@@ -1388,6 +1373,10 @@ var MonoPlotComponent = /** @class */ (function () {
     MonoPlotComponent.prototype.chartHovered = function (e) {
         console.log(e);
     };
+    __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])(ng2_charts__WEBPACK_IMPORTED_MODULE_2__["BaseChartDirective"]),
+        __metadata("design:type", ng2_charts__WEBPACK_IMPORTED_MODULE_2__["BaseChartDirective"])
+    ], MonoPlotComponent.prototype, "chart", void 0);
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"])(),
         __metadata("design:type", Array)
@@ -1560,7 +1549,7 @@ var Plot = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".table-striped{\n    font-size: 20px;\n  }"
+module.exports = ".table-striped{\n    font-size: 20px;\n    table-layout: fixed;\n    width: 200px; \n    word-break: break-all;\n  }\n\n\n  \ndiv.loading {\n    position: relative;\n}\n\n\n  \ndiv.loading:after {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background-color: rgba(0, 0, 0, 0.1);\n    background-image: url('Reload-1s-200px.svg');\n    background-position: center;\n    background-repeat: no-repeat;\n    background-size: 250px 250px;\n    content: \"\";\n}\n\n\n  \n/* .table-striped td { overflow: hidden; } */"
 
 /***/ }),
 
@@ -1571,7 +1560,7 @@ module.exports = ".table-striped{\n    font-size: 20px;\n  }"
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n<div class=\"container-fluid\">\n<!--    <div class=\"row align-items-center\">\n        <div class=\"col-2 card\">\n            <div class=\"card-header\">Fruits</div>\n            <div class=\"card-body\" dndDropzone\n            dndEffectAllowed=\"move\"\n            (dndDrop)=\"onDrop($event, fruits)\">\n            \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let fruit of fruits\"\n                                [dndDraggable]=\"fruit\"\n                                \n                                dndEffectAllowed=\"move\"\n                                (dndMoved)=\"onDragged(fruit, fruits)\">\n                    {{fruit}}\n                </span>\n            </div>  \n        </div>-->\n        <div class=\"col-10\">\n            <div class=\"row\"  >\n                <div class=\"col-lg-4\" *ngFor=\"let plot of objectKeys(plots)\" >\n                \n                    <app-mono-plot [data]=plots[plot].data [labels]=plots[plot].labels [chartType]=plots[plot].chartType [title]=plots[plot].title></app-mono-plot>\n        \n                    <table class=\"table table-striped\">\n                        <thead>\n                          <tr>\n                            <th scope=\"col\">{{plot}}</th>\n                            <th scope=\"col\"><span>#Num </span><span *ngIf=\"plot=='Species'\">Species</span><span *ngIf=\"plot=='Source' || plot=='Treatment'\">Findings</span></th>\n                          </tr>\n                        </thead>\n                        <tbody>\n                          <tr *ngFor=\"let data of plots[plot].data;let i=index \">\n                            <td>{{plots[plot].labels[i]}}</td>\n                            <td>{{data}}</td>\n                          </tr>\n                        </tbody>\n                    </table>\n                </div>\n            </div>\n        </div>\n    <!--</div>-->\n</div>"
+module.exports = "\n<div class=\"container-fluid\" [ngClass]=\"{ 'loading': globals.showSpinner}\">\n<!--    <div class=\"row align-items-center\">\n        <div class=\"col-2 card\">\n            <div class=\"card-header\">Fruits</div>\n            <div class=\"card-body\" dndDropzone\n            dndEffectAllowed=\"move\"\n            (dndDrop)=\"onDrop($event, fruits)\">\n            \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let fruit of fruits\"\n                                [dndDraggable]=\"fruit\"\n                                \n                                dndEffectAllowed=\"move\"\n                                (dndMoved)=\"onDragged(fruit, fruits)\">\n                    {{fruit}}\n                </span>\n            </div>  \n        </div>-->\n    <div class=\"row\"  >\n        <div class=\"col-lg-4\" *ngFor=\"let plot of objectKeys(plots)\" >\n        \n            <app-mono-plot [datasets]=plots[plot].datasets [labels]=plots[plot].labels [chartType]=plots[plot].chartType \n            [title]=plots[plot].title ></app-mono-plot>\n            <br>\n            <table class=\"table table-sm table-striped\" style=\"font-size: 12px\" align=\"center\">\n                <thead>\n                    <tr>\n                    <th scope=\"col\" style=\"width:110px;\">{{plot}}</th>\n                    <th scope=\"col\" style=\"width:90px; text-align: right\">\n                        <span *ngIf=\"plot=='Species'\">\n                            # Studies\n                        </span>\n                        <span *ngIf=\"plot=='Source' || plot=='Treatment'\">\n                            # Findings\n                        </span>\n                    </th>\n                    </tr>\n                </thead>\n                <tbody>\n                    \n                    <tr *ngFor=\"let data of plots[plot].datasets[0].data;let i=index \">\n                    <td>{{plots[plot].labels[i]}}</td>\n                    <td style=\"text-align: right\">{{data}}</td>\n                    </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <!--</div>-->\n</div>"
 
 /***/ }),
 
@@ -1590,6 +1579,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 /* harmony import */ var _plot__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../plot */ "./src/app/plot.ts");
 /* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ng4-loading-spinner */ "./node_modules/ng4-loading-spinner/ng4-loading-spinner.umd.js");
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_5__);
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1604,49 +1595,83 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 
+
 var PlotComponent = /** @class */ (function () {
-    function PlotComponent(findService, _router, globals) {
+    function PlotComponent(findService, _router, globals, spinnerService) {
         this.findService = findService;
         this._router = _router;
         this.globals = globals;
+        this.spinnerService = spinnerService;
         this.objectKeys = Object.keys;
         this.plot_info = {};
+        this.num_studies = 0;
+        this.num_structures = 0;
+        this.num_findings = 0;
         this.search_form = {};
         this.categories_search_form = {};
         this.firstTime = true;
-        this.fruits = [
-            "Molecules",
-            "Studies",
-            "Species",
-            "Routes",
-            "Sources",
-            "Pharmacological action",
-            "Category",
-            "Sex",
-            "Treatment Related",
-            "Organs",
-            "Observations"
+        this.colors = ["#A11E22",
+            "#E8A631",
+            "#E8C098",
+            "#E5E4DA",
+            "#BFB6B3",
+            "#FAAC77",
+            "#C9C980",
+            "#F8EFEE",
+            "#60686F",
+            "#333C3E"
         ];
     }
     PlotComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.findService.currentTable.subscribe(function (table_info) {
-            _this.plot_info = table_info['plotInfo'];
+            _this.plot_info = table_info;
             if (!_this.firstTime) {
-                _this.plots['Studies'].labels = ['Selected', 'NO Selected'];
-                _this.plots['Structures'].labels = ['Selected', 'NO Selected'];
-                _this.plots['Findings'].labels = ['Selected', 'NO Selected'];
-                _this.plots['Species'].labels = _this.plot_info['normalised_species'][0];
-                _this.plots['Treatment'].labels = _this.plot_info['relevance'][0];
-                _this.plots['Source'].labels = _this.plot_info['source'][0];
+                _this.plots['Studies'].labels = ['Selected', 'Not Selected'];
+                _this.plots['Structures'].labels = ['Selected', 'Not Selected'];
+                _this.plots['Findings'].labels = ['Selected', 'Not Selected'];
+                _this.plots['Species'].labels = _this.plot_info['plotInfo']['normalised_species'][0];
+                _this.plots['Treatment'].labels = ['Not related', 'Treatment related'];
+                _this.plots['Source'].labels = _this.plot_info['plotInfo']['source'][0];
                 setTimeout(function () {
-                    _this.plots['Studies'].data = [_this.globals.totalStudies - table_info['num_studies'], table_info['num_studies']];
-                    _this.plots['Structures'].data = [_this.globals.totalStructures - table_info['num_structures'], table_info['num_structures']];
-                    _this.plots['Findings'].data = [_this.globals.totalFindings - table_info['num_findings'], table_info['num_findings']];
-                    _this.plots['Species'].data = _this.plot_info['normalised_species'][1];
-                    _this.plots['Treatment'].data = _this.plot_info['relevance'][1];
-                    _this.plots['Source'].data = _this.plot_info['source'][1];
+                    _this.plots['Studies'].datasets = [
+                        {
+                            data: [_this.plot_info['num_studies'], _this.globals.totalStudies - _this.plot_info['num_studies']],
+                            backgroundColor: _this.colors.slice(0, 2)
+                        }
+                    ];
+                    _this.plots['Structures'].datasets = [
+                        {
+                            data: [_this.plot_info['num_structures'], _this.globals.totalStructures - _this.plot_info['num_structures']],
+                            backgroundColor: _this.colors.slice(0, 2)
+                        }
+                    ];
+                    _this.plots['Findings'].datasets = [
+                        {
+                            data: [_this.plot_info['num_findings'], _this.globals.totalFindings - _this.plot_info['num_findings']],
+                            backgroundColor: _this.colors.slice(0, 2)
+                        }
+                    ];
+                    _this.plots['Species'].datasets = [
+                        {
+                            data: _this.plot_info['plotInfo']['normalised_species'][1],
+                            backgroundColor: _this.colors.slice(0, _this.plot_info['plotInfo']['normalised_species'][1].length)
+                        }
+                    ];
+                    _this.plots['Treatment'].datasets = [
+                        {
+                            data: _this.plot_info['plotInfo']['relevance'][1],
+                            backgroundColor: _this.colors.slice(0, _this.plot_info['plotInfo']['relevance'][1].length)
+                        }
+                    ];
+                    _this.plots['Source'].datasets = [
+                        {
+                            data: _this.plot_info['plotInfo']['source'][1],
+                            backgroundColor: _this.colors.slice(0, _this.plot_info['plotInfo']['source'][1].length)
+                        }
+                    ];
                 }, 50);
+                _this.spinnerService.hide();
             }
             _this.firstTime = false;
         });
@@ -1655,50 +1680,80 @@ var PlotComponent = /** @class */ (function () {
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = [this.globals.totalStructures, 0];
-        a.labels = ['Selected', 'NO Selected'];
-        a.chartType = 'pie';
+        a.datasets = [
+            {
+                data: [this.plot_info['num_structures'], this.globals.totalStructures - this.plot_info['num_structures']],
+                backgroundColor: this.colors.slice(0, 2)
+            }
+        ];
+        a.labels = ['Selected', 'Not Selected'];
+        a.chartType = 'doughnut';
         a.title = "Structures";
         this.plots['Structures'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = [this.globals.totalStudies, 0];
-        a.labels = ['Selected', 'NO Selected'];
-        a.chartType = 'pie';
+        a.datasets = [
+            {
+                data: [this.plot_info['num_studies'], this.globals.totalStudies - this.plot_info['num_studies']],
+                backgroundColor: this.colors.slice(0, 2)
+            }
+        ];
+        a.labels = ['Selected', 'Not Selected'];
+        a.chartType = 'doughnut';
         a.title = "Studies";
         this.plots['Studies'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = [this.globals.totalFindings, 0];
-        a.labels = ['Selected', 'NO Selected'];
-        a.chartType = 'pie';
+        a.datasets = [
+            {
+                data: [this.plot_info['num_findings'], this.globals.totalFindings - this.plot_info['num_findings']],
+                backgroundColor: this.colors.slice(0, 2)
+            }
+        ];
+        a.labels = ['Selected', 'Not Selected'];
+        a.chartType = 'doughnut';
         a.title = "Findings";
         this.plots['Findings'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = this.plot_info['normalised_species'][1];
-        a.labels = this.plot_info['normalised_species'][0];
-        a.chartType = 'pie';
+        a.datasets = [
+            {
+                data: this.plot_info['plotInfo']['normalised_species'][1],
+                backgroundColor: this.colors.slice(0, this.plot_info['plotInfo']['normalised_species'][1].length)
+            }
+        ];
+        a.labels = this.plot_info['plotInfo']['normalised_species'][0];
+        a.chartType = 'doughnut';
         a.title = "Species";
         this.plots['Species'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = this.plot_info['relevance'][1];
-        a.labels = this.plot_info['relevance'][0];
-        a.title = "Treatment related";
-        a.chartType = 'pie';
+        a.datasets = [
+            {
+                data: this.plot_info['plotInfo']['relevance'][1],
+                backgroundColor: this.colors.slice(0, this.plot_info['plotInfo']['relevance'][1].length)
+            }
+        ];
+        a.labels = this.plot_info['plotInfo']['relevance'][0];
+        a.title = "Relevance";
+        a.chartType = 'doughnut';
         this.plots['Treatment'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
         this.plotID++;
-        a.data = this.plot_info['source'][1];
-        a.labels = this.plot_info['source'][0];
+        a.datasets = [
+            {
+                data: this.plot_info['plotInfo']['source'][1],
+                backgroundColor: this.colors.slice(0, this.plot_info['plotInfo']['source'][1].length)
+            }
+        ];
+        a.labels = this.plot_info['plotInfo']['source'][0];
         a.title = "Source";
-        a.chartType = 'pie';
+        a.chartType = 'doughnut';
         this.plots['Source'] = a;
     };
     PlotComponent.prototype.ngAfterViewInit = function () {
@@ -1725,7 +1780,7 @@ var PlotComponent = /** @class */ (function () {
             styles: [__webpack_require__(/*! ./plot.component.css */ "./src/app/plot/plot.component.css")]
         }),
         __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"], _angular_router__WEBPACK_IMPORTED_MODULE_2__["Router"],
-            _globals__WEBPACK_IMPORTED_MODULE_4__["Globals"]])
+            _globals__WEBPACK_IMPORTED_MODULE_4__["Globals"], ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_5__["Ng4LoadingSpinnerService"]])
     ], PlotComponent);
     return PlotComponent;
 }());
@@ -1752,7 +1807,7 @@ module.exports = ".card-header {\r\n    padding: 0px;\r\n}\r\n\r\n.card-body {\r
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<ul *ngFor=\"let specie of search_form['species']\">\n    <li>{{specie}}</li>\n</ul>\n<a id=\"filterContainer\" href=\"javascript:void(0)\" class=\"closebtn\" (click)=\"closeNav()\">&times;</a>\n<br>\n\n<div id=\"FilterAccordion\" role=\"tablist\">\n    <div class=\"card\">\n        <div class=\"card-header\" role=\"tab\" id=\"CompoundHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#CompoundCard\" aria-expanded=\"true\" aria-controls=\"CompoundCard\">\n                Compound\n            </button>          \n        </div>\n        <div id=\"CompoundCard\" class=\"collapse show\" aria-labelledby=\"CompoundHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <!-- <button type=\"button\" class=\"btn btn-link\" (click)=\"openSketchModal()\">Sketch</button> \n                <br> -->\n                <p class=\"font-weight-bold\">Name:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'compound_name')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['compound_name']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['compound_name']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'compound_name'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">CAS number:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'cas_number')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['cas_number']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['cas_number']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'cas_number'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"PharmacologyHeading\"> \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#PharmacologyCard\" aria-expanded=\"true\" aria-controls=\"PharmacologyCard\">\n                Pharmacology\n            </button>   \n        </div>\n        <div id=\"PharmacologyCard\" class=\"collapse show\" aria-labelledby=\"PharmacologyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Pharmacological action:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'pharmacological_action')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['pharmacological_action']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['pharmacological_action']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'pharmacological_action'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"StudyHeading\">            \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#StudyCard\" aria-expanded=\"true\" aria-controls=\"StudyCard\">\n                Study\n            </button>             \n        </div>\n        <div id=\"StudyCard\" class=\"collapse show\" aria-labelledby=\"StudyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Species:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'species')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['species']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['species']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'species'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Route:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'routes')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['routes']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['routes']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'routes'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Exposure period (days):</p>\n                <div>\n                    <ion-range-slider #sliderElement\n                        type=\"double\"\n                        [min]=\"minExposure\"\n                        [max]=\"maxExposure\"\n                        (onFinish)=\"addSliderInfo($event)\">\n                    </ion-range-slider>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"FindingHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#FindingCard\" aria-expanded=\"true\" aria-controls=\"FindingCard\">\n                Finding\n            </button>\n        </div>\n        <div id=\"FindingCard\" class=\"collapse show\" aria-labelledby=\"FindingHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Sex:</p>\n                <div class=\"form-inline\">\n                    <div class=\"custom-control custom-checkbox\" *ngFor=\"let value of sex\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" name=\"sex\" \n                        id=\"{{value}}\" (change)=\"addSearchCheckBox($event,'sex')\" \n                        value={{value}}  [(ngModel)]=\"this[value]\">\n                        <label class=\"custom-control-label\" for=\"{{value}}\">\n                            {{ value }}&nbsp;&nbsp;&nbsp;&nbsp;\n                        </label>\n                    </div>\n                </div>\n                <br>\n                <div class=\"form-inline\">\n                    <br>\n                    <div class=\"custom-control custom-checkbox\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" \n                        id=\"treatmentRelated\"  value=\"relevant\" \n                        (click)=\"addSearchCheckBox($event,'treatmentRelated')\" \n                        [(ngModel)]=relevant_form>\n                        <label class=\"custom-control-label\" for=\"treatmentRelated\">\n                            &nbsp;Treatment-related only\n                        </label>\n                    </div>                   \n                </div>\n                <br>\n                <p class=\"font-weight-bold\">Category:</p>\n                <div class=\"form-inline\">\n                    <select class=\"custom-select\" id=\"category\" style=\"width:100%\" \n                        (change)=\"selectCategory($event)\">\n                        <option disabled selected>-- select --</option>\n                        <option *ngFor=\"let source of sources\">{{source}}</option>\n                    </select>\n                </div>\n                <br>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">Parameter:</p>\n                <div class=\"row\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'organs')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['organs']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['organs']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                <br>\n                <app-panel [key]= \"'organs'\" [categoryForm]=\"true\"></app-panel>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!hasCategory\">Observation:</p>\n                <div class=\"row\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'observations')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['observations']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['observations']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                 <br>\n                <app-panel [key]= \"'observations'\" [categoryForm]=\"true\"></app-panel>\n            </div>\n        </div>\n    </div>\n</div>\n<br>\n<div class=\"card\">\n    <div class=\"card-body\">\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_structures }} of {{totalStructures}} </font> substances\n        </div>\n        <progress id=\"structuresProgress\" [value]=\"table_info['num_structures']*100/totalStructures\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_studies }} of {{totalStudies}} </font> studies\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n    </div>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"resetFilters()\" style=\"background-color: lightgray\"> Reset Filters </button>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"download()\" style=\"background-color: lightgray\"> Export </button>\n</div>"
+module.exports = "<ul *ngFor=\"let specie of search_form['species']\">\n    <li>{{specie}}</li>\n</ul>\n<a id=\"filterContainer\" href=\"javascript:void(0)\" class=\"closebtn\" (click)=\"closeNav()\">&times;</a>\n<br>\n\n<div id=\"FilterAccordion\" role=\"tablist\">\n    <div class=\"card\">\n        <div class=\"card-header\" role=\"tab\" id=\"CompoundHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#CompoundCard\" aria-expanded=\"true\" aria-controls=\"CompoundCard\">\n                Compound\n            </button>          \n        </div>\n        <div id=\"CompoundCard\" class=\"collapse show\" aria-labelledby=\"CompoundHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <!-- <button type=\"button\" class=\"btn btn-link\" (click)=\"openSketchModal()\">Sketch</button> \n                <br> -->\n                <p class=\"font-weight-bold\">Name:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'compound_name')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['compound_name']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['compound_name']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'compound_name'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">CAS number:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'cas_number')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['cas_number']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['cas_number']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'cas_number'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"PharmacologyHeading\"> \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#PharmacologyCard\" aria-expanded=\"true\" aria-controls=\"PharmacologyCard\">\n                Pharmacology\n            </button>   \n        </div>\n        <div id=\"PharmacologyCard\" class=\"collapse show\" aria-labelledby=\"PharmacologyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Pharmacological action:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'pharmacological_action')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['pharmacological_action']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['pharmacological_action']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'pharmacological_action'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"StudyHeading\">            \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#StudyCard\" aria-expanded=\"true\" aria-controls=\"StudyCard\">\n                Study\n            </button>             \n        </div>\n        <div id=\"StudyCard\" class=\"collapse show\" aria-labelledby=\"StudyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Species:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'species')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['species']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['species']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'species'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Route:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'routes')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['routes']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['routes']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'routes'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Exposure period (days):</p>\n                <div>\n                    <ion-range-slider #sliderElement\n                        type=\"double\"\n                        [min]=\"minExposure\"\n                        [max]=\"maxExposure\"\n                        (onFinish)=\"addSliderInfo($event)\">\n                    </ion-range-slider>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"FindingHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#FindingCard\" aria-expanded=\"true\" aria-controls=\"FindingCard\">\n                Finding\n            </button>\n        </div>\n        <div id=\"FindingCard\" class=\"collapse show\" aria-labelledby=\"FindingHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Sex:</p>\n                <div class=\"form-inline\">\n                    <div class=\"custom-control custom-checkbox\" *ngFor=\"let value of sex\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" name=\"sex\" \n                        id=\"{{value}}\" (change)=\"addSearchCheckBox($event,'sex')\" \n                        value={{value}}  [(ngModel)]=\"this[value]\">\n                        <label class=\"custom-control-label\" for=\"{{value}}\">\n                            {{ value }}&nbsp;&nbsp;&nbsp;&nbsp;\n                        </label>\n                    </div>\n                </div>\n                <br>\n                <div class=\"form-inline\">\n                    <br>\n                    <div class=\"custom-control custom-checkbox\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" \n                        id=\"treatmentRelated\"  value=\"relevant\" \n                        (click)=\"addSearchCheckBox($event,'treatmentRelated')\" \n                        [(ngModel)]=relevant_form>\n                        <label class=\"custom-control-label\" for=\"treatmentRelated\">\n                            &nbsp;Treatment-related only\n                        </label>\n                    </div>                   \n                </div>\n                <br>\n                <p class=\"font-weight-bold\">Category:</p>\n                <div class=\"form-inline\">\n                    <select class=\"custom-select\" id=\"category\" style=\"width:100%\" \n                        (change)=\"selectCategory($event)\">\n                        <option disabled selected>-- select --</option>\n                        <option *ngFor=\"let source of sources\">{{source}}</option>\n                    </select>\n                </div>\n                <br>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">Parameter:</p>\n                <div class=\"row\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'organs')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['organs']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['organs']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                <br>\n                <app-panel [key]= \"'organs'\" [categoryForm]=\"true\"></app-panel>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!hasCategory\">Observation:</p>\n                <div class=\"row\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'observations')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['observations']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['observations']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                 <br>\n                <app-panel [key]= \"'observations'\" [categoryForm]=\"true\"></app-panel>\n            </div>\n        </div>\n    </div>\n</div>\n<br>\n<div class=\"card\">\n    <div class=\"card-body\">\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_structures }} of {{totalStructures}} </font> substances\n        </div>\n        <progress id=\"structuresProgress\" [value]=\"table_info['num_structures']*100/totalStructures\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_studies }} of {{totalStudies}} </font> studies\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_findings }} of {{totalFindings}} </font> findings\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n    </div>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"resetFilters()\" style=\"background-color: lightgray\"> Reset Filters </button>\n</div>\n<br>\n<!--<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"download()\" style=\"background-color: lightgray\"> Export </button>\n</div>-->"
 
 /***/ }),
 
@@ -1872,11 +1927,12 @@ var SidebarComponent = /** @class */ (function () {
         this.findService.initFinding().subscribe(function (table_info) {
             _this.totalStructures = table_info['num_structures'];
             _this.totalStudies = table_info['num_studies'];
-            _this.minExposure = table_info['allOptions']['exposure_min'];
-            _this.maxExposure = table_info['allOptions']['exposure_max'];
+            _this.totalFindings = table_info['num_findings'];
             _this.globals.totalStructures = table_info['num_structures'];
             _this.globals.totalStudies = table_info['num_studies'];
             _this.globals.totalFindings = table_info['num_findings'];
+            _this.minExposure = table_info['allOptions']['exposure_min'];
+            _this.maxExposure = table_info['allOptions']['exposure_max'];
             _this.sex = table_info['allOptions']['sex'];
             _this.sources = table_info['allOptions']['sources'];
             for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
@@ -2054,7 +2110,7 @@ var SidebarComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.table {\r\n    width: 95%;\r\n}\r\n\r\n.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th\r\n{\r\n    padding:8px; \r\n}\r\n\r\n::ng-deep .tooltip-inner {\r\n    background-color: #FFFFFF;\r\n    color: #FFFFFF;\r\n    border-color: darkgray;\r\n}"
+module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.table {\r\n    width: 95%;\r\n}\r\n\r\n.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th\r\n{\r\n    padding:8px; \r\n}\r\n\r\n::ng-deep .tooltip-inner {\r\n    background-color: #FFFFFF;\r\n    color: #FFFFFF;\r\n    border-color: darkgray;\r\n}\r\n\r\ntable thead,\r\ntable tbody {\r\n    display: table;\r\n    width: 100%;\r\n}\r\n\r\ntable.loading tbody {\r\n    position: relative;\r\n}\r\n\r\ntable.loading tbody:after {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    background-color: rgba(0, 0, 0, 0.1);\r\n    background-image: url('Reload-1s-200px.svg');\r\n    background-position: center;\r\n    background-repeat: no-repeat;\r\n    background-blend-mode: darken;\r\n    background-size: 250px 250px;\r\n    content: \"\";\r\n}"
 
 /***/ }),
 
@@ -2065,7 +2121,7 @@ module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<table class=\"table table-hover\" ng-controller=\"myController\">\n    <thead>\n      <tr class=\"text-left\" bgcolor=lightgray>\n        <th>Compound</th>\n        <th>Name</th>\n        <th>CAS no.</th>\n        <th>Pharmacological action</th>\n        <th>Studies per species</th>\n      </tr>\n    </thead>\n    <tbody *ngIf=\"globals.showSpinner\">\n      <tr class=\"justify-content-center\"><td colspan=\"5\" align=\"center\"><app-loading-spinner></app-loading-spinner></td></tr>\n    </tbody>\n    <tbody *ngIf=\"!globals.showSpinner\">\n        <tr *ngFor=\"let row of table_info.data; let i = index\" class=\"text-left\">\n          <td class=\"align-middle text-center\" style=\"border-right: 1px solid lightgray\">\n            <img *ngIf=\"row.smiles==='-'\" src=\"assets/img/No_Image_Available.png\" width=\"80\" height=\"80\" class=\"mx-auto d-block\"> \n            <div *ngIf=\"row.smiles!=='-'\" (click)=\"openCustomModal(row.smiles)\">\n              <canvas #cmp id=\"{{row.subst_id}}\">{{row.smiles}}</canvas>\n            </div>\n            <br>{{row.subst_id}}\n          </td>          \n          <td class=\"align-middle\"><pre>{{row.common_name}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.cas_number}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.targetActionList}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.count}}</pre></td>\n        </tr>\n    </tbody>\n  </table>\n\n  <!--PAGINATION-->\n  <nav class=\"nav justify-content-center\" *ngIf=\"table_info.num_pages > 0\">\n    <ul class=\"pagination\">\n      <div *ngIf=\" table_info.previous_page > 0;then previous else no_previous\"></div>\n      <ng-template #previous>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(1)\">First</a> </li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.previous_page)\">&laquo;</a></li>\n      </ng-template>\n      <ng-template #no_previous>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">First</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&laquo;</a></li>\n      </ng-template>       \n      <ng-container *ngFor=\"let i of table_info.range_pages\">        \n        <li class=\"page-item active\" *ngIf =\"table_info.page == i\" >\n            <a class=\"page-link\">{{ i }} <span class=\"sr-only\">(current)</span></a>\n        </li>\n        <li class=\"page-item\" *ngIf=\"table_info.page != i\">\n          <a class=\"page-link\" (click)= \"Page(i)\"> {{i}} </a>\n        </li>\n      </ng-container>\n      <div *ngIf=\" table_info.next_page > 0;then next else no_next\"></div>\n      <ng-template #next>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.next_page)\">&raquo;</a></li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.num_pages)\" >Last</a> </li>\n      </ng-template> \n    \n      <ng-template #no_next>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&raquo;</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">Last</a></li>\n      </ng-template>        \n    </ul>\n  </nav>"
+module.exports = "<table class=\"table table-hover\" [ngClass]=\"{ 'loading': globals.showSpinner}\" ng-controller=\"myController\">\n    <thead>\n      <tr class=\"text-left\" bgcolor=lightgray>\n        <th>Compound</th>\n        <th>Name</th>\n        <th>CAS no.</th>\n        <th>Pharmacological action</th>\n        <th>Studies per species</th>\n      </tr>\n    </thead>\n    <!--<tbody *ngIf=\"globals.showSpinner\">\n      <tr class=\"justify-content-center\"><td colspan=\"5\" align=\"center\"><app-loading-spinner></app-loading-spinner></td></tr>\n    </tbody>-->\n    <tbody>\n        <tr *ngFor=\"let row of table_info.data; let i = index\" class=\"text-left\">\n          <td class=\"align-middle text-center\" style=\"border-right: 1px solid lightgray\">\n            <img *ngIf=\"row.smiles==='-'\" src=\"assets/img/No_Image_Available.png\" width=\"80\" height=\"80\" class=\"mx-auto d-block\"> \n            <div *ngIf=\"row.smiles!=='-'\" (click)=\"openCustomModal(row.smiles)\">\n              <canvas #cmp id=\"{{row.subst_id}}\">{{row.smiles}}</canvas>\n            </div>\n            <br>{{row.subst_id}}\n          </td>          \n          <td class=\"align-middle\"><pre>{{row.common_name}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.cas_number}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.targetActionList}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.count}}</pre></td>\n        </tr>\n    </tbody>\n  </table>\n\n  <!--PAGINATION-->\n  <nav class=\"nav justify-content-center\" *ngIf=\"table_info.num_pages > 0\">\n    <ul class=\"pagination\">\n      <div *ngIf=\" table_info.previous_page > 0;then previous else no_previous\"></div>\n      <ng-template #previous>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(1)\">First</a> </li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.previous_page)\">&laquo;</a></li>\n      </ng-template>\n      <ng-template #no_previous>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">First</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&laquo;</a></li>\n      </ng-template>       \n      <ng-container *ngFor=\"let i of table_info.range_pages\">        \n        <li class=\"page-item active\" *ngIf =\"table_info.page == i\" >\n            <a class=\"page-link\">{{ i }} <span class=\"sr-only\">(current)</span></a>\n        </li>\n        <li class=\"page-item\" *ngIf=\"table_info.page != i\">\n          <a class=\"page-link\" (click)= \"Page(i)\"> {{i}} </a>\n        </li>\n      </ng-container>\n      <div *ngIf=\" table_info.next_page > 0;then next else no_next\"></div>\n      <ng-template #next>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.next_page)\">&raquo;</a></li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.num_pages)\" >Last</a> </li>\n      </ng-template> \n    \n      <ng-template #no_next>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&raquo;</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">Last</a></li>\n      </ng-template>        \n    </ul>\n  </nav>"
 
 /***/ }),
 
@@ -2161,8 +2217,13 @@ var TableComponent = /** @class */ (function () {
         var _this = this;
         //this.spinner.show();
         this.globals.showSpinner = true;
-        this.findService.searchFinding(this.search_form, this.categories_search_form, page).subscribe(function (res) {
-            _this.table_info = res;
+        this.findService.page(page).subscribe(function (res) {
+            _this.table_info.data = res.data;
+            _this.table_info.range_pages = res.range_pages;
+            _this.table_info.num_pages = res.num_pages;
+            _this.table_info.page = res.page;
+            _this.table_info.previous_page = res.previous_page;
+            _this.table_info.next_page = res.next_page;
             //this.spinner.hide(); 
             _this.globals.showSpinner = false;
         });
@@ -2200,7 +2261,7 @@ var TableComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: #666;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}"
+module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: lightgray;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}"
 
 /***/ }),
 
@@ -2211,7 +2272,7 @@ module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <!-- <a class=\"button\" href=\"#connect\" routerLink=\"connect\"> Connect </a> -->\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n    <!-- <a class=\"button\" href=\"#explore\" routerLink=\"explore\"> Explore </a>\n    <a class=\"button\" href=\"#browse\" routerLink=\"browse\"> Browse </a> -->\n    <br>\n    <br>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
+module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <!-- <a class=\"button\" href=\"#connect\" routerLink=\"connect\"> Connect </a> -->\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n   <!-- <a class=\"button\" href=\"#explore\" routerLink=\"explore\"> Explore </a>\n    < a class=\"button\" href=\"#browse\" routerLink=\"browse\"> Browse </a> -->\n    <br>\n    <br>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
 
 /***/ }),
 

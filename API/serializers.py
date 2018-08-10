@@ -15,3 +15,13 @@ class FindingSerializer (serializers.Serializer):
     num_findings = serializers.IntegerField()
 #    connStatus = serializers.CharField()
 
+class Pageserializer (serializers.Serializer):
+
+    data = serializers.ListField()
+    range_pages = serializers.ListField()
+    num_pages = serializers.IntegerField()
+    page = serializers.IntegerField()
+    previous_page = serializers.IntegerField()
+    next_page = serializers.IntegerField()
+#    connStatus = serializers.CharField()
+

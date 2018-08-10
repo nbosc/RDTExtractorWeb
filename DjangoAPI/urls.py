@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.views.generic import RedirectView
+from django.contrib.staticfiles.views import serve
 
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
 urlpatterns = [
+    url(r'^$', serve, kwargs={'path': 'index.html'}),
+    url(r'^(?!/?static/)(?!/?media/)(?P<path>.*\..*)$',
+    RedirectView.as_view(url='/static/%(path)s', permanent=False)),
     url(r'^', include('API.urls')),  
 ]
