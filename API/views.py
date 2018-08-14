@@ -475,7 +475,10 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
-    num_findings = filtered.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
+
+    filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id'])
+    num_findings = filtered_findings.ngroups
+    filtered_findings = filtered_findings.count().reset_index()
 
     ##PLOT INFO
     plot_info = {}
@@ -496,12 +499,12 @@ def findings(request):
         plot_info['normalised_species'][1].append(value)
 
     # Treatment related
-    relevance = filtered.groupby(['relevance'])['relevance'].count()
+    relevance = filtered_findings.groupby(['relevance'])['relevance'].count()
     relevance.sort_values(ascending=False, inplace=True)
     plot_info['relevance'] = [relevance.index, relevance.values]
 
     # Source
-    source = filtered.groupby(['source'])['source'].count()
+    source = filtered_findings.groupby(['source'])['source'].count()
     source.sort_values(ascending=False, inplace=True)
     plot_info['source'] = [[], []]
     sum_value = 0
