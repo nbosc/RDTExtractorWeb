@@ -18,7 +18,7 @@ def get_stats(group):
 
 # onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 # Get the dose range for each study
-output_df= None;
+output_df= None
 info_df = pd.read_pickle("API/static/data/animals_per_group_per_sex.pkl")
 info_df.study_id = info_df.study_id.astype(int).astype(str)
 range_df = info_df[info_df.dose > 0]
@@ -597,7 +597,7 @@ def page(request):
         end = init + 5
     else:
         init = 0
-        end = len(filtered)
+        end = len(output_df)
 
     num_pages = math.ceil(len(output_df) / 5)
 
