@@ -282,7 +282,7 @@ def findings(request):
             else:
                 tmp_dict[category].append(val)
         for category in tmp_dict:
-            filtered_tmp = filtered_tmp[(filtered_tmp.source == category.strip()) & (filtered_tmp.observation.isin(tmp_dict[category]))]
+            filtered_tmp = filtered_tmp[(filtered_tmp.source == category) & (filtered_tmp.observation.isin(tmp_dict[category]))]
 
     queryDict = {}
     filtered = filtered_tmp[:]
