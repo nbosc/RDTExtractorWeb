@@ -212,6 +212,10 @@ def findings(request):
 
     global all_df, study_df, output_df
 
+    #####################
+    # Apply all filters #
+    #####################
+
     filtered_tmp = all_df[:]
 
     # Relevancy
@@ -231,46 +235,15 @@ def findings(request):
         filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
                     (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
-    queryDict = {}
-    queryList = []
-    # Pharmacological action
-    all_pharm = request.GET.getlist("pharmacological_action")
-    if len(all_pharm) > 0:
-        queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
-        queryList.append('targetAction == @all_pharm')
-
-    # Compound name
-    all_compound_name = request.GET.getlist("compound_name")
-    if len(all_compound_name) > 0:
-        # Solve issue with plus signs in compound names being converted to spaces
-        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
-        all_compound_name = all_compound_name+plus_signs
-        all_compound_name = list(set(all_compound_name))
-        queryDict['compound_name'] = 'common_name == @all_compound_name'
-        queryList.append('common_name == @all_compound_name')
-
-    # CAS number
-    all_cas_number = request.GET.getlist("cas_number")
-    if len(all_cas_number) > 0:
-        queryDict['cas_number'] = 'cas_number == @all_cas_number'
-        queryList.append('cas_number == @all_cas_number')
-
-    # Administration route
-    all_routes = request.GET.getlist("routes")
-    if len(all_routes) > 0:
-        queryDict['routes'] = 'normalised_administration_route == @all_routes'
-        queryList.append('normalised_administration_route == @all_routes')
-
-    # Species
-    all_species = request.GET.getlist("species")
-    if len(all_species) > 0:
-        queryDict['species'] = 'normalised_species == @all_species'
-        queryList.append('normalised_species == @all_species')
-
     ##
     ## Filter organs, observations and grades by category
     ##
 
+    # Create a copy of the filtered df without the parameter / observation
+    # filtering aplied, to use when populating the optionsDict for 
+    # these two parameters
+    category_filtered_tmp = filtered_tmp[:]
+    
     # Organs
     all_organs = request.GET.getlist("organs")
     if len(all_organs) > 0:
@@ -285,14 +258,8 @@ def findings(request):
                 tmp_dict[category] = expanded_val
             else:
                 tmp_dict[category].extend(expanded_val)
-        categoriesQueryList = []
         for category in tmp_dict:
-            tmp_list = []
-            for x in tmp_dict[category]:
-                tmp_list.append('(source == \'%s\' and parameter == \'%s\')' %(category.strip(), x.strip()))
-            categoriesQueryList.extend(tmp_list)
-        queryList.append(' or '.join((tmp_list)))
-        queryDict['organs'] = ' or '.join(categoriesQueryList)
+            filtered_tmp = filtered_tmp[(filtered_tmp.source == category.strip()) & (filtered_tmp.parameter.isin(tmp_dict[category]))]
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -301,6 +268,8 @@ def findings(request):
         tmp_dict = {}
         for v in all_observations:
             category, val = v.split('|')
+            category = category.strip()
+            val = val.strip()
             # Expand based on the ontology
             expanded_val = list(observation_onto_df[observation_onto_df.parent_term == val].child_term)
             expanded_val = [val]+expanded_val
@@ -312,37 +281,74 @@ def findings(request):
                 tmp_dict[category] = [val]
             else:
                 tmp_dict[category].append(val)
-        categoriesQueryList = []
         for category in tmp_dict:
-            tmp_list = []
-            for x in tmp_dict[category]:
-                tmp_list.append('(source == \'%s\' and observation == \'%s\')' %(category.strip(), x.strip()))
-            categoriesQueryList.extend(tmp_list)
-        queryList.append(' or '.join((tmp_list)))
-        queryDict['organs'] = ' or '.join(categoriesQueryList)
+            filtered_tmp = filtered_tmp[(filtered_tmp.source == category.strip()) & (filtered_tmp.observation.isin(tmp_dict[category]))]
 
-    #####################
-    # Apply all filters #
-    #####################
+    queryDict = {}
+    filtered = filtered_tmp[:]
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
+        filtered.query('targetAction == @all_pharm', inplace=True)
+        category_filtered_tmp.query('targetAction == @all_pharm', inplace=True)
 
-    if queryList != '':
-        query_string = ' and '.join(queryList)
-        filtered = filtered_tmp.query(query_string)
-    else:
-        filtered = filtered_tmp[:]
+    # Compound name
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        # Solve issue with plus signs in compound names being converted to spaces
+        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
+        all_compound_name = all_compound_name+plus_signs
+        all_compound_name = list(set(all_compound_name))
+        queryDict['compound_name'] = 'common_name == @all_compound_name'
+        filtered.query('common_name == @all_compound_name', inplace=True)
+        category_filtered_tmp.query('common_name == @all_compound_name', inplace=True)
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        queryDict['cas_number'] = 'cas_number == @all_cas_number'
+        filtered.query('cas_number == @all_cas_number', inplace=True)
+        category_filtered_tmp.query('cas_number == @all_cas_number', inplace=True)
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        queryDict['routes'] = 'normalised_administration_route == @all_routes'
+        filtered.query('normalised_administration_route == @all_routes', inplace=True)
+        category_filtered_tmp.query('normalised_administration_route == @all_routes', inplace=True)
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        queryDict['species'] = 'normalised_species == @all_species'
+        filtered.query('normalised_species == @all_species', inplace=True)
+        category_filtered_tmp.query('normalised_species == @all_species', inplace=True)
+
+    ####################################
+    # Generate optionsDict by applying #
+    # all filters but the ones in      #
+    # that category                    #
+    ####################################
 
     optionsDict = {}
     categories = all_df.source.dropna().unique().tolist()
     if not filtered.empty:
         optionsDict['parameters'] = {}
+        optionsDict['observations'] = {}
+        valuesL = list(queryDict.values())
+        if len(valuesL) > 0:
+            query_string = ' and '.join(valuesL)
+            tmp_df = category_filtered_tmp.query(query_string)
+        else:
+            tmp_df = category_filtered_tmp
+
         for category in categories:
-            organs = filtered_tmp[filtered_tmp.source.str.lower() == category.lower()].parameter.dropna().unique().tolist()
+            organs = tmp_df[tmp_df.source.str.lower() == category.lower()].parameter.dropna().unique().tolist()
             optionsDict['parameters'][category] = organs
             optionsDict['parameters'][category].sort()
 
-        optionsDict['observations'] = {}
-        for category in categories:
-            observations = filtered_tmp[filtered_tmp.source.str.lower() == category.lower()].observation.dropna().unique().tolist()
+            observations = tmp_df[tmp_df.source.str.lower() == category.lower()].observation.dropna().unique().tolist()
             optionsDict['observations'][category] = observations
             optionsDict['observations'][category].sort()
             
