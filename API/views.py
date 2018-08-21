@@ -16,7 +16,6 @@ from API.utils import extract
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
 
-# onto_df = pd.read_pickle("API/static/data/ontology.pkl")
 # Get the dose range for each study
 output_df= None
 info_df = pd.read_pickle("API/static/data/animals_per_group_per_sex.pkl")
@@ -78,36 +77,6 @@ subst_info_df = pd.merge(target_df, study_count_df,
 subst_info_df = subst_info_df.drop_duplicates()
 
 @api_view(['GET'])
-def source(request):
-    global find_df
-
-    host = ''
-    port = ''
-    sid = ''
-    user = ''
-    password = ''
-
-    """conn = connectDB(host, port, sid, user, password)
-    cursor = conn.cursor()"""
-
-    # Generate normalised study dataframe
-    """cmd = "SELECT DISTINCT PARENT_LUID AS study_id, RELEVANCE, \
-        STANDARDISED_PATHOLOGY, STANDARDISED_ORGAN, DOSE \
-        FROM HISTOPATHOLOGICALFI \
-        WHERE STANDARDISED_PATHOLOGY IS NOT NULL \
-        AND STANDARDISED_ORGAN IS NOT NULL"
-    cursor.execute(cmd)
-    results = cursor.fetchall()
-    tmp_table = []
-    for (study_id, relevance, observation, organ, dose) in results:
-        tmp_table.append([study_id, relevance, observation, organ, dose])
-        print (str(study_id)+","+str(relevance)+","+str(observation)+","+str(organ)+","+str(dose))
-    find_df = pd.DataFrame(tmp_table, columns=['study_id', 'relevance',
-                                               'observation', 'parameter', 'dose'])"""
-
-    pass
-
-@api_view(['GET'])
 def initFindings(request):
     global all_df, compound_df, subst_info_df,findings_df,study_df,output_df
 
@@ -147,21 +116,9 @@ def initFindings(request):
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
         organs = all_df[all_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
-        # Create nested dictionary for angular treeviews
-        #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
-        #organs_df = getValuesForTree(organs_df,organ_onto_df)
-        #relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        #parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-        #optionsDict['organs'][source] = create_dictionary(relations, parents)
         optionsDict['organs'][source] = organs
 
         observations = all_df[all_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
-        # Create nested dictionary for angular treeviews
-        #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
-        #observations_df = getValuesForTree(observations_df,observation_onto_df)
-        #relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-        #parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-        #optionsDict['observations'][source] = create_dictionary(relations, parents)
         optionsDict['observations'][source] = observations
 
     ##############
@@ -377,12 +334,6 @@ def findings(request):
         optionsDict['organs'] = {}
         for source in sources:
             organs = tmp_df[tmp_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
-            # Create nested dictionary for angular treeviews
-            #organs_df = organ_onto_df[organ_onto_df.child_term.str.lower().isin([x.lower() for x in organs])]
-            #organs_df = getValuesForTree(organs_df, organ_onto_df)
-            #relations = organs_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-            #parents = set(relations.keys()) & set(organ_onto_df[organ_onto_df.level == 1].child_term.tolist())
-            #optionsDict['organs'][source] = create_dictionary(relations, parents)
             optionsDict['organs'][source] = organs
 
         tmp_dict = copy.deepcopy(queryDict)
@@ -396,15 +347,7 @@ def findings(request):
         optionsDict['observations'] = {}
         for source in sources:
             observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
-            # Create nested dictionary for angular treeviews
-            #observations_df = observation_onto_df[observation_onto_df.child_term.str.lower().isin([x.lower() for x in observations])]
-            #observations_df = getValuesForTree(observations_df, observation_onto_df)
-            #relations = observations_df.groupby(by='parent_term')['child_term'].apply(list).to_dict()
-            #parents = set(relations.keys()) & set(observation_onto_df[observation_onto_df.level == 1].child_term.tolist())
-            #optionsDict['observations'][source] = create_dictionary(relations, parents)
             optionsDict['observations'][source] = observations
-
-            # tmp_dict = copy.deepcopy(queryDict)
         
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('pharmacological_action', None)
