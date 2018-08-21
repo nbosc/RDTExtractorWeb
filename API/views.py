@@ -112,11 +112,11 @@ def initFindings(request):
     optionsDict['exposure_min'] = int(exposure_range[0])
     optionsDict['exposure_max'] = int(exposure_range[-1])
 
-    optionsDict['organs'] = {}
+    optionsDict['parameters'] = {}
     optionsDict['observations'] = {}
     for source in optionsDict['sources']:
         organs = all_df[all_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
-        optionsDict['organs'][source] = organs
+        optionsDict['parameters'][source] = organs
 
         observations = all_df[all_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
         optionsDict['observations'][source] = observations
@@ -325,8 +325,6 @@ def findings(request):
     # Apply all filters #
     #####################
 
-    categories = all_df.source.dropna().unique().tolist()
-
     if queryList != '':
         query_string = ' and '.join(queryList)
         filtered = filtered_tmp.query(query_string)
@@ -334,12 +332,13 @@ def findings(request):
         filtered = filtered_tmp[:]
 
     optionsDict = {}
+    categories = all_df.source.dropna().unique().tolist()
     if not filtered.empty:
-        optionsDict['organs'] = {}
+        optionsDict['parameters'] = {}
         for category in categories:
             organs = filtered_tmp[filtered_tmp.source.str.lower() == category.lower()].parameter.dropna().unique().tolist()
-            optionsDict['organs'][category] = organs
-            optionsDict['organs'][category].sort()
+            optionsDict['parameters'][category] = organs
+            optionsDict['parameters'][category].sort()
 
         optionsDict['observations'] = {}
         for category in categories:
@@ -461,7 +460,7 @@ def findings(request):
 
     study_count_df = filtered.dropna(subset=['normalised_species'])[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
     study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-    study_count_df['count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+    study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
     study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
     output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
