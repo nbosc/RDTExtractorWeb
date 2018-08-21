@@ -232,10 +232,12 @@ def findings(request):
                     (filtered_tmp.exposure_period_days <= int(max_exposure))]
 
     queryDict = {}
+    queryList = []
     # Pharmacological action
     all_pharm = request.GET.getlist("pharmacological_action")
     if len(all_pharm) > 0:
         queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
+        queryList.append('targetAction == @all_pharm')
 
     # Compound name
     all_compound_name = request.GET.getlist("compound_name")
@@ -245,21 +247,25 @@ def findings(request):
         all_compound_name = all_compound_name+plus_signs
         all_compound_name = list(set(all_compound_name))
         queryDict['compound_name'] = 'common_name == @all_compound_name'
+        queryList.append('common_name == @all_compound_name')
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
     if len(all_cas_number) > 0:
         queryDict['cas_number'] = 'cas_number == @all_cas_number'
+        queryList.append('cas_number == @all_cas_number')
 
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
+        queryList.append('normalised_administration_route == @all_routes')
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
         queryDict['species'] = 'normalised_species == @all_species'
+        queryList.append('normalised_species == @all_species')
 
     ##
     ## Filter organs, observations and grades by category
@@ -279,11 +285,14 @@ def findings(request):
                 tmp_dict[category] = expanded_val
             else:
                 tmp_dict[category].extend(expanded_val)
-        queryList = []
+        categoriesQueryList = []
         for category in tmp_dict:
-            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and parameter == %s)' %(category.strip(), tmp_list))
-        queryDict['organs'] = ' and '.join(list(queryList))
+            tmp_list = []
+            for x in tmp_dict[category]:
+                tmp_list.append('(source == \'%s\' and parameter == \'%s\')' %(category.strip(), x.strip()))
+            categoriesQueryList.extend(tmp_list)
+        queryList.append(' or '.join((tmp_list)))
+        queryDict['organs'] = ' or '.join(categoriesQueryList)
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -303,52 +312,41 @@ def findings(request):
                 tmp_dict[category] = [val]
             else:
                 tmp_dict[category].append(val)
-        queryList = []
+        categoriesQueryList = []
         for category in tmp_dict:
-            tmp_list = '[%s]' %(', '.join(['\'%s\'' %x.strip() for x in tmp_dict[category]]))
-            queryList.append('(source == \'%s\' and observation == %s)' %(category.strip(), tmp_list))
-        queryDict['observations'] = ' and '.join(list(queryList))
+            tmp_list = []
+            for x in tmp_dict[category]:
+                tmp_list.append('(source == \'%s\' and observation == \'%s\')' %(category.strip(), x.strip()))
+            categoriesQueryList.extend(tmp_list)
+        queryList.append(' or '.join((tmp_list)))
+        queryDict['organs'] = ' or '.join(categoriesQueryList)
 
     #####################
     # Apply all filters #
     #####################
-    query_string = ''
-    if queryDict != {}:
-        query_string = ' and '.join(list(queryDict.values()))
+
+    categories = all_df.source.dropna().unique().tolist()
+
+    if queryList != '':
+        query_string = ' and '.join(queryList)
         filtered = filtered_tmp.query(query_string)
     else:
         filtered = filtered_tmp[:]
 
-    sources = all_df.source.dropna().unique().tolist()
-
     optionsDict = {}
     if not filtered.empty:
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('organs', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
         optionsDict['organs'] = {}
-        for source in sources:
-            organs = tmp_df[tmp_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
-            optionsDict['organs'][source] = organs
+        for category in categories:
+            organs = filtered_tmp[filtered_tmp.source.str.lower() == category.lower()].parameter.dropna().unique().tolist()
+            optionsDict['organs'][category] = organs
+            optionsDict['organs'][category].sort()
 
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('observations', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
         optionsDict['observations'] = {}
-        for source in sources:
-            observations = tmp_df[tmp_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
-            optionsDict['observations'][source] = observations
-        
+        for category in categories:
+            observations = filtered_tmp[filtered_tmp.source.str.lower() == category.lower()].observation.dropna().unique().tolist()
+            optionsDict['observations'][category] = observations
+            optionsDict['observations'][category].sort()
+            
         tmp_dict = copy.deepcopy(queryDict)
         tmp_dict.pop('pharmacological_action', None)
         valuesL = list(tmp_dict.values())
