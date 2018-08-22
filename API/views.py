@@ -218,15 +218,20 @@ def findings(request):
 
     filtered_tmp = all_df[:]
 
+    print ('*************************************')
+    print (filtered_tmp.shape)
+
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
         filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
+    print (filtered_tmp.shape)
 
     # Sex
     sex = request.GET.get("sex")
     if sex:
         filtered_tmp = filtered_tmp[filtered_tmp.sex == sex]
+    print (filtered_tmp.shape)
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -234,6 +239,7 @@ def findings(request):
     if min_exposure and max_exposure:
         filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
                     (filtered_tmp.exposure_period_days <= int(max_exposure))]
+    print (filtered_tmp.shape)
 
     ##
     ## Filter organs, observations and grades by category
@@ -243,6 +249,8 @@ def findings(request):
     # filtering aplied, to use when populating the optionsDict for 
     # these two parameters
     category_filtered_tmp = filtered_tmp[:]
+    # Use this df to store each parameter / observation and add them together
+    # so they don't become mutually exclusive
     additive_df = pd.DataFrame(columns=filtered_tmp.columns)
     
     # Organs
@@ -288,7 +296,10 @@ def findings(request):
             or_df = filtered_tmp[(filtered_tmp.source == category) & 
                                  (filtered_tmp.observation.isin(tmp_dict[category]))]
             additive_df = pd.concat([additive_df, or_df])
-    filtered_tmp = additive_df[:]
+    
+    if not additive_df.empty:
+        filtered_tmp = additive_df[:]
+    print (filtered_tmp.shape)
 
     queryDict = {}
     filtered = filtered_tmp[:]
@@ -298,6 +309,7 @@ def findings(request):
         queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
         filtered.query('targetAction == @all_pharm', inplace=True)
         category_filtered_tmp.query('targetAction == @all_pharm', inplace=True)
+    print (filtered.shape)
 
     # Compound name
     all_compound_name = request.GET.getlist("compound_name")
@@ -309,6 +321,7 @@ def findings(request):
         queryDict['compound_name'] = 'common_name == @all_compound_name'
         filtered.query('common_name == @all_compound_name', inplace=True)
         category_filtered_tmp.query('common_name == @all_compound_name', inplace=True)
+    print (filtered.shape)
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
@@ -316,6 +329,7 @@ def findings(request):
         queryDict['cas_number'] = 'cas_number == @all_cas_number'
         filtered.query('cas_number == @all_cas_number', inplace=True)
         category_filtered_tmp.query('cas_number == @all_cas_number', inplace=True)
+    print (filtered.shape)
 
     # Administration route
     all_routes = request.GET.getlist("routes")
@@ -323,6 +337,7 @@ def findings(request):
         queryDict['routes'] = 'normalised_administration_route == @all_routes'
         filtered.query('normalised_administration_route == @all_routes', inplace=True)
         category_filtered_tmp.query('normalised_administration_route == @all_routes', inplace=True)
+    print (filtered.shape)
 
     # Species
     all_species = request.GET.getlist("species")
@@ -330,6 +345,8 @@ def findings(request):
         queryDict['species'] = 'normalised_species == @all_species'
         filtered.query('normalised_species == @all_species', inplace=True)
         category_filtered_tmp.query('normalised_species == @all_species', inplace=True)
+    print (filtered.shape)
+    print ('*************************************')
 
     ####################################
     # Generate optionsDict by applying #
@@ -518,7 +535,6 @@ def findings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-
     results = {
         'data': output_df[init:end].fillna(value="-").to_dict('records'),
         'allOptions': optionsDict,
@@ -535,7 +551,6 @@ def findings(request):
 
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
-
 
 @api_view(['GET'])
 def page(request):
