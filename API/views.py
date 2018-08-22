@@ -243,6 +243,7 @@ def findings(request):
     # filtering aplied, to use when populating the optionsDict for 
     # these two parameters
     category_filtered_tmp = filtered_tmp[:]
+    additive_df = pd.DataFrame(columns=filtered_tmp.columns)
     
     # Organs
     all_organs = request.GET.getlist("organs")
@@ -259,7 +260,9 @@ def findings(request):
             else:
                 tmp_dict[category].extend(expanded_val)
         for category in tmp_dict:
-            filtered_tmp = filtered_tmp[(filtered_tmp.source == category.strip()) & (filtered_tmp.parameter.isin(tmp_dict[category]))]
+            or_df = filtered_tmp[(filtered_tmp.source == category.strip()) &
+                                 (filtered_tmp.parameter.isin(tmp_dict[category]))]
+            additive_df = pd.concat([additive_df, or_df])
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -282,7 +285,10 @@ def findings(request):
             else:
                 tmp_dict[category].append(val)
         for category in tmp_dict:
-            filtered_tmp = filtered_tmp[(filtered_tmp.source == category) & (filtered_tmp.observation.isin(tmp_dict[category]))]
+            or_df = filtered_tmp[(filtered_tmp.source == category) & 
+                                 (filtered_tmp.observation.isin(tmp_dict[category]))]
+            additive_df = pd.concat([additive_df, or_df])
+    filtered_tmp = additive_df[:]
 
     queryDict = {}
     filtered = filtered_tmp[:]
