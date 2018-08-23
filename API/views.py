@@ -250,7 +250,8 @@ def findings(request):
     additive_df = pd.DataFrame(columns=filtered_tmp.columns)
     
     # Organs
-    all_organs = request.GET.getlist("organs")
+    all_organs = request.GET.getlist("parameters")
+    print (all_organs)
     if len(all_organs) > 0:
         all_organs = all_organs[0].split('@')
         tmp_dict = {}
