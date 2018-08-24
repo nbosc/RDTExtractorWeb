@@ -407,8 +407,11 @@ def findings(request):
         else:
             tmp_df = filtered_tmp
         optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
-        optionsDict['routes'].remove('Unknown')
-        optionsDict['routes'].remove('Unassigned')
+        try:
+            optionsDict['routes'].remove('Unknown')
+            optionsDict['routes'].remove('Unassigned')
+        except:
+            pass
         optionsDict['routes'].sort()
 
         tmp_dict = copy.deepcopy(queryDict)
