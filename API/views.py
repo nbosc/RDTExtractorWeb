@@ -482,21 +482,26 @@ def findings(request):
         plot_info['source'][0].append(index)
         plot_info['source'][1].append(value)
 
-    study_count_df = filtered.dropna(subset=['normalised_species'])[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
-    study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-    study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
-    study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
+    if not filtered.empty:
+        study_count_df = filtered.dropna(subset=['normalised_species'])[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
+        study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
+        study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+        study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
-    output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
-                    compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
-                            'smiles', 'status', 'targetActionList']].drop_duplicates(), 
-                    how='left', on='subst_id', left_index=False, right_index=False, 
-                    sort=False)
-    output_df = pd.merge(output_df, study_count_df,
-                    how='left', on='subst_id', left_index=False, right_index=False, 
-                    sort=False)
-    output_df = output_df.drop_duplicates()
-    output_df.common_name = output_df.common_name.str.replace(', ', '\n')
+        output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
+                        compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
+                                'smiles', 'status', 'targetActionList']].drop_duplicates(), 
+                        how='left', on='subst_id', left_index=False, right_index=False, 
+                        sort=False)
+        output_df = pd.merge(output_df, study_count_df,
+                        how='left', on='subst_id', left_index=False, right_index=False, 
+                        sort=False)
+        output_df = output_df.drop_duplicates()
+        output_df.common_name = output_df.common_name.str.replace(', ', '\n')
+    else:
+        output_df = pd.DataFrame(columns=['subst_id', 'cas_number', 'common_name', 
+                                    'company_id', 'smiles', 'status', 'targetActionList', 
+                                    'count'])
 
     ##############
     # Pagination #
