@@ -251,7 +251,6 @@ def findings(request):
     
     # Organs
     all_organs = request.GET.getlist("parameters")
-    print (all_organs)
     if len(all_organs) > 0:
         all_organs = all_organs[0].split('@')
         tmp_dict = {}
