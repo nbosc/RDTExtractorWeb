@@ -48,9 +48,12 @@ compound_df = pd.merge(compound_df, target_df, how='left', on='subst_id',
                      left_index=False, right_index=False, sort=False)
 compound_df.drop(['target', 'action', 'pharmacological_action'], axis=1, inplace=True)
 
+# Add dose range to study_df
 study_df = pd.merge(study_df, range_df,
                     how='left', on='study_id', left_index=False, right_index=False,
                     sort=False)
+
+# Create dataframe with compound information added to the study information
 study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
                             'normalised_species', 'normalised_strain', 'source_company',
                             'exposure_period_days', 'report_number']],
@@ -58,6 +61,7 @@ study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administr
                             'cas_number','targetActionList', 'targetAction']],
                          how='left', on='subst_id', left_index=False, right_index=False,
                          sort=False)
+# Add findings information to the dataframe with study and compound information
 all_df = pd.merge(study_cmpd_df,
                   findings_df[['study_id','source', 'observation', 'parameter', 'dose',
                                'relevance', 'sex']],
@@ -78,11 +82,11 @@ subst_info_df = subst_info_df.drop_duplicates()
 
 @api_view(['GET'])
 def initFindings(request):
-    global all_df, compound_df, subst_info_df,findings_df,study_df,output_df
+    global all_df, output_df
 
-    num_studies = len(all_df.study_id.unique().tolist())
-    num_structures = len(all_df.subst_id.unique().tolist())
-    num_findings = findings_df.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
+    num_studies = all_df.study_id.nunique()
+    num_structures = all_df.subst_id.nunique()
+    num_findings = all_df.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
 
     optionsDict = {}
 
@@ -128,13 +132,13 @@ def initFindings(request):
     ##############
     page = 1
     init = 0
-    total = len(compound_df)
+    total = all_df.subst_id.nunique()
     if total < 5:
         end = total
         num_pages = total
     else:
         end = 5
-        num_pages = math.ceil(total / 5)
+        num_pages = math.ceil(total / 5.)
 
     # Range of pages to show
     previous = 0
@@ -146,8 +150,8 @@ def initFindings(request):
     if (next_page >= num_pages):
         next_page = 0
 
-    output_df = pd.merge(compound_df[['subst_id', 'cas_number','common_name', 'smiles',
-                                        'targetActionList']], 
+    output_df = pd.merge(all_df[['subst_id', 'cas_number','common_name', 'smiles',
+                                'targetActionList']], 
                          study_count_df, 
                          how='left', on='subst_id', left_index=False, right_index=False, 
                          sort=False)
@@ -155,7 +159,8 @@ def initFindings(request):
     plot_info = {}
 
     # Species
-    normalised_species = study_df.groupby(['normalised_species'])['normalised_species'].count()
+    normalised_species = all_df.groupby(['normalised_species','study_id']).count()
+    normalised_species = normalised_species.reset_index().groupby(['normalised_species'])['normalised_species'].count()
     normalised_species.sort_values(ascending=False, inplace=True)
     plot_info['normalised_species'] = [[],[]]
     sum_value = 0
@@ -169,13 +174,16 @@ def initFindings(request):
         plot_info['normalised_species'][0].append(index)
         plot_info['normalised_species'][1].append(value)
 
+    findings = all_df[['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id'])
+    findings = findings.count().reset_index()
+
     # Relevance
-    relevance = findings_df.groupby(['relevance'])['relevance'].count()
+    relevance = findings.groupby(['relevance'])['relevance'].count()
     relevance.sort_values(ascending=False, inplace=True)
     plot_info['relevance'] = [relevance.index, relevance.values]
 
     # Source
-    source = findings_df.groupby(['source'])['source'].count()
+    source = findings.groupby(['source'])['source'].count()
     source.sort_values(ascending=False, inplace=True)
     plot_info['source'] = [[], []]
     sum_value = 0
@@ -191,6 +199,11 @@ def initFindings(request):
 
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
+    print ('output_df in init:')
+    print (output_df.shape)
+    print (output_df.subst_id.nunique())
+    print (compound_df.subst_id.nunique())
+    print (all_df.subst_id.nunique())
 
     results = {
         'data': output_df[init:end].fillna(value="-").to_dict('records'),
@@ -515,7 +528,7 @@ def findings(request):
         init = 0
         end = len(filtered)
 
-    num_pages = math.ceil(len(output_df) / 5)
+    num_pages = math.ceil(output_df.subst_id.nunique() / 5.)
 
     # Range of pages to show
     if page < 4:
@@ -555,17 +568,21 @@ def findings(request):
 def page(request):
 
     global output_df
+    print ('output_df in page:')
+    print (output_df.shape)
+    print (output_df.subst_id.nunique())
 
     page = int(request.GET.get("page"))
 
+    total = output_df.subst_id.nunique()
     if page != 0:
         init = (page - 1) * 5
         end = init + 5
     else:
         init = 0
-        end = len(output_df)
+        end = total
 
-    num_pages = math.ceil(len(output_df) / 5)
+    num_pages = math.ceil(total / 5.)
 
     # Range of pages to show
     if page < 4:
