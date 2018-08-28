@@ -199,11 +199,6 @@ def initFindings(request):
 
     output_df = output_df.drop_duplicates()
     output_df.common_name = output_df.common_name.str.replace(', ', '\n')
-    print ('output_df in init:')
-    print (output_df.shape)
-    print (output_df.subst_id.nunique())
-    print (compound_df.subst_id.nunique())
-    print (all_df.subst_id.nunique())
 
     results = {
         'data': output_df[init:end].fillna(value="-").to_dict('records'),
@@ -568,9 +563,6 @@ def findings(request):
 def page(request):
 
     global output_df
-    print ('output_df in page:')
-    print (output_df.shape)
-    print (output_df.subst_id.nunique())
 
     page = int(request.GET.get("page"))
 
