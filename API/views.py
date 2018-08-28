@@ -143,7 +143,7 @@ def initFindings(request):
     previous_page = page - 1
     next_page = page + 1
 
-    if (next_page >= num_pages):
+    if (next_page > num_pages):
         next_page = 0
 
     output_df = pd.merge(compound_df[['subst_id', 'cas_number','common_name', 'smiles',
@@ -531,7 +531,7 @@ def findings(request):
     previous_page = page - 1
     next_page = page + 1
 
-    if (next_page >= num_pages):
+    if (next_page > num_pages):
         next_page = 0
 
     results = {
@@ -581,7 +581,7 @@ def page(request):
     previous_page = page - 1
     next_page = page + 1
 
-    if (next_page >= num_pages):
+    if (next_page > num_pages):
         next_page = 0
 
     results = {
