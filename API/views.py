@@ -9,6 +9,7 @@ import pandas as pd
 import json
 import copy
 import math
+import pickle
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import FindingSerializer,Pageserializer
 from API.utils import extract
@@ -16,204 +17,18 @@ from API.utils import extract
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
 
-# Get the dose range for each study
-output_df= None
-info_df = pd.read_pickle("API/static/data/animals_per_group_per_sex.pkl")
-info_df.study_id = info_df.study_id.astype(int).astype(str)
-range_df = info_df[info_df.dose > 0]
-range_df = range_df.groupby(('study_id')).dose.apply(get_stats).unstack().reset_index()[['study_id','max','min']]
-range_df.columns = ['study_id','dose_max','dose_min']
-
 # Load dataframes with information on studies, compounds and findings
-compound_df = pd.read_pickle("API/static/data/compound.pkl")
-findings_df = pd.read_pickle("API/static/data/findings.pkl.gz", compression='gzip')
-findings_df.study_id = findings_df.study_id.astype(int).astype(str)
-findings_df.loc[(findings_df.relevance != 'Treatment related'), 'relevance'] = 'Not related'
-study_df = pd.read_pickle("API/static/data/study.pkl")
-study_df.study_id = study_df.study_id.astype(int).astype(str)
+substance_df = pd.read_pickle("API/static/data/substance.pkl")
+all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression='gzip')
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 
-# Merge target/action
-withAction = compound_df[compound_df.action.notnull()]
-withAction.loc[:,'targetAction'] = withAction.target+' : '+withAction.action
-noAction = compound_df[~compound_df.action.notnull()]
-noAction.loc[:,'targetAction'] = noAction.target
-target_concat_df = pd.concat([withAction, noAction], ignore_index=True)[['subst_id', 'targetAction']]
-target_df = target_concat_df.groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
-target_df.columns = ['subst_id', 'targetActionList']
-target_df = pd.merge(target_df, target_concat_df, how='left', on='subst_id', 
-                     left_index=False, right_index=False, sort=False)
-compound_df = pd.merge(compound_df, target_df, how='left', on='subst_id', 
-                     left_index=False, right_index=False, sort=False)
-compound_df.drop(['target', 'action', 'pharmacological_action'], axis=1, inplace=True)
-
-# Add dose range to study_df
-study_df = pd.merge(study_df, range_df,
-                    how='left', on='study_id', left_index=False, right_index=False,
-                    sort=False)
-
-# Create dataframe with compound information added to the study information
-study_cmpd_df = pd.merge(study_df[['study_id', 'subst_id', 'normalised_administration_route',
-                            'normalised_species', 'normalised_strain', 'source_company',
-                            'exposure_period_days', 'report_number']],
-                         compound_df[['subst_id', 'smiles', 'status', 'common_name',
-                            'cas_number','targetActionList', 'targetAction']],
-                         how='left', on='subst_id', left_index=False, right_index=False,
-                         sort=False)
-# Add findings information to the dataframe with study and compound information
-all_df = pd.merge(study_cmpd_df,
-                  findings_df[['study_id','source', 'observation', 'parameter', 'dose',
-                               'relevance', 'sex']],
-                  how='left', on='study_id', left_index=False, right_index=False,
-                  sort=False)
-
-# Get the summary of data per single substance
-study_count_df = all_df[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
-study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
-study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
-
-# Generate output dataframe
-subst_info_df = pd.merge(target_df, study_count_df, 
-                        how='left', on='subst_id', left_index=False, right_index=False, 
-                        sort=False)
-subst_info_df = subst_info_df.drop_duplicates()
-
 @api_view(['GET'])
 def initFindings(request):
-    global all_df, output_df
 
-    num_studies = all_df.study_id.nunique()
-    num_structures = all_df.subst_id.nunique()
-    num_findings = all_df.groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']).ngroups
-
-    optionsDict = {}
-
-    optionsDict['sources'] = all_df.source.dropna().unique().tolist()
-    optionsDict['sources'].sort()
-
-    optionsDict['routes'] = all_df.normalised_administration_route.dropna().unique().tolist()
-    optionsDict['routes'].remove('Unknown')
-    optionsDict['routes'].remove('Unassigned')
-    optionsDict['routes'].sort()
-
-    optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
-    optionsDict['sex'].sort()
-
-    optionsDict['species'] = all_df[all_df.normalised_species != 'Excluded term'].normalised_species.dropna().unique().tolist()
-    optionsDict['species'].sort()
-
-    optionsDict['pharmacological_action'] = target_df.targetAction.dropna().unique().tolist()
-    optionsDict['pharmacological_action'].sort()
-
-    optionsDict['compound_name'] = all_df.common_name.dropna().unique().tolist()
-    optionsDict['compound_name'].sort()
-
-    optionsDict['cas_number'] = all_df.cas_number.dropna().unique().tolist()
-    optionsDict['cas_number'].sort()
-
-    exposure_range = all_df.exposure_period_days.dropna().unique().tolist()
-    exposure_range.sort()
-    optionsDict['exposure_min'] = int(exposure_range[0])
-    optionsDict['exposure_max'] = int(exposure_range[-1])
-
-    optionsDict['parameters'] = {}
-    optionsDict['observations'] = {}
-    for source in optionsDict['sources']:
-        organs = all_df[all_df.source.str.lower() == source.lower()].parameter.dropna().unique().tolist()
-        optionsDict['parameters'][source] = organs
-
-        observations = all_df[all_df.source.str.lower() == source.lower()].observation.dropna().unique().tolist()
-        optionsDict['observations'][source] = observations
-
-    ##############
-    # Pagination #
-    ##############
-    page = 1
-    init = 0
-    total = all_df.subst_id.nunique()
-    if total < 5:
-        end = total
-        num_pages = total
-    else:
-        end = 5
-        num_pages = math.ceil(total / 5.)
-
-    # Range of pages to show
-    previous = 0
-    nexts = min([7, num_pages])
-    range_pages = range(1, num_pages + 1)[previous:nexts]
-    previous_page = page - 1
-    next_page = page + 1
-
-    if (next_page > num_pages):
-        next_page = 0
-
-    output_df = pd.merge(all_df[['subst_id', 'cas_number','common_name', 'smiles',
-                                'targetActionList']], 
-                         study_count_df, 
-                         how='left', on='subst_id', left_index=False, right_index=False, 
-                         sort=False)
-
-    plot_info = {}
-
-    # Species
-    normalised_species = all_df.groupby(['normalised_species','study_id']).count()
-    normalised_species = normalised_species.reset_index().groupby(['normalised_species'])['normalised_species'].count()
-    normalised_species.sort_values(ascending=False, inplace=True)
-    plot_info['normalised_species'] = [[],[]]
-    sum_value = 0
-    for index, value in normalised_species.iteritems():
-        p = float(value)/num_studies
-        if p < 0.015:
-            plot_info['normalised_species'][0].append('Other')
-            plot_info['normalised_species'][1].append(num_studies-sum_value)
-            break
-        sum_value += value
-        plot_info['normalised_species'][0].append(index)
-        plot_info['normalised_species'][1].append(value)
-
-    findings = all_df[['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id'])
-    findings = findings.count().reset_index()
-
-    # Relevance
-    relevance = findings.groupby(['relevance'])['relevance'].count()
-    relevance.sort_values(ascending=False, inplace=True)
-    plot_info['relevance'] = [relevance.index, relevance.values]
-
-    # Source
-    source = findings.groupby(['source'])['source'].count()
-    source.sort_values(ascending=False, inplace=True)
-    plot_info['source'] = [[], []]
-    sum_value = 0
-    for index, value in source.iteritems():
-        p = float(value)/num_findings
-        if p < 0.015:
-            plot_info['source'][0].append('Other')
-            plot_info['source'][1].append(num_findings-sum_value)
-            break
-        sum_value += value
-        plot_info['source'][0].append(index)
-        plot_info['source'][1].append(value)
-
-    output_df = output_df.drop_duplicates()
-    output_df.common_name = output_df.common_name.str.replace(', ', '\n')
-
-    results = {
-        'data': output_df[init:end].fillna(value="-").to_dict('records'),
-        'allOptions': optionsDict,
-        'plotInfo': plot_info,
-        'range_pages': range_pages,
-        'num_pages': num_pages,
-        'page': page,
-        'previous_page': previous_page,
-        'next_page': next_page,
-        'num_studies': num_studies,
-        'num_structures': num_structures,
-        'num_findings': num_findings
-    }
-
+    global output_df
+    output_df = pd.read_pickle("API/static/data/output.pkl")
+    results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
@@ -496,7 +311,7 @@ def findings(request):
         study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
         output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
-                        compound_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
+                        substance_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
                                 'smiles', 'status', 'targetActionList']].drop_duplicates(), 
                         how='left', on='subst_id', left_index=False, right_index=False, 
                         sort=False)
