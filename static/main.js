@@ -485,6 +485,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__);
 /* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ng4-loading-spinner */ "./node_modules/ng4-loading-spinner/ng4-loading-spinner.umd.js");
 /* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31___default = /*#__PURE__*/__webpack_require__.n(ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__);
+/* harmony import */ var _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./filter-info/filter-info.component */ "./src/app/filter-info/filter-info.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -525,6 +526,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 // import { ModalMoleculeComponent } from './modal-molecule/modal-molecule.component';
 
+
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -544,9 +546,9 @@ var AppModule = /** @class */ (function () {
                 _connect_connect_component__WEBPACK_IMPORTED_MODULE_15__["ConnectComponent"],
                 _browse_browse_component__WEBPACK_IMPORTED_MODULE_16__["BrowseComponent"],
                 _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],
-                //SubstanceModalComponent,
                 _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_22__["DisabledOnSelectorDirective"],
                 _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_27__["MonoPlotComponent"],
+                _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_32__["FilterInfoComponent"]
             ],
             imports: [
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
@@ -975,6 +977,132 @@ var ExploreComponent = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/app/filter-info/filter-info.component.css":
+/*!*******************************************************!*\
+  !*** ./src/app/filter-info/filter-info.component.css ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "#myContainer{\n    zoom: 0.75;\n    -moz-transform: scale(0.75);\n}\n\n.card-header {\n    padding: 10px;\n}\n\n.card-body {\n    padding: 10px;\n}\n\n.close {\n    padding-left: 1px;\n    color: rgb(0, 0, 0);\n    float: right;\n    font-size: 125%;\n    cursor: pointer;\n}\n\n/*---------------------------*/\n\ndivlabel {\n    float: center;\n    top: 5px;\n    right: 10px;\n    padding: 10px;\n    background: #fff;\n    font-size: 18px;\n  }\n\n.x {\n    position: absolute;\n    background: grey;\n    color: black;\n    top: -10px;\n    right: -10px;\n}\n\n.chip {\n    display: inline-block;\n    padding: 0px 25px;\n    height: 50px;\n    font-size: 16px;\n    line-height: 50px;\n    border-radius: 25px;\n    background-color: #f1f1f1;\n}\n\n.closebtn {\n    padding-left: 10px;\n    color: #888;\n    font-weight: bold;\n    float: right;\n    font-size: 20px;\n    cursor: pointer;\n}\n\n.closebtn:hover {\n    color: #000;\n}\n\n.badge {\n    font-size: 125%;\n    padding: 5px;\n    margin-left: 3px;\n    margin-top: 3px;\n}\n\n.container-fluid{\n    margin-bottom: 15px;\n}"
+
+/***/ }),
+
+/***/ "./src/app/filter-info/filter-info.component.html":
+/*!********************************************************!*\
+  !*** ./src/app/filter-info/filter-info.component.html ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"container-fluid row shadow p-4 bg-white rounded\" \n  id=\"myContainer\"\n  *ngIf=\"objectKeys(search_form).length>0 || this.hasType\">\n  <div *ngFor=\"let key of objectKeys(search_form)\">\n    <div class=\"card\" *ngIf=\"key!='min_exposure' && key!='max_exposure'\">\n      <h6 class=\"card-header\">\n          {{ key | capitalize }} \n          <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"removeAll(key)\">\n            <span aria-hidden=\"true\">&times;</span>\n          </button>    \n      </h6>\n      <div class=\"card-body\">\n        <span class=\"badge badge-info\"  \n          *ngFor=\"let value of search_form[key]\">\n          <span class=\"closebtn\" (click)=\"removeOne(key,value)\">&times;</span>\n          {{ value }}\n        </span>\n      </div> \n    </div>    \n  </div>\n\n  <div *ngFor=\"let key of objectKeys(search_form)\">\n    <div class=\"card\" *ngIf=\"key=='min_exposure'\">\n      <h6 class=\"card-header\">\n          {{ 'Exposure period' }} \n          <!--<button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"removeEsposure()\">\n            <span aria-hidden=\"true\">&times;</span>\n          </button>    -->\n      </h6>\n      <div class=\"card-body\">\n        <span class=\"badge badge-info\">\n          {{'From '+search_form['min_exposure']+' to '+search_form['max_exposure']+' days' }}\n        </span>\n      </div> \n    </div>\n  </div>\n\n  <ng-container *ngFor=\"let type of this.types\">\n    <div *ngIf=\"this.hasTypeInfo[type]\">\n      <div class=\"card\">\n        <h6 class=\"card-header\">\n            {{ type | capitalize }} \n            <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"removeAll(type)\">\n              <span aria-hidden=\"true\">&times;</span>\n            </button>    \n        </h6>\n        <div class=\"card-body\">\n          <ng-container *ngFor=\"let category of objectKeys(categories_search_form)\">\n            <span class=\"badge badge-info\" \n              *ngFor=\"let value of categories_search_form[category][type]\">\n              <span class=\"closebtn\" (click)=\"removeOne(type,value,category)\">&times;</span>\n              {{ category }} | {{ value }}\n            </span>\n          </ng-container>\n        </div> \n      </div>\n    </div>\n  </ng-container>\n</div>"
+
+/***/ }),
+
+/***/ "./src/app/filter-info/filter-info.component.ts":
+/*!******************************************************!*\
+  !*** ./src/app/filter-info/filter-info.component.ts ***!
+  \******************************************************/
+/*! exports provided: FilterInfoComponent */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FilterInfoComponent", function() { return FilterInfoComponent; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../findings.service */ "./src/app/findings.service.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+var FilterInfoComponent = /** @class */ (function () {
+    function FilterInfoComponent(findService) {
+        this.findService = findService;
+        this.objectKeys = Object.keys;
+        this.search_form = {};
+        this.categories_search_form = {};
+        this.hasTypeInfo = {};
+        this.hasType = false;
+    }
+    FilterInfoComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.types = ['parameters', 'observations'];
+        this.findService.currentSearchFormTable.subscribe(function (searchFormTable) { return _this.search_form = searchFormTable; });
+        this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) {
+            _this.categories_search_form = categoriesSearchForm;
+            /*RESET hasTypeInfo*/
+            _this.hasType = false;
+            for (var _i = 0, _a = _this.types; _i < _a.length; _i++) {
+                var type = _a[_i];
+                _this.hasTypeInfo[type] = false;
+            }
+            /*Check if types has info*/
+            for (var _b = 0, _c = _this.types; _b < _c.length; _b++) {
+                var type = _c[_b];
+                for (var _d = 0, _e = _this.objectKeys(_this.categories_search_form); _d < _e.length; _d++) {
+                    var category = _e[_d];
+                    if (_this.categories_search_form[category][type].length > 0) {
+                        _this.hasTypeInfo[type] = true;
+                        _this.hasType = true;
+                    }
+                }
+            }
+        });
+        this.findService.currentTable.subscribe();
+    };
+    FilterInfoComponent.prototype.removeOne = function (key, value, category) {
+        if (category === undefined) {
+            this.search_form[key].splice(value, 1);
+            if (this.search_form[key].length == 0) {
+                delete this.search_form[key];
+            }
+            this.findService.changeSearchFormTable(this.search_form);
+        }
+        else {
+            this.categories_search_form[category][key].splice(value, 1);
+            this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        }
+    };
+    FilterInfoComponent.prototype.removeAll = function (type) {
+        if (type in this.search_form) {
+            delete this.search_form[type];
+            this.findService.changeSearchFormTable(this.search_form);
+        }
+        else {
+            for (var _i = 0, _a = this.objectKeys(this.categories_search_form); _i < _a.length; _i++) {
+                var category = _a[_i];
+                this.categories_search_form[category][type] = [];
+            }
+            this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        }
+    };
+    FilterInfoComponent.prototype.removeEsposure = function () {
+        delete this.search_form["min_exposure"];
+        delete this.search_form["max_exposure"];
+        this.findService.changeSearchFormTable(this.search_form);
+    };
+    FilterInfoComponent = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
+            selector: 'app-filter-info',
+            template: __webpack_require__(/*! ./filter-info.component.html */ "./src/app/filter-info/filter-info.component.html"),
+            styles: [__webpack_require__(/*! ./filter-info.component.css */ "./src/app/filter-info/filter-info.component.css")]
+        }),
+        __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"]])
+    ], FilterInfoComponent);
+    return FilterInfoComponent;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/app/findings.service.ts":
 /*!*************************************!*\
   !*** ./src/app/findings.service.ts ***!
@@ -988,6 +1116,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
 /* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var rxjs_add_operator_catch__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/add/operator/catch */ "./node_modules/rxjs-compat/_esm5/add/operator/catch.js");
+/* harmony import */ var rxjs_add_observable_throw__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/add/observable/throw */ "./node_modules/rxjs-compat/_esm5/add/observable/throw.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -997,6 +1127,8 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 var __metadata = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+
+
 
 
 
@@ -1045,7 +1177,7 @@ var FindingsService = /** @class */ (function () {
                         var filter_value = categories_search_filter[category][key][i];
                         new_value = category;
                         new_value = new_value.concat('|', filter_value);
-                        if (key === "organs") {
+                        if (key === "parameters") {
                             organ_list.push(new_value);
                         }
                         else if (key === "observations") {
@@ -1059,7 +1191,7 @@ var FindingsService = /** @class */ (function () {
             });
         });
         if (organ_list.length > 0) {
-            params = params.set("organs", organ_list.join('@'));
+            params = params.set("parameters", organ_list.join('@'));
         }
         if (observation_list.length > 0) {
             params = params.set("observations", observation_list.join('@'));
@@ -1068,12 +1200,16 @@ var FindingsService = /** @class */ (function () {
             params = params.set("grades", grade_list.join('@'));
         }
         params = params.set('page', page.toString());
-        return this.http.get(url, { params: params });
+        return this.http.get(url, { params: params })
+            .catch(this.errorHandler);
     };
     FindingsService.prototype.page = function (page) {
         var params = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpParams"]();
         params = params.set('page', page.toString());
         return this.http.get(this.apiRoot + '/page', { params: params });
+    };
+    FindingsService.prototype.errorHandler = function (error) {
+        return rxjs__WEBPACK_IMPORTED_MODULE_1__["Observable"].throw(error || "Server Error");
     };
     FindingsService = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])(),
@@ -1110,6 +1246,7 @@ var Globals = /** @class */ (function () {
         this.totalStudies = 0;
         this.totalStructures = 0;
         this.totalFindings = 0;
+        this.showError = false;
     }
     Globals = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])()
@@ -1265,7 +1402,7 @@ module.exports = "select.btn-mini {\r\n    height: auto;\r\n    line-height: 16p
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select\" [(ngModel)]=\"chartType\">\n                      <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">{{chart.name}}</option>\n                  </select>\n              </div>\n          </div>\n         <!-- <div class=\"row align-items-center\">\n              <div class=\"col\">\n                  <div class=\"card-body\" dndDropzone\n                  dndEffectAllowed=\"move\"\n                  (dndDrop)=\"onDrop($event, xAxis)\">\n      \n                    <span class=\"badge badge-pill badge-primary\" *ngFor=\"let x of xAxis\"\n                                    [dndDraggable]=\"x\"\n                                    dndEffectAllowed=\"move\"\n                                    (dndMoved)=\"onDragged(x, xAxis)\">\n                        {{x}}<br>\n                        </span>\n                  </div>\n              </div>\n          </div>-->\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\">\n                <canvas baseChart #chart \n                [datasets]=\"datasets\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                [colors]=\"chartsColors\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\"></canvas>\n        </div>\n    </div>\n\n    <!--<div class=\"row\">\n        <div class=\"col-4 card offset-5\">    \n            <div class=\"card-body\" dndDropzone\n                    dndEffectAllowed=\"move\"\n                    (dndDrop)=\"onDrop($event, yAxis)\">\n        \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let y of yAxis\"\n                            [dndDraggable]=\"y\"\n                            dndEffectAllowed=\"move\"\n                            (dndMoved)=\"onDragged(y, yAxis)\">\n                    {{y}}\n                </span>\n            </div>\n        </div>\n        \n    </div>-->\n</div>\n"
+module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select btn-mini\" [(ngModel)]=\"chartType\">\n                    <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">\n                        {{chart.name}}\n                    </option>\n                  </select>\n              </div>\n          </div>\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\"  *ngIf=\"datasets.length > 0\" >\n                <canvas baseChart #chart \n                [datasets]=\"datasets\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                [colors]=\"chartsColors\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\">\n            </canvas>\n        </div>\n    </div>\n</div>\n"
 
 /***/ }),
 
@@ -1300,11 +1437,17 @@ var MonoPlotComponent = /** @class */ (function () {
     function MonoPlotComponent() {
         this.chartType = 'line';
         this.legend = true;
-        this.colors = ["#A11E22",
-            "#E8A631",
+        this.colors = ["#E3464A",
+            "#89BDAB",
+            "#F0EDDB",
+            "#216F78",
             "#E8C098",
-            "#E5E4DA",
             "#BFB6B3",
+            "#E8A631",
+            "#49C4D1",
+            "#9A794C",
+            "#253741",
+            "#A11E22",
             "#FAAC77",
             "#C9C980",
             "#F8EFEE",
@@ -1313,11 +1456,8 @@ var MonoPlotComponent = /** @class */ (function () {
         ];
         this.chartsColors = [{}];
         this.charts = [
-            //{id: 'line', name: "Line"},
             { id: 'pie', name: "Pie" },
             { id: 'doughnut', name: "Doughnut" },
-            //{id: 'horizontalBar', name: "Horizontal Bar"},
-            { id: 'bar', name: "Verical Bar" },
         ];
         this.xAxis = [];
         this.yAxis = [];
@@ -1335,7 +1475,6 @@ var MonoPlotComponent = /** @class */ (function () {
                     var label = args.label, value = args.value;
                     return label + ': ' + value;
                 },
-                //  arc: true,
                 fontColor: '#000',
                 position: 'outside',
                 showZero: true,
@@ -1347,11 +1486,10 @@ var MonoPlotComponent = /** @class */ (function () {
                 }
             },
             legend: {
-                position: 'right'
+                position: 'right',
+                usePointStyle: true
             }
         };
-        //this.labels=['Download Sales', 'In-Store Sales', 'Mail-Order Sales']
-        //this.data=[350, 450, 100]
     };
     MonoPlotComponent.prototype.onDrop = function (event, list) {
         var index = event.index;
@@ -1438,7 +1576,7 @@ module.exports = ".close {\n    padding-left: 10px;\n    color: rgb(114, 114, 11
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n<div *ngIf=\"categoryForm; else regularPanel\">\n    <div *ngFor=\"let category of objectKeys(categories_search_form)\">\n            <div *ngFor=\"let value of categories_search_form[category][key]\">\n                <span>\n                    <!-- <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button> -->\n                    &nbsp;{{category}} | {{ value }}\n                </span>       \n        </div>\n       \n    </div>\n</div>\n\n<ng-template #regularPanel>\n    <ul *ngIf=\"search_form[key]\">\n        <li *ngFor=\"let value of search_form[key]\">\n            <span>\n                <!-- <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button> -->\n                &nbsp;{{ value }}\n            </span> \n        </li>\n    </ul>\n</ng-template>"
+module.exports = "\n<div *ngIf=\"categoryForm; else regularPanel\">\n    <div *ngFor=\"let category of objectKeys(categories_search_form)\">\n            <div *ngFor=\"let value of categories_search_form[category][key]\">\n                <span>\n                    <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button>\n                    &nbsp;{{category}} | {{ value }}\n                </span>       \n        </div>\n       \n    </div>\n</div>\n\n<ng-template #regularPanel>\n    <ul *ngIf=\"search_form[key]\">\n        <li *ngFor=\"let value of search_form[key]\">\n            <span>\n                <button class = \"close\" (click)=\"removeThis(key,value,category)\">x</button>\n                &nbsp;{{ value }}\n            </span> \n        </li>\n    </ul>\n</ng-template>"
 
 /***/ }),
 
@@ -1549,7 +1687,7 @@ var Plot = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".table-striped{\n    font-size: 20px;\n    table-layout: fixed;\n    width: 200px; \n    word-break: break-all;\n  }\n\n\n  \ndiv.loading {\n    position: relative;\n}\n\n\n  \ndiv.loading:after {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background-color: rgba(0, 0, 0, 0.1);\n    background-image: url('Reload-1s-200px.svg');\n    background-position: center;\n    background-repeat: no-repeat;\n    background-size: 250px 250px;\n    content: \"\";\n}\n\n\n  \n/* .table-striped td { overflow: hidden; } */"
+module.exports = ".table-striped{\n    font-size: 20px;\n    table-layout: fixed;\n    width: 200px; \n    word-break: break-all;\n  }\n\ndiv.loading {\n    position: relative;\n}\n\ndiv.loading:after {\n    position: absolute;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    background-color: rgba(0, 0, 0, 0.1);\n    background-image: url(\"data:image/svg+xml,%3Csvg width%3D%22200px%22  height%3D%22200px%22  xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 100 100%22 preserveAspectRatio%3D%22xMidYMid%22 class%3D%22lds-reload%22 style%3D%22background%3A rgba(0%2C 0%2C 0%2C 0) none repeat scroll 0%25 0%25%3B%22%3E%3Cg%3E%3Cpath d%3D%22M50 15A35 35 0 1 0 74.787 25.213%22 fill%3D%22none%22 ng-attr-stroke%3D%22%7B%7Bconfig.color%7D%7D%22 ng-attr-stroke-width%3D%22%7B%7Bconfig.width%7D%7D%22 stroke%3D%22%23337ab7%22 stroke-width%3D%2212%22%3E%3C%2Fpath%3E%3Cpath ng-attr-d%3D%22%7B%7Bconfig.darrow%7D%7D%22 ng-attr-fill%3D%22%7B%7Bconfig.color%7D%7D%22 d%3D%22M49 3L49 27L61 15L49 3%22 fill%3D%22%23337ab7%22%3E%3C%2Fpath%3E%3CanimateTransform attributeName%3D%22transform%22 type%3D%22rotate%22 calcMode%3D%22linear%22 values%3D%220 50 50%3B360 50 50%22 keyTimes%3D%220%3B1%22 dur%3D%221s%22 begin%3D%220s%22 repeatCount%3D%22indefinite%22%3E%3C%2FanimateTransform%3E%3C%2Fg%3E%3C%2Fsvg%3E\");\n    background-position: center;\n    background-repeat: no-repeat;\n    background-size: 250px 250px;\n    content: \"\";\n}"
 
 /***/ }),
 
@@ -1560,7 +1698,7 @@ module.exports = ".table-striped{\n    font-size: 20px;\n    table-layout: fixed
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n<div class=\"container-fluid\" [ngClass]=\"{ 'loading': globals.showSpinner}\">\n<!--    <div class=\"row align-items-center\">\n        <div class=\"col-2 card\">\n            <div class=\"card-header\">Fruits</div>\n            <div class=\"card-body\" dndDropzone\n            dndEffectAllowed=\"move\"\n            (dndDrop)=\"onDrop($event, fruits)\">\n            \n                <span class=\"badge badge-pill badge-primary\" *ngFor=\"let fruit of fruits\"\n                                [dndDraggable]=\"fruit\"\n                                \n                                dndEffectAllowed=\"move\"\n                                (dndMoved)=\"onDragged(fruit, fruits)\">\n                    {{fruit}}\n                </span>\n            </div>  \n        </div>-->\n    <div class=\"row\"  >\n        <div class=\"col-lg-4\" *ngFor=\"let plot of objectKeys(plots)\" >\n        \n            <app-mono-plot [datasets]=plots[plot].datasets [labels]=plots[plot].labels [chartType]=plots[plot].chartType \n            [title]=plots[plot].title ></app-mono-plot>\n            <br>\n            <table class=\"table table-sm table-striped\" style=\"font-size: 12px\" align=\"center\">\n                <thead>\n                    <tr>\n                    <th scope=\"col\" style=\"width:110px;\">{{plot}}</th>\n                    <th scope=\"col\" style=\"width:90px; text-align: right\">\n                        <span *ngIf=\"plot=='Species'\">\n                            # Studies\n                        </span>\n                        <span *ngIf=\"plot=='Source' || plot=='Treatment'\">\n                            # Findings\n                        </span>\n                    </th>\n                    </tr>\n                </thead>\n                <tbody>\n                    \n                    <tr *ngFor=\"let data of plots[plot].datasets[0].data;let i=index \">\n                    <td>{{plots[plot].labels[i]}}</td>\n                    <td style=\"text-align: right\">{{data}}</td>\n                    </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <!--</div>-->\n</div>"
+module.exports = "<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\" *ngIf=\"globals.showError\" style=\"text-align: center;vertical-align: middle;\">\n    <h3><strong>ERROR: </strong></h3><h4>{{this.globals.errorMsg}}</h4>\n    <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\" (click)=\"closeError()\">\n        <span aria-hidden=\"true\">&times;</span>\n    </button>\n</div>\n    \n\n<div class=\"container-fluid\" [ngClass]=\"{ 'loading': globals.showSpinner }\" *ngIf=\"!globals.showError\">\n    <div class=\"row\">\n        <div class=\"col-lg-4\" *ngFor=\"let plot of objectKeys(plots)\">\n            <app-mono-plot \n                [datasets]=plots[plot].datasets\n                [labels]=plots[plot].labels\n                [chartType]=plots[plot].chartType\n                [title]=plots[plot].title>\n            </app-mono-plot>\n            <br>\n            <table class=\"table table-sm table-striped\" style=\"font-size: 12px\" align=\"center\">\n                <thead>\n                    <tr>\n                    <th scope=\"col\" style=\"width:110px;\">{{plot}}</th>\n                    <th scope=\"col\" style=\"width:90px; text-align: right\">\n                        <span *ngIf=\"plot=='Species'\">\n                            # Studies\n                        </span>\n                        <span *ngIf=\"plot=='Source' || plot=='Treatment'\">\n                            # Findings\n                        </span>\n                    </th>\n                    </tr>\n                </thead>\n                <tbody>                    \n                    <tr *ngFor=\"let data of plots[plot].datasets[0].data;let i=index \">\n                        <td>{{plots[plot].labels[i]}}</td>\n                        <td style=\"text-align: right\">{{data}}</td>\n                    </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -1610,11 +1748,17 @@ var PlotComponent = /** @class */ (function () {
         this.search_form = {};
         this.categories_search_form = {};
         this.firstTime = true;
-        this.colors = ["#A11E22",
-            "#E8A631",
+        this.colors = ["#E3464A",
+            "#89BDAB",
+            "#F0EDDB",
+            "#216F78",
             "#E8C098",
-            "#E5E4DA",
             "#BFB6B3",
+            "#E8A631",
+            "#49C4D1",
+            "#9A794C",
+            "#253741",
+            "#A11E22",
             "#FAAC77",
             "#C9C980",
             "#F8EFEE",
@@ -1761,17 +1905,8 @@ var PlotComponent = /** @class */ (function () {
         this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) { return _this.categories_search_form = categoriesSearchForm; });
         this.findService.currentSearchFormTable.subscribe(function (searchFormTable) { return _this.search_form = searchFormTable; });
     };
-    PlotComponent.prototype.onDragged = function (item, list) {
-        //const index = list.indexOf( item );
-        //list.splice( index, 1 );
-    };
-    PlotComponent.prototype.onDrop = function (event, list) {
-        /*let index = event.index;
-        if( typeof index === "undefined" ) {
-          index = list.length;
-        }
-    
-        list.splice( index, 0, event.data );*/
+    PlotComponent.prototype.closeError = function () {
+        this._router.navigate(['']);
     };
     PlotComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
@@ -1796,7 +1931,7 @@ var PlotComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".card-header {\r\n    padding: 0px;\r\n}\r\n\r\n.card-body {\r\n    padding: 10px;\r\n}\r\n\r\n.form-control-sm {\r\n    width: 100%;\r\n    border: 0px;\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.form-control-sm:disabled {\r\n    background-color: gray;\r\n}\r\n\r\n.form-control {\r\n    width: 100%;\r\n}\r\n\r\n.closebtn {\r\n    position: absolute;\r\n    top: 0;\r\n    right: 25px;\r\n    font-size: 36px;\r\n    margin-left: 50px;\r\n}\r\n\r\n#filterContainer {\r\n    padding: 8px 8px 8px 32px;\r\n    text-decoration: none;\r\n    font-size: 18px;\r\n    color: #818181;\r\n    display: block;\r\n    transition: 0.3s;\r\n}\r\n\r\n[data-toggle=\"collapse\"]:after {\r\n    display: inline-block;\r\n    font: normal normal normal 10px/1 FontAwesome;\r\n    font-size: inherit;\r\n    text-rendering: auto;\r\n    -webkit-font-smoothing: antialiased;\r\n    -moz-osx-font-smoothing: grayscale;\r\n    content: \"\\f054\";\r\n    -webkit-transform: rotate(90deg) ;\r\n            transform: rotate(90deg) ;\r\n    transition: all linear 0.25s;\r\n\r\n}\r\n\r\n[data-toggle=\"collapse\"].collapsed:after {\r\n    -webkit-transform: rotate(0deg) ;\r\n            transform: rotate(0deg) ;\r\n}"
+module.exports = ".card-header {\r\n    padding: 0px;\r\n}\r\n\r\n.card-body {\r\n    padding: 10px;\r\n}\r\n\r\n.form-control-sm {\r\n    width: 100%;\r\n    border: 0px;\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.form-control-sm:disabled {\r\n    background-color: gray;\r\n}\r\n\r\n.form-control {\r\n    width: 100%;\r\n}\r\n\r\n.closebtn {\r\n    position: absolute;\r\n    top: 0;\r\n    right: 25px;\r\n    font-size: 36px;\r\n    margin-left: 50px;\r\n}\r\n\r\n#filterContainer {\r\n    padding: 8px 8px 8px 8px;\r\n    text-decoration: none;\r\n    font-size: 22px;\r\n    color: #818181;\r\n    display: block;\r\n    transition: 0.3s;\r\n}\r\n\r\n#mySidebar{\r\n    zoom: 0.85;\r\n    -moz-transform: scale(0.85);\r\n}\r\n\r\n[data-toggle=\"collapse\"]:after {\r\n    display: inline-block;\r\n    font: normal normal normal 10px/1 FontAwesome;\r\n    font-size: inherit;\r\n    text-rendering: auto;\r\n    -webkit-font-smoothing: antialiased;\r\n    -moz-osx-font-smoothing: grayscale;\r\n    content: \"\\f054\";\r\n    -webkit-transform: rotate(90deg) ;\r\n            transform: rotate(90deg) ;\r\n    transition: all linear 0.25s;\r\n\r\n}\r\n\r\n[data-toggle=\"collapse\"].collapsed:after {\r\n    -webkit-transform: rotate(0deg) ;\r\n            transform: rotate(0deg) ;\r\n}"
 
 /***/ }),
 
@@ -1807,7 +1942,7 @@ module.exports = ".card-header {\r\n    padding: 0px;\r\n}\r\n\r\n.card-body {\r
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<ul *ngFor=\"let specie of search_form['species']\">\n    <li>{{specie}}</li>\n</ul>\n<a id=\"filterContainer\" href=\"javascript:void(0)\" class=\"closebtn\" (click)=\"closeNav()\">&times;</a>\n<br>\n\n<div id=\"FilterAccordion\" role=\"tablist\">\n    <div class=\"card\">\n        <div class=\"card-header\" role=\"tab\" id=\"CompoundHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#CompoundCard\" aria-expanded=\"true\" aria-controls=\"CompoundCard\">\n                Compound\n            </button>          \n        </div>\n        <div id=\"CompoundCard\" class=\"collapse show\" aria-labelledby=\"CompoundHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <!-- <button type=\"button\" class=\"btn btn-link\" (click)=\"openSketchModal()\">Sketch</button> \n                <br> -->\n                <p class=\"font-weight-bold\">Name:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'compound_name')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['compound_name']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['compound_name']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'compound_name'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">CAS number:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'cas_number')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['cas_number']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['cas_number']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'cas_number'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"PharmacologyHeading\"> \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#PharmacologyCard\" aria-expanded=\"true\" aria-controls=\"PharmacologyCard\">\n                Pharmacology\n            </button>   \n        </div>\n        <div id=\"PharmacologyCard\" class=\"collapse show\" aria-labelledby=\"PharmacologyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Pharmacological action:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'pharmacological_action')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['pharmacological_action']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['pharmacological_action']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'pharmacological_action'\" ></app-panel> -->\n                <br>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"StudyHeading\">            \n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#StudyCard\" aria-expanded=\"true\" aria-controls=\"StudyCard\">\n                Study\n            </button>             \n        </div>\n        <div id=\"StudyCard\" class=\"collapse show\" aria-labelledby=\"StudyHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Species:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'species')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['species']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['species']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'species'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Route:</p>\n                <div>\n                    <ngx-select-dropdown \n                        (change)=\"addSearchForm($event,'routes')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.search_form['routes']\" \n                        [config]=\"config_select\" \n                        [options]=\"table_info['allOptions']['routes']\">\n                    </ngx-select-dropdown>\n                </div>\n                <!-- <app-panel [key]= \"'routes'\" ></app-panel> -->\n                <br>\n                <p class=\"font-weight-bold\">Exposure period (days):</p>\n                <div>\n                    <ion-range-slider #sliderElement\n                        type=\"double\"\n                        [min]=\"minExposure\"\n                        [max]=\"maxExposure\"\n                        (onFinish)=\"addSliderInfo($event)\">\n                    </ion-range-slider>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-header\" role=\"tab\" id=\"FindingHeading\">\n            <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#FindingCard\" aria-expanded=\"true\" aria-controls=\"FindingCard\">\n                Finding\n            </button>\n        </div>\n        <div id=\"FindingCard\" class=\"collapse show\" aria-labelledby=\"FindingHeading\" data-parent=\"#FilterAccordion\">\n            <div class=\"card-body\">\n                <p class=\"font-weight-bold\">Sex:</p>\n                <div class=\"form-inline\">\n                    <div class=\"custom-control custom-checkbox\" *ngFor=\"let value of sex\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" name=\"sex\" \n                        id=\"{{value}}\" (change)=\"addSearchCheckBox($event,'sex')\" \n                        value={{value}}  [(ngModel)]=\"this[value]\">\n                        <label class=\"custom-control-label\" for=\"{{value}}\">\n                            {{ value }}&nbsp;&nbsp;&nbsp;&nbsp;\n                        </label>\n                    </div>\n                </div>\n                <br>\n                <div class=\"form-inline\">\n                    <br>\n                    <div class=\"custom-control custom-checkbox\">\n                        <input type=\"checkbox\" class=\"custom-control-input\" \n                        id=\"treatmentRelated\"  value=\"relevant\" \n                        (click)=\"addSearchCheckBox($event,'treatmentRelated')\" \n                        [(ngModel)]=relevant_form>\n                        <label class=\"custom-control-label\" for=\"treatmentRelated\">\n                            &nbsp;Treatment-related only\n                        </label>\n                    </div>                   \n                </div>\n                <br>\n                <p class=\"font-weight-bold\">Category:</p>\n                <div class=\"form-inline\">\n                    <select class=\"custom-select\" id=\"category\" style=\"width:100%\" \n                        (change)=\"selectCategory($event)\">\n                        <option disabled selected>-- select --</option>\n                        <option *ngFor=\"let source of sources\">{{source}}</option>\n                    </select>\n                </div>\n                <br>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">Parameter:</p>\n                <div class=\"row\" [hidden]=\"!(hasCategory && \n                categoryOptions[selectedCategory]['organs'].length > 1)\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'organs')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['organs']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['organs']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                <br>\n                <app-panel [key]= \"'organs'\" [categoryForm]=\"true\"></app-panel>\n\n                <p class=\"font-weight-bold\" [hidden]=\"!hasCategory\">Observation:</p>\n                <div class=\"row\">\n                    <div class=\"col s12 l6\">\n                    <ngx-select-dropdown \n                        (change)=\"addCategory($event,'observations')\" \n                        [multiple]=\"true\" \n                        [(value)]=\"this.categoryOptionsSelected[selectedCategory]['observations']\" \n                        [config]=\"config_select\" \n                        [options]=\"categoryOptions[selectedCategory]['observations']\"\n                        [hidden]=\"!hasCategory\">\n                    </ngx-select-dropdown>\n                    </div>\n                </div>\n                 <br>\n                <app-panel [key]= \"'observations'\" [categoryForm]=\"true\"></app-panel>\n            </div>\n        </div>\n    </div>\n</div>\n<br>\n<div class=\"card\">\n    <div class=\"card-body\">\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_structures }} of {{totalStructures}} </font> substances\n        </div>\n        <progress id=\"structuresProgress\" [value]=\"table_info['num_structures']*100/totalStructures\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_studies }} of {{totalStudies}} </font> studies\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n        <div align=\"center\"><font color=\"red\">\n            {{ table_info.num_findings }} of {{totalFindings}} </font> findings\n        </div>\n        <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n    </div>\n</div>\n<br>\n<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"resetFilters()\" style=\"background-color: lightgray\"> Reset Filters </button>\n</div>\n<br>\n<!--<div align=\"center\">\n    <button type=\"button\" class=\"btn\" (click)=\"download()\" style=\"background-color: lightgray\"> Export </button>\n</div>-->"
+module.exports = "<a id=\"filterContainer\" href=\"javascript:void(0)\" class=\"closebtn\" (click)=\"closeNav()\">\n    &times;\n</a>\n<div id=\"mySidebar\">\n    <div id=\"FilterAccordion\" role=\"tablist\">\n        <div class=\"card\">\n            <div class=\"card-header\" role=\"tab\" id=\"CompoundHeading\">\n                <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#CompoundCard\" aria-expanded=\"true\" aria-controls=\"CompoundCard\">\n                    Compound\n                </button>          \n            </div>\n            <div id=\"CompoundCard\" class=\"collapse show\" aria-labelledby=\"CompoundHeading\" data-parent=\"#FilterAccordion\">\n                <div class=\"card-body\">\n                    <!-- <button type=\"button\" class=\"btn btn-link\" (click)=\"openSketchModal()\">Sketch</button> \n                    <br> -->\n                    <p class=\"font-weight-bold\">Name:</p>\n                    <div>\n                        <ngx-select-dropdown \n                            (change)=\"addSearchForm($event,'compound_name')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.search_form['compound_name']\" \n                            [config]=\"config_select\" \n                            [options]=\"table_info['allOptions']['compound_name']\">\n                        </ngx-select-dropdown>\n                    </div>\n                    <!-- <app-panel [key]= \"'compound_name'\" ></app-panel> -->\n                    <br>\n                    <p class=\"font-weight-bold\">CAS number:</p>\n                    <div>\n                        <ngx-select-dropdown \n                            (change)=\"addSearchForm($event,'cas_number')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.search_form['cas_number']\" \n                            [config]=\"config_select\" \n                            [options]=\"table_info['allOptions']['cas_number']\">\n                        </ngx-select-dropdown>\n                    </div>\n                    <!-- <app-panel [key]= \"'cas_number'\" ></app-panel> -->\n                    <br>\n                </div>\n            </div>\n            <div class=\"card-header\" role=\"tab\" id=\"PharmacologyHeading\"> \n                <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#PharmacologyCard\" aria-expanded=\"true\" aria-controls=\"PharmacologyCard\">\n                    Pharmacology\n                </button>   \n            </div>\n            <div id=\"PharmacologyCard\" class=\"collapse show\" aria-labelledby=\"PharmacologyHeading\" data-parent=\"#FilterAccordion\">\n                <div class=\"card-body\">\n                    <p class=\"font-weight-bold\">Pharmacological action:</p>\n                    <div>\n                        <ngx-select-dropdown \n                            (change)=\"addSearchForm($event,'pharmacological_action')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.search_form['pharmacological_action']\" \n                            [config]=\"config_select\" \n                            [options]=\"table_info['allOptions']['pharmacological_action']\">\n                        </ngx-select-dropdown>\n                    </div>\n                    <!-- <app-panel [key]= \"'pharmacological_action'\" ></app-panel> -->\n                    <br>\n                </div>\n            </div>\n            <div class=\"card-header\" role=\"tab\" id=\"StudyHeading\">            \n                <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#StudyCard\" aria-expanded=\"true\" aria-controls=\"StudyCard\">\n                    Study\n                </button>             \n            </div>\n            <div id=\"StudyCard\" class=\"collapse show\" aria-labelledby=\"StudyHeading\" data-parent=\"#FilterAccordion\">\n                <div class=\"card-body\">\n                    <p class=\"font-weight-bold\">Species:</p>\n                    <div>\n                        <ngx-select-dropdown \n                            (change)=\"addSearchForm($event,'species')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.search_form['species']\" \n                            [config]=\"config_select\" \n                            [options]=\"table_info['allOptions']['species']\">\n                        </ngx-select-dropdown>\n                    </div>\n                    <!-- <app-panel [key]= \"'species'\" ></app-panel> -->\n                    <br>\n                    <p class=\"font-weight-bold\">Route:</p>\n                    <div>\n                        <ngx-select-dropdown \n                            (change)=\"addSearchForm($event,'routes')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.search_form['routes']\" \n                            [config]=\"config_select\" \n                            [options]=\"table_info['allOptions']['routes']\">\n                        </ngx-select-dropdown>\n                    </div>\n                    <!-- <app-panel [key]= \"'routes'\" ></app-panel> -->\n                    <br>\n                    <p class=\"font-weight-bold\">Exposure period (days):</p>\n                    <div>\n                        <ion-range-slider #sliderElement\n                            type=\"double\"\n                            [min]=\"minExposure\"\n                            [max]=\"maxExposure\"\n                            (onFinish)=\"addSliderInfo($event)\">\n                        </ion-range-slider>\n                    </div>\n                </div>\n            </div>\n            <div class=\"card-header\" role=\"tab\" id=\"FindingHeading\">\n                <button class=\"btn btn-link\" data-toggle=\"collapse\" data-target=\"#FindingCard\" aria-expanded=\"true\" aria-controls=\"FindingCard\">\n                    Finding\n                </button>\n            </div>\n            <div id=\"FindingCard\" class=\"collapse show\" aria-labelledby=\"FindingHeading\" data-parent=\"#FilterAccordion\">\n                <div class=\"card-body\">\n                    <p class=\"font-weight-bold\">Sex:</p>\n                    <div class=\"form-inline\">\n                        <div class=\"custom-control custom-checkbox\" *ngFor=\"let value of sex\">\n                            <input type=\"checkbox\" class=\"custom-control-input\" name=\"sex\" \n                            id=\"{{value}}\" (change)=\"addSearchCheckBox($event,'sex')\" \n                            value={{value}}  [(ngModel)]=\"this[value]\">\n                            <label class=\"custom-control-label\" for=\"{{value}}\">\n                                {{ value }}&nbsp;&nbsp;&nbsp;&nbsp;\n                            </label>\n                        </div>\n                    </div>\n                    <br>\n                    <div class=\"form-inline\">\n                        <br>\n                        <div class=\"custom-control custom-checkbox\">\n                            <input type=\"checkbox\" class=\"custom-control-input\" \n                            id=\"treatmentRelated\"  value=\"relevant\" \n                            (click)=\"addSearchCheckBox($event,'treatmentRelated')\" \n                            [(ngModel)]=relevant_form>\n                            <label class=\"custom-control-label\" for=\"treatmentRelated\">\n                                &nbsp;Treatment-related only\n                            </label>\n                        </div>                   \n                    </div>\n                    <br>\n                    <p class=\"font-weight-bold\">Category:</p>\n                    <div class=\"form-inline\">\n                        <select class=\"custom-select\" id=\"category\" style=\"width:100%\" \n                            (change)=\"selectCategory($event)\">\n                            <option disabled selected>-- select --</option>\n                            <option *ngFor=\"let source of sources\">{{source}}</option>\n                        </select>\n                    </div>\n                    <br>\n\n                    <p class=\"font-weight-bold\" [hidden]=\"!(hasCategory && \n                    categoryOptions[selectedCategory]['parameters'].length > 1)\">Parameter:</p>\n                    <div class=\"row\" [hidden]=\"!(hasCategory && \n                    categoryOptions[selectedCategory]['parameters'].length > 1)\">\n                        <div class=\"col s12 l6\">\n                        <ngx-select-dropdown \n                            (change)=\"addCategory($event,'parameters')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.categories_search_form[selectedCategory]['parameters']\" \n                            [config]=\"config_select\" \n                            [options]=\"categoryOptions[selectedCategory]['parameters']\"\n                            [hidden]=\"!hasCategory\">\n                        </ngx-select-dropdown>\n                        </div>\n                    </div>\n                    <br>\n                    <!--<app-panel [key]= \"'organs'\" [categoryForm]=\"true\"></app-panel>-->\n\n                    <p class=\"font-weight-bold\" [hidden]=\"!hasCategory\">Observation:</p>\n                    <div class=\"row\">\n                        <div class=\"col s12 l6\">\n                        <ngx-select-dropdown \n                            (change)=\"addCategory($event,'observations')\" \n                            [multiple]=\"true\" \n                            [(value)]=\"this.categories_search_form[selectedCategory]['observations']\" \n                            [config]=\"config_select\" \n                            [options]=\"categoryOptions[selectedCategory]['observations']\"\n                            [hidden]=\"!hasCategory\">\n                        </ngx-select-dropdown>\n                        </div>\n                    </div>\n                    <br>\n                    <!--<app-panel [key]= \"'observations'\" [categoryForm]=\"true\"></app-panel>-->\n                </div>\n            </div>\n        </div>\n    </div>\n    <br>\n    <div class=\"card\">\n        <div class=\"card-body\">\n            <div align=\"center\"><font color=\"red\">\n                {{ table_info.num_structures }} of {{totalStructures}} </font> substances\n            </div>\n            <progress id=\"structuresProgress\" [value]=\"table_info['num_structures']*100/totalStructures\" max=\"100\" style=\"width: 100%\"></progress>\n            <div align=\"center\"><font color=\"red\">\n                {{ table_info.num_studies }} of {{totalStudies}} </font> studies\n            </div>\n            <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n            <div align=\"center\"><font color=\"red\">\n                {{ table_info.num_findings }} of {{totalFindings}} </font> findings\n            </div>\n            <progress id=\"studiesProgress\" [value]=\"table_info['num_studies']*100/totalStudies\" max=\"100\" style=\"width: 100%\"></progress>\n        </div>\n    </div>\n    <br>\n    <div align=\"center\">\n        <button type=\"button\" class=\"btn\" (click)=\"resetFilters()\" style=\"background-color: lightgray\"> Reset Filters </button>\n    </div>\n    <br>\n    <!--<div align=\"center\">\n        <button type=\"button\" class=\"btn\" (click)=\"download()\" style=\"background-color: lightgray\"> Export </button>\n    </div>-->\n</div>"
 
 /***/ }),
 
@@ -1845,7 +1980,6 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 
-//import { SketchModalComponent } from '../sketch/sketch.component';
 
 
 var SidebarComponent = /** @class */ (function () {
@@ -1871,7 +2005,6 @@ var SidebarComponent = /** @class */ (function () {
         this.categoryOptionsSelected = {};
         this.categoryOptions = {};
         this.config_select = {
-            //displayKey:"name", //if objects array passed which key to be displayed defaults to description
             search: true,
             height: '300px',
             placeholder: 'select'
@@ -1881,8 +2014,10 @@ var SidebarComponent = /** @class */ (function () {
     SidebarComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.globals.showSpinner = true;
+        this.globals.showError = false;
         this.findService.currentTable.subscribe(function (table_info) { return _this.table_info = table_info; });
         this.findService.currentCategoriesSearchForm.subscribe(function (categoriesSearchForm) {
+            _this.globals.showError = false;
             _this.categories_search_form = categoriesSearchForm;
             if (_this.firstTimeCategorySearch) {
                 if (_this.request) {
@@ -1890,36 +2025,51 @@ var SidebarComponent = /** @class */ (function () {
                 }
                 /*Case TABLE*/
                 _this.globals.showSpinner = true;
-                _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (table_info) {
-                    _this.findService.changeTable(table_info);
-                    for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
-                        var source = _a[_i];
-                        _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
-                        _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
-                        _this.categoryOptionsSelected[source]['organs'] = _this.categories_search_form[source]['organs'];
-                        _this.categoryOptionsSelected[source]['observations'] = _this.categories_search_form[source]['observations'];
-                    }
-                    _this.globals.showSpinner = false;
-                });
+                /* If nothing to serach*/
+                if (!_this.somethingtoSearch()) {
+                    _this.request = _this.findService.initFinding().subscribe(function (table_info) {
+                        _this.findService.changeTable(table_info);
+                        _this.findService.changePlot(table_info);
+                        _this.globals.showSpinner = false;
+                    });
+                }
+                else {
+                    _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (data) {
+                        _this.findService.changeTable(data);
+                        _this.globals.showSpinner = false;
+                    }, function (error) {
+                        _this.globals.errorMsg = error.message;
+                        _this.globals.showError = true;
+                    });
+                }
             }
             _this.firstTimeCategorySearch = true;
         });
         this.findService.currentSearchFormTable.subscribe(function (searchFormTable) {
+            _this.globals.showError = false;
             _this.search_form = searchFormTable;
             if (_this.firstTimeSearch) {
                 if (_this.request) {
                     _this.request.unsubscribe();
                 }
                 _this.globals.showSpinner = true;
-                _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (table_info) {
-                    for (var _i = 0, _a = _this.sources; _i < _a.length; _i++) {
-                        var source = _a[_i];
-                        _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
-                        _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
-                    }
-                    _this.findService.changeTable(table_info);
-                    _this.globals.showSpinner = false;
-                });
+                /* If nothing to serach*/
+                if (!_this.somethingtoSearch()) {
+                    _this.request = _this.findService.initFinding().subscribe(function (table_info) {
+                        _this.findService.changeTable(table_info);
+                        _this.findService.changePlot(table_info);
+                        _this.globals.showSpinner = false;
+                    });
+                }
+                else {
+                    _this.request = _this.findService.searchFinding(_this.search_form, _this.categories_search_form, 1).subscribe(function (data) {
+                        _this.findService.changeTable(data);
+                        _this.globals.showSpinner = false;
+                    }, function (error) {
+                        _this.globals.errorMsg = error.message;
+                        _this.globals.showError = true;
+                    });
+                }
             }
             _this.firstTimeSearch = true;
         });
@@ -1939,13 +2089,13 @@ var SidebarComponent = /** @class */ (function () {
                 var source = _a[_i];
                 _this.selectedCategory = source;
                 _this.categories_search_form[source] = {};
-                _this.categories_search_form[source]['organs'] = [];
+                _this.categories_search_form[source]['parameters'] = [];
                 _this.categories_search_form[source]['observations'] = [];
                 _this.categoryOptions[source] = {};
-                _this.categoryOptions[source]['organs'] = table_info['allOptions']['organs'][source];
+                _this.categoryOptions[source]['parameters'] = table_info['allOptions']['parameters'][source];
                 _this.categoryOptions[source]['observations'] = table_info['allOptions']['observations'][source];
                 _this.categoryOptionsSelected[source] = {};
-                _this.categoryOptionsSelected[source]['organs'] = [];
+                _this.categoryOptionsSelected[source]['parameters'] = [];
                 _this.categoryOptionsSelected[source]['observations'] = [];
             }
             _this.findService.changeTable(table_info);
@@ -1956,8 +2106,6 @@ var SidebarComponent = /** @class */ (function () {
     SidebarComponent.prototype.selectCategory = function (event) {
         this.hasCategory = true;
         this.selectedCategory = event.target.value;
-        //this.items_organs=this.createTreeview(this.table_info['allOptions']['organs'][this.selectedCategory],this.selectedCategory,'organs');
-        //this.items_observations=this.createTreeview(this.table_info['allOptions']['observations'][this.selectedCategory],this.selectedCategory,'observations');
         if (!(event.target.value in this.categories_search_form)) {
             this.categories_search_form[event.target.value] = null;
         }
@@ -1976,7 +2124,6 @@ var SidebarComponent = /** @class */ (function () {
         }
     };
     SidebarComponent.prototype.addSearchSelect = function (event) {
-        console.log(event);
         // If the key(field of search) is already inserted   
         if (event.target.id in this.search_form) {
             // If the value(name to search) is already inserted
@@ -1988,7 +2135,6 @@ var SidebarComponent = /** @class */ (function () {
             this.search_form[event.target.id] = [event.target.value];
         }
         this.findService.changeSearchFormTable(this.search_form);
-        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info => this.findService.changeTable(table_info));
     };
     SidebarComponent.prototype.addSearchCheckBox = function (event, id) {
         if (this.sex.indexOf(event.target.value) != -1) {
@@ -2014,20 +2160,26 @@ var SidebarComponent = /** @class */ (function () {
             delete this.search_form[id];
         }
         this.findService.changeSearchFormTable(this.search_form);
-        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
     };
     SidebarComponent.prototype.addSliderInfo = function ($event) {
-        this.search_form['min_exposure'] = $event.from;
-        this.search_form['max_exposure'] = $event.to;
+        if ($event.from == this.minExposure && $event.to == this.maxExposure) {
+            delete this.search_form['min_exposure'];
+            delete this.search_form['max_exposure'];
+        }
+        else {
+            this.search_form['min_exposure'] = $event.from;
+            this.search_form['max_exposure'] = $event.to;
+        }
         this.findService.changeSearchFormTable(this.search_form);
-        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
     };
     SidebarComponent.prototype.resetFilters = function () {
+        var _this = this;
         this.search_form = {};
+        this.globals.showSpinner = true;
         for (var _i = 0, _a = this.sources; _i < _a.length; _i++) {
             var source = _a[_i];
-            this.categories_search_form[source] = [];
-            this.categories_search_form[source] = [];
+            this.categories_search_form[source]['parameters'] = [];
+            this.categories_search_form[source]['observations'] = [];
         }
         this.relevant_form = false;
         this.BOTH = false;
@@ -2037,33 +2189,35 @@ var SidebarComponent = /** @class */ (function () {
         this.hasCategory = false;
         this.findService.changeCategoriesSearchForm(this.categories_search_form);
         this.findService.changeSearchFormTable(this.search_form);
-        // document.getElementsByTagName("ngx-select-dropdown")[0].reset( );
-        //this.findService.searchFinding(this.search_form,this.categories_search_form,1).subscribe(table_info =>this.findService.changeTable(table_info));
-        //document.getElementById('category').selectedIndex = "0";
-    };
-    /* openSketchModal() {
-       this.modalDialogService.openDialog(this.viewContainer, {
-         title: 'Compound seach',
-         childComponent: SketchModalComponent,
-         settings: {
-           closeButtonClass: 'close theme-icon-close',
-           modalDialogClass: "modal-dialog modal-dialog-centered modal-lg"
-         },
-         data: "Test"
-       });
-     }*/
-    SidebarComponent.prototype.closeNav = function () {
-        document.getElementById("mySidenav").style.width = "0";
-        document.getElementById("mySidenav").style.overflow = "hidden";
-        document.getElementById("main").style.marginLeft = "25px";
+        if (this.request) {
+            this.request.unsubscribe();
+        }
+        this.request = this.findService.initFinding().subscribe(function (table_info) {
+            _this.findService.changeTable(table_info);
+            _this.findService.changePlot(table_info);
+            _this.globals.showSpinner = false;
+        });
     };
     SidebarComponent.prototype.addCategory = function ($event, type) {
-        this.categories_search_form[this.selectedCategory][type] = $event.value;
-        this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        if ($event.value !== undefined) {
+            this.categories_search_form[this.selectedCategory][type] = $event.value;
+            this.findService.changeCategoriesSearchForm(this.categories_search_form);
+        }
     };
     SidebarComponent.prototype.addSearchForm = function ($event, type) {
-        this.search_form[type] = $event.value;
-        this.findService.changeSearchFormTable(this.search_form);
+        if ($event.value !== undefined) {
+            /*DELETE*/
+            if ($event.value == "") {
+                this.search_form[type].splice($event.value, 1);
+                if (this.search_form[type].length == 0) {
+                    delete this.search_form[type];
+                }
+            }
+            else {
+                this.search_form[type] = $event.value;
+            }
+            this.findService.changeSearchFormTable(this.search_form);
+        }
     };
     SidebarComponent.prototype.tof = function (x) {
         var count = 0;
@@ -2071,6 +2225,25 @@ var SidebarComponent = /** @class */ (function () {
             count++;
         }
         return count;
+    };
+    SidebarComponent.prototype.closeNav = function () {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("mySidenav").style.overflow = "hidden";
+        document.getElementById("main").style.marginLeft = "25px";
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.width = "100%";
+    };
+    SidebarComponent.prototype.somethingtoSearch = function () {
+        if (Object.keys(this.search_form).length > 0) {
+            return true;
+        }
+        for (var _i = 0, _a = this.sources; _i < _a.length; _i++) {
+            var source = _a[_i];
+            if (this.categories_search_form[source]['parameters'].length > 0 || this.categories_search_form[source]['observations'].length > 0) {
+                return true;
+            }
+        }
+        return false;
     };
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"])('sliderElement'),
@@ -2110,7 +2283,7 @@ var SidebarComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.table {\r\n    width: 95%;\r\n}\r\n\r\n.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th\r\n{\r\n    padding:8px; \r\n}\r\n\r\n::ng-deep .tooltip-inner {\r\n    background-color: #FFFFFF;\r\n    color: #FFFFFF;\r\n    border-color: darkgray;\r\n}\r\n\r\ntable thead,\r\ntable tbody {\r\n    display: table;\r\n    width: 100%;\r\n}\r\n\r\ntable.loading tbody {\r\n    position: relative;\r\n}\r\n\r\ntable.loading tbody:after {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    background-color: rgba(0, 0, 0, 0.1);\r\n    background-image: url('Reload-1s-200px.svg');\r\n    background-position: center;\r\n    background-repeat: no-repeat;\r\n    background-blend-mode: darken;\r\n    background-size: 250px 250px;\r\n    content: \"\";\r\n}"
+module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\r\n.table {\r\n    width: 95%;\r\n}\r\n\r\n.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th\r\n{\r\n    padding:8px; \r\n}\r\n\r\n::ng-deep .tooltip-inner {\r\n    background-color: #FFFFFF;\r\n    color: #FFFFFF;\r\n    border-color: darkgray;\r\n}\r\n\r\ntable thead,\r\ntable tbody {\r\n    display: table;\r\n    width: 100%;\r\n}\r\n\r\ntable.loading tbody {\r\n    position: relative;\r\n}\r\n\r\ntable.loading tbody:after {\r\n    position: absolute;\r\n    top: 0;\r\n    left: 0;\r\n    right: 0;\r\n    bottom: 0;\r\n    background-color: rgba(0, 0, 0, 0.1);\r\n    background-image: url(\"data:image/svg+xml,%3Csvg width%3D%22200px%22  height%3D%22200px%22  xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 100 100%22 preserveAspectRatio%3D%22xMidYMid%22 class%3D%22lds-reload%22 style%3D%22background%3A rgba(0%2C 0%2C 0%2C 0) none repeat scroll 0%25 0%25%3B%22%3E%3Cg%3E%3Cpath d%3D%22M50 15A35 35 0 1 0 74.787 25.213%22 fill%3D%22none%22 ng-attr-stroke%3D%22%7B%7Bconfig.color%7D%7D%22 ng-attr-stroke-width%3D%22%7B%7Bconfig.width%7D%7D%22 stroke%3D%22%23337ab7%22 stroke-width%3D%2212%22%3E%3C%2Fpath%3E%3Cpath ng-attr-d%3D%22%7B%7Bconfig.darrow%7D%7D%22 ng-attr-fill%3D%22%7B%7Bconfig.color%7D%7D%22 d%3D%22M49 3L49 27L61 15L49 3%22 fill%3D%22%23337ab7%22%3E%3C%2Fpath%3E%3CanimateTransform attributeName%3D%22transform%22 type%3D%22rotate%22 calcMode%3D%22linear%22 values%3D%220 50 50%3B360 50 50%22 keyTimes%3D%220%3B1%22 dur%3D%221s%22 begin%3D%220s%22 repeatCount%3D%22indefinite%22%3E%3C%2FanimateTransform%3E%3C%2Fg%3E%3C%2Fsvg%3E\");\r\n    background-position: center;\r\n    background-repeat: no-repeat;\r\n    background-blend-mode: darken;\r\n    background-size: 250px 250px;\r\n    content: \"\";\r\n}"
 
 /***/ }),
 
@@ -2121,7 +2294,7 @@ module.exports = ".not-relevant {\r\n    background-color: whitesmoke;\r\n}\r\n\
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<table class=\"table table-hover\" [ngClass]=\"{ 'loading': globals.showSpinner}\" ng-controller=\"myController\">\n    <thead>\n      <tr class=\"text-left\" bgcolor=lightgray>\n        <th>Compound</th>\n        <th>Name</th>\n        <th>CAS no.</th>\n        <th>Pharmacological action</th>\n        <th>Studies per species</th>\n      </tr>\n    </thead>\n    <!--<tbody *ngIf=\"globals.showSpinner\">\n      <tr class=\"justify-content-center\"><td colspan=\"5\" align=\"center\"><app-loading-spinner></app-loading-spinner></td></tr>\n    </tbody>-->\n    <tbody>\n        <tr *ngFor=\"let row of table_info.data; let i = index\" class=\"text-left\">\n          <td class=\"align-middle text-center\" style=\"border-right: 1px solid lightgray\">\n            <img *ngIf=\"row.smiles==='-'\" src=\"assets/img/No_Image_Available.png\" width=\"80\" height=\"80\" class=\"mx-auto d-block\"> \n            <div *ngIf=\"row.smiles!=='-'\" (click)=\"openCustomModal(row.smiles)\">\n              <canvas #cmp id=\"{{row.subst_id}}\">{{row.smiles}}</canvas>\n            </div>\n            <br>{{row.subst_id}}\n          </td>          \n          <td class=\"align-middle\"><pre>{{row.common_name}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.cas_number}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.targetActionList}}</pre></td>\n          <td class=\"align-middle\"><pre>{{row.count}}</pre></td>\n        </tr>\n    </tbody>\n  </table>\n\n  <!--PAGINATION-->\n  <nav class=\"nav justify-content-center\" *ngIf=\"table_info.num_pages > 0\">\n    <ul class=\"pagination\">\n      <div *ngIf=\" table_info.previous_page > 0;then previous else no_previous\"></div>\n      <ng-template #previous>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(1)\">First</a> </li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.previous_page)\">&laquo;</a></li>\n      </ng-template>\n      <ng-template #no_previous>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">First</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&laquo;</a></li>\n      </ng-template>       \n      <ng-container *ngFor=\"let i of table_info.range_pages\">        \n        <li class=\"page-item active\" *ngIf =\"table_info.page == i\" >\n            <a class=\"page-link\">{{ i }} <span class=\"sr-only\">(current)</span></a>\n        </li>\n        <li class=\"page-item\" *ngIf=\"table_info.page != i\">\n          <a class=\"page-link\" (click)= \"Page(i)\"> {{i}} </a>\n        </li>\n      </ng-container>\n      <div *ngIf=\" table_info.next_page > 0;then next else no_next\"></div>\n      <ng-template #next>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.next_page)\">&raquo;</a></li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.num_pages)\" >Last</a> </li>\n      </ng-template> \n    \n      <ng-template #no_next>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&raquo;</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">Last</a></li>\n      </ng-template>        \n    </ul>\n  </nav>"
+module.exports = "<div class=\"alert alert-danger alert-dismissible fade show\" role=\"alert\" *ngIf=\"globals.showError\" style=\"text-align: center;vertical-align: middle;\">\n  <h3><strong>ERROR: </strong></h3><h4>{{this.globals.errorMsg}}</h4>\n  <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\" (click)=\"closeError()\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n\n<div *ngIf=\"!globals.showError\">\n  <table class=\"table table-hover\" [ngClass]=\"{ 'loading': globals.showSpinner}\" ng-controller=\"myController\" *ngIf=\"!globals.showError\">\n    <tr class=\"text-left\" bgcolor=lightgray>\n      <th>Compound</th>\n      <th>Name</th>\n      <th>CAS no.</th>\n      <th>Pharmacological action</th>\n      <th>Studies per species</th>\n    </tr>\n    <tr *ngFor=\"let row of table_info.data;\" class=\"text-left\">\n      <td class=\"align-middle text-center\" style=\"border-right: 1px solid lightgray\">\n        <img *ngIf=\"row.smiles==='-'\" src=\"assets/img/No_Image_Available.png\" width=\"80\" height=\"80\" class=\"mx-auto d-block\"> \n        <div *ngIf=\"row.smiles!=='-'\" (click)=\"openCustomModal(row.smiles)\">\n          <canvas #cmp id=\"{{row.subst_id}}\">{{row.smiles}}</canvas>\n        </div>\n        <br>{{row.subst_id}}\n      </td>          \n      <td class=\"align-middle\"><pre>{{row.common_name}}</pre></td>\n      <td class=\"align-middle\"><pre>{{row.cas_number}}</pre></td>\n      <td class=\"align-middle\"><pre>{{row.targetActionList}}</pre></td>\n      <td class=\"align-middle\"><pre>{{row.count}}</pre></td>\n    </tr>\n    <tr *ngIf=\"table_info.data.length==0\">\n        <td align=\"center\" colspan=\"5\">  \n          <img src=\"assets/img/empty_table.png\" width=\"160\" height=\"160\" class=\"mx-auto d-block\"> \n        </td>\n    </tr>\n  </table>\n\n  <!--PAGINATION-->\n  <!--*ngIf=\"table_info.num_pages > 0\"-->\n  <nav class=\"nav justify-content-center\" >\n    <ul class=\"pagination\">\n      <div *ngIf=\" table_info.previous_page > 0;then previous else no_previous\"></div>\n      <ng-template #previous>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(1)\">First</a> </li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.previous_page)\">&laquo;</a></li>\n      </ng-template>\n      <ng-template #no_previous>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">First</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&laquo;</a></li>\n      </ng-template>       \n      <ng-container *ngFor=\"let i of table_info.range_pages\">        \n        <li class=\"page-item active\" *ngIf =\"table_info.page == i\" >\n            <a class=\"page-link\">{{ i }} <span class=\"sr-only\">(current)</span></a>\n        </li>\n        <li class=\"page-item\" *ngIf=\"table_info.page != i\">\n          <a class=\"page-link\" (click)= \"Page(i)\"> {{i}} </a>\n        </li>\n      </ng-container>\n      <div *ngIf=\" table_info.next_page > 0;then next else no_next\"></div>\n      <ng-template #next>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.next_page)\">&raquo;</a></li>\n        <li class=\"page-item\"><a class=\"page-link\" (click)= \"Page(table_info.num_pages)\" >Last</a> </li>\n      </ng-template> \n    \n      <ng-template #no_next>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">&raquo;</a></li>\n        <li class=\"page-item disabled\"><a class=\"page-link\"  tabindex=\"-1\">Last</a></li>\n      </ng-template>        \n    </ul>\n  </nav>\n</div>"
 
 /***/ }),
 
@@ -2141,7 +2314,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var smiles_drawer__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(smiles_drawer__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
 /* harmony import */ var _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../dialog/dialog.component */ "./src/app/dialog/dialog.component.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../globals */ "./src/app/globals.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -2157,11 +2331,13 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 
+
 var TableComponent = /** @class */ (function () {
-    function TableComponent(findService, modalDialogService, viewContainer, globals) {
+    function TableComponent(findService, modalDialogService, viewContainer, _router, globals) {
         this.findService = findService;
         this.modalDialogService = modalDialogService;
         this.viewContainer = viewContainer;
+        this._router = _router;
         this.globals = globals;
         this.table_info = {};
         this.search_form = {};
@@ -2228,6 +2404,9 @@ var TableComponent = /** @class */ (function () {
             _this.globals.showSpinner = false;
         });
     };
+    TableComponent.prototype.closeError = function () {
+        this._router.navigate(['/']);
+    };
     __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChildren"])('cmp'),
         __metadata("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_0__["QueryList"])
@@ -2245,7 +2424,8 @@ var TableComponent = /** @class */ (function () {
         __metadata("design:paramtypes", [_findings_service__WEBPACK_IMPORTED_MODULE_1__["FindingsService"],
             ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_3__["ModalDialogService"],
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"],
-            _globals__WEBPACK_IMPORTED_MODULE_5__["Globals"]])
+            _angular_router__WEBPACK_IMPORTED_MODULE_5__["Router"],
+            _globals__WEBPACK_IMPORTED_MODULE_6__["Globals"]])
     ], TableComponent);
     return TableComponent;
 }());
@@ -2261,7 +2441,7 @@ var TableComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: lightgray;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}"
+module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: lightgray;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}\r\n\r\np {\r\n    border-style: solid;\r\n    border-color: red;\r\n}"
 
 /***/ }),
 
@@ -2272,7 +2452,7 @@ module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <!-- <a class=\"button\" href=\"#connect\" routerLink=\"connect\"> Connect </a> -->\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n   <!-- <a class=\"button\" href=\"#explore\" routerLink=\"explore\"> Explore </a>\n    < a class=\"button\" href=\"#browse\" routerLink=\"browse\"> Browse </a> -->\n    <br>\n    <br>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
+module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n    <br>\n    <br>\n    <app-filter-info ></app-filter-info>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
 
 /***/ }),
 
@@ -2303,17 +2483,17 @@ var TabsComponent = /** @class */ (function () {
     TabsComponent.prototype.ngOnInit = function () {
     };
     TabsComponent.prototype.toggleNav = function () {
-        if (document.getElementById("mySidenav").style.width === "300px") {
+        if (document.getElementById("mySidenav").style.width === "250px") {
             document.getElementById("mySidenav").style.width = "0";
             document.getElementById("mySidenav").style.overflow = "hidden";
             document.getElementById("main").style.marginLeft = "25px";
             document.getElementById("main").style.width = "100%";
         }
         else {
-            document.getElementById("mySidenav").style.width = "300px";
+            document.getElementById("mySidenav").style.width = "250px";
             document.getElementById("mySidenav").style.overflow = "auto";
-            document.getElementById("main").style.marginLeft = "300px";
-            document.getElementById("main").style.width = "calc(100% - 300px)";
+            document.getElementById("main").style.marginLeft = "250px";
+            document.getElementById("main").style.width = "calc(100% - 250px)";
         }
     };
     TabsComponent = __decorate([
@@ -2385,7 +2565,7 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformB
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/gemmaportaramirez/Desktop/work/Projects/AngularRDTExtractor/src/main.ts */"./src/main.ts");
+module.exports = __webpack_require__(/*! /home/ignacio/Projects/AngularRDTExtractor/src/main.ts */"./src/main.ts");
 
 
 /***/ })
