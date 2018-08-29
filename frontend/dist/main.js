@@ -399,7 +399,7 @@ module.exports = ".sidenav {\r\n    height: 100%;\r\n    width: 0;\r\n    positi
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<!-- Collapsible sidebar -->\n<div id=\"mySidenav\" class=\"sidenav\">\n    <app-sidebar></app-sidebar>\n</div>\n<!-- Main content -->\n<div id=\"main\">\n    <app-home></app-home>\n    <app-tabs></app-tabs>\n</div>\n"
+module.exports = "<!-- Collapsible sidebar -->\n<div id=\"mySidenav\" class=\"sidenav\">\n    <app-sidebar></app-sidebar>\n</div>\n<!-- Main content -->\n<div id=\"main\">\n    <app-tabs></app-tabs>\n</div>\n"
 
 /***/ }),
 
@@ -453,39 +453,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/forms */ "./node_modules/@angular/forms/fesm5/forms.js");
 /* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
-/* harmony import */ var _home_home_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./home/home.component */ "./src/app/home/home.component.ts");
-/* harmony import */ var _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sidebar/sidebar.component */ "./src/app/sidebar/sidebar.component.ts");
-/* harmony import */ var _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./tabs/tabs.component */ "./src/app/tabs/tabs.component.ts");
-/* harmony import */ var _table_table_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./table/table.component */ "./src/app/table/table.component.ts");
-/* harmony import */ var _plot_plot_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./plot/plot.component */ "./src/app/plot/plot.component.ts");
-/* harmony import */ var _panel_panel_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./panel/panel.component */ "./src/app/panel/panel.component.ts");
-/* harmony import */ var _capitalize_pipe__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./capitalize.pipe */ "./src/app/capitalize.pipe.ts");
-/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
-/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./findings.service */ "./src/app/findings.service.ts");
-/* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
-/* harmony import */ var _explore_explore_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./explore/explore.component */ "./src/app/explore/explore.component.ts");
-/* harmony import */ var _connect_connect_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./connect/connect.component */ "./src/app/connect/connect.component.ts");
-/* harmony import */ var _browse_browse_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./browse/browse.component */ "./src/app/browse/browse.component.ts");
-/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ng2-ion-range-slider */ "./node_modules/ng2-ion-range-slider/index.js");
-/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
-/* harmony import */ var _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./dialog/dialog.component */ "./src/app/dialog/dialog.component.ts");
-/* harmony import */ var ngx_treeview__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ngx-treeview */ "./node_modules/ngx-treeview/src/index.js");
-/* harmony import */ var angular_font_awesome__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! angular-font-awesome */ "./node_modules/angular-font-awesome/dist/angular-font-awesome.es5.js");
-/* harmony import */ var _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./disabled-on-selector.directive */ "./src/app/disabled-on-selector.directive.ts");
-/* harmony import */ var ngx_drag_drop__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ngx-drag-drop */ "./node_modules/ngx-drag-drop/ngx-drag-drop.es5.js");
-/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ng2-charts */ "./node_modules/ng2-charts/index.js");
-/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_24___default = /*#__PURE__*/__webpack_require__.n(ng2_charts__WEBPACK_IMPORTED_MODULE_24__);
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "./node_modules/@ng-bootstrap/ng-bootstrap/index.js");
-/* harmony import */ var ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ngx-select-dropdown */ "./node_modules/ngx-select-dropdown/dist/index.js");
-/* harmony import */ var _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./mono-plot/mono-plot.component */ "./src/app/mono-plot/mono-plot.component.ts");
-/* harmony import */ var _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./loading-spinner/loading-spinner.component */ "./src/app/loading-spinner/loading-spinner.component.ts");
-/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./globals */ "./src/app/globals.ts");
-/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ngx-tooltip */ "./node_modules/ngx-tooltip/index.js");
-/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__);
-/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ng4-loading-spinner */ "./node_modules/ng4-loading-spinner/ng4-loading-spinner.umd.js");
-/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31___default = /*#__PURE__*/__webpack_require__.n(ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__);
-/* harmony import */ var _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./filter-info/filter-info.component */ "./src/app/filter-info/filter-info.component.ts");
+/* harmony import */ var _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sidebar/sidebar.component */ "./src/app/sidebar/sidebar.component.ts");
+/* harmony import */ var _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./tabs/tabs.component */ "./src/app/tabs/tabs.component.ts");
+/* harmony import */ var _table_table_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./table/table.component */ "./src/app/table/table.component.ts");
+/* harmony import */ var _plot_plot_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./plot/plot.component */ "./src/app/plot/plot.component.ts");
+/* harmony import */ var _panel_panel_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./panel/panel.component */ "./src/app/panel/panel.component.ts");
+/* harmony import */ var _capitalize_pipe__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./capitalize.pipe */ "./src/app/capitalize.pipe.ts");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
+/* harmony import */ var _findings_service__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./findings.service */ "./src/app/findings.service.ts");
+/* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
+/* harmony import */ var _explore_explore_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./explore/explore.component */ "./src/app/explore/explore.component.ts");
+/* harmony import */ var _connect_connect_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./connect/connect.component */ "./src/app/connect/connect.component.ts");
+/* harmony import */ var _browse_browse_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./browse/browse.component */ "./src/app/browse/browse.component.ts");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ng2-ion-range-slider */ "./node_modules/ng2-ion-range-slider/index.js");
+/* harmony import */ var ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ngx-modal-dialog */ "./node_modules/ngx-modal-dialog/index.js");
+/* harmony import */ var _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./dialog/dialog.component */ "./src/app/dialog/dialog.component.ts");
+/* harmony import */ var ngx_treeview__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ngx-treeview */ "./node_modules/ngx-treeview/src/index.js");
+/* harmony import */ var angular_font_awesome__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! angular-font-awesome */ "./node_modules/angular-font-awesome/dist/angular-font-awesome.es5.js");
+/* harmony import */ var _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./disabled-on-selector.directive */ "./src/app/disabled-on-selector.directive.ts");
+/* harmony import */ var ngx_drag_drop__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ngx-drag-drop */ "./node_modules/ngx-drag-drop/ngx-drag-drop.es5.js");
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ng2-charts */ "./node_modules/ng2-charts/index.js");
+/* harmony import */ var ng2_charts__WEBPACK_IMPORTED_MODULE_23___default = /*#__PURE__*/__webpack_require__.n(ng2_charts__WEBPACK_IMPORTED_MODULE_23__);
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "./node_modules/@ng-bootstrap/ng-bootstrap/index.js");
+/* harmony import */ var ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ngx-select-dropdown */ "./node_modules/ngx-select-dropdown/dist/index.js");
+/* harmony import */ var _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./mono-plot/mono-plot.component */ "./src/app/mono-plot/mono-plot.component.ts");
+/* harmony import */ var _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./loading-spinner/loading-spinner.component */ "./src/app/loading-spinner/loading-spinner.component.ts");
+/* harmony import */ var _globals__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./globals */ "./src/app/globals.ts");
+/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ngx-tooltip */ "./node_modules/ngx-tooltip/index.js");
+/* harmony import */ var ngx_tooltip__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(ngx_tooltip__WEBPACK_IMPORTED_MODULE_29__);
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ng4-loading-spinner */ "./node_modules/ng4-loading-spinner/ng4-loading-spinner.umd.js");
+/* harmony import */ var ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_30__);
+/* harmony import */ var _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./filter-info/filter-info.component */ "./src/app/filter-info/filter-info.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -512,7 +511,6 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
-//import { SubstanceModalComponent } from './substance-modal/substance-modal.component';
 
 
 
@@ -523,8 +521,6 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
-
-// import { ModalMoleculeComponent } from './modal-molecule/modal-molecule.component';
 
 
 var AppModule = /** @class */ (function () {
@@ -534,41 +530,40 @@ var AppModule = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["NgModule"])({
             declarations: [
                 _app_component__WEBPACK_IMPORTED_MODULE_3__["AppComponent"],
-                _home_home_component__WEBPACK_IMPORTED_MODULE_4__["HomeComponent"],
-                _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_5__["SidebarComponent"],
-                _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_6__["TabsComponent"],
-                _table_table_component__WEBPACK_IMPORTED_MODULE_7__["TableComponent"],
-                _plot_plot_component__WEBPACK_IMPORTED_MODULE_8__["PlotComponent"],
-                _panel_panel_component__WEBPACK_IMPORTED_MODULE_9__["PanelComponent"],
-                _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_28__["LoadingSpinnerComponent"],
-                _capitalize_pipe__WEBPACK_IMPORTED_MODULE_10__["CapitalizePipe"],
-                _explore_explore_component__WEBPACK_IMPORTED_MODULE_14__["ExploreComponent"],
-                _connect_connect_component__WEBPACK_IMPORTED_MODULE_15__["ConnectComponent"],
-                _browse_browse_component__WEBPACK_IMPORTED_MODULE_16__["BrowseComponent"],
-                _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],
-                _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_22__["DisabledOnSelectorDirective"],
-                _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_27__["MonoPlotComponent"],
-                _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_32__["FilterInfoComponent"]
+                _sidebar_sidebar_component__WEBPACK_IMPORTED_MODULE_4__["SidebarComponent"],
+                _tabs_tabs_component__WEBPACK_IMPORTED_MODULE_5__["TabsComponent"],
+                _table_table_component__WEBPACK_IMPORTED_MODULE_6__["TableComponent"],
+                _plot_plot_component__WEBPACK_IMPORTED_MODULE_7__["PlotComponent"],
+                _panel_panel_component__WEBPACK_IMPORTED_MODULE_8__["PanelComponent"],
+                _loading_spinner_loading_spinner_component__WEBPACK_IMPORTED_MODULE_27__["LoadingSpinnerComponent"],
+                _capitalize_pipe__WEBPACK_IMPORTED_MODULE_9__["CapitalizePipe"],
+                _explore_explore_component__WEBPACK_IMPORTED_MODULE_13__["ExploreComponent"],
+                _connect_connect_component__WEBPACK_IMPORTED_MODULE_14__["ConnectComponent"],
+                _browse_browse_component__WEBPACK_IMPORTED_MODULE_15__["BrowseComponent"],
+                _dialog_dialog_component__WEBPACK_IMPORTED_MODULE_18__["CustomModalComponent"],
+                _disabled_on_selector_directive__WEBPACK_IMPORTED_MODULE_21__["DisabledOnSelectorDirective"],
+                _mono_plot_mono_plot_component__WEBPACK_IMPORTED_MODULE_26__["MonoPlotComponent"],
+                _filter_info_filter_info_component__WEBPACK_IMPORTED_MODULE_31__["FilterInfoComponent"]
             ],
             imports: [
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
                 _angular_forms__WEBPACK_IMPORTED_MODULE_2__["FormsModule"],
-                _angular_common_http__WEBPACK_IMPORTED_MODULE_11__["HttpClientModule"],
-                _app_routing_module__WEBPACK_IMPORTED_MODULE_13__["AppRoutingModule"],
-                ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_17__["IonRangeSliderModule"],
-                ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_18__["ModalDialogModule"].forRoot(),
-                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"],
-                ngx_treeview__WEBPACK_IMPORTED_MODULE_20__["TreeviewModule"].forRoot(),
-                _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_25__["NgbModule"].forRoot(),
-                angular_font_awesome__WEBPACK_IMPORTED_MODULE_21__["AngularFontAwesomeModule"],
-                ngx_drag_drop__WEBPACK_IMPORTED_MODULE_23__["DndModule"],
-                ng2_charts__WEBPACK_IMPORTED_MODULE_24__["ChartsModule"],
-                ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_26__["SelectDropDownModule"],
-                ngx_tooltip__WEBPACK_IMPORTED_MODULE_30__["TooltipModule"],
-                ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_31__["Ng4LoadingSpinnerModule"].forRoot()
+                _angular_common_http__WEBPACK_IMPORTED_MODULE_10__["HttpClientModule"],
+                _app_routing_module__WEBPACK_IMPORTED_MODULE_12__["AppRoutingModule"],
+                ng2_ion_range_slider__WEBPACK_IMPORTED_MODULE_16__["IonRangeSliderModule"],
+                ngx_modal_dialog__WEBPACK_IMPORTED_MODULE_17__["ModalDialogModule"].forRoot(),
+                ngx_tooltip__WEBPACK_IMPORTED_MODULE_29__["TooltipModule"],
+                ngx_treeview__WEBPACK_IMPORTED_MODULE_19__["TreeviewModule"].forRoot(),
+                _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_24__["NgbModule"].forRoot(),
+                angular_font_awesome__WEBPACK_IMPORTED_MODULE_20__["AngularFontAwesomeModule"],
+                ngx_drag_drop__WEBPACK_IMPORTED_MODULE_22__["DndModule"],
+                ng2_charts__WEBPACK_IMPORTED_MODULE_23__["ChartsModule"],
+                ngx_select_dropdown__WEBPACK_IMPORTED_MODULE_25__["SelectDropDownModule"],
+                ngx_tooltip__WEBPACK_IMPORTED_MODULE_29__["TooltipModule"],
+                ng4_loading_spinner__WEBPACK_IMPORTED_MODULE_30__["Ng4LoadingSpinnerModule"].forRoot()
             ],
-            providers: [_findings_service__WEBPACK_IMPORTED_MODULE_12__["FindingsService"], _globals__WEBPACK_IMPORTED_MODULE_29__["Globals"]],
-            entryComponents: [_dialog_dialog_component__WEBPACK_IMPORTED_MODULE_19__["CustomModalComponent"],],
+            providers: [_findings_service__WEBPACK_IMPORTED_MODULE_11__["FindingsService"], _globals__WEBPACK_IMPORTED_MODULE_28__["Globals"]],
+            entryComponents: [_dialog_dialog_component__WEBPACK_IMPORTED_MODULE_18__["CustomModalComponent"]],
             bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_3__["AppComponent"]]
         })
     ], AppModule);
@@ -1252,69 +1247,6 @@ var Globals = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])()
     ], Globals);
     return Globals;
-}());
-
-
-
-/***/ }),
-
-/***/ "./src/app/home/home.component.css":
-/*!*****************************************!*\
-  !*** ./src/app/home/home.component.css ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = ""
-
-/***/ }),
-
-/***/ "./src/app/home/home.component.html":
-/*!******************************************!*\
-  !*** ./src/app/home/home.component.html ***!
-  \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "<div class=\"page-header\">\n    <div class=\"container text-center\">\n        <h1>RDTextractor</h1>\n    </div>\n</div>"
-
-/***/ }),
-
-/***/ "./src/app/home/home.component.ts":
-/*!****************************************!*\
-  !*** ./src/app/home/home.component.ts ***!
-  \****************************************/
-/*! exports provided: HomeComponent */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HomeComponent", function() { return HomeComponent; });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (undefined && undefined.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-var HomeComponent = /** @class */ (function () {
-    function HomeComponent() {
-    }
-    HomeComponent.prototype.ngOnInit = function () {
-    };
-    HomeComponent = __decorate([
-        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
-            selector: 'app-home',
-            template: __webpack_require__(/*! ./home.component.html */ "./src/app/home/home.component.html"),
-            styles: [__webpack_require__(/*! ./home.component.css */ "./src/app/home/home.component.css")]
-        }),
-        __metadata("design:paramtypes", [])
-    ], HomeComponent);
-    return HomeComponent;
 }());
 
 
@@ -2452,7 +2384,7 @@ module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n    <br>\n    <br>\n    <app-filter-info ></app-filter-info>\n    <router-outlet></router-outlet>\n  </span>\n</div>"
+module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n  </span>\n    <br>\n    <br>\n    <app-filter-info ></app-filter-info>\n    <router-outlet></router-outlet>\n</div>"
 
 /***/ }),
 
