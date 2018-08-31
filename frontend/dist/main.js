@@ -1334,7 +1334,7 @@ module.exports = "select.btn-mini {\r\n    height: auto;\r\n    line-height: 16p
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-3\">\n          <div class=\"row align-items-start\">\n              <div class=\"col\">\n                  <select class=\"custom-select btn-mini\" [(ngModel)]=\"chartType\">\n                    <option *ngFor=\"let chart of charts\" [value]=\"chart.id\">\n                        {{chart.name}}\n                    </option>\n                  </select>\n              </div>\n          </div>\n        </div>\n        <div class=\"col-12\" style=\"width: 70%;\"  *ngIf=\"datasets.length > 0\" >\n                <canvas baseChart #chart \n                [datasets]=\"datasets\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                [colors]=\"chartsColors\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\">\n            </canvas>\n        </div>\n    </div>\n</div>\n"
+module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-12\" style=\"width: 70%;\"  *ngIf=\"datasets.length > 0\" >\n                <canvas baseChart #chart \n                [datasets]=\"datasets\"\n                [labels]=\"labels\"\n                [options]=\"options\"\n                [chartType]=\"chartType\"\n                [colors]=\"chartsColors\"\n                (chartHover)=\"chartHovered($event)\"\n                (chartClick)=\"chartClicked($event)\">\n            </canvas>\n        </div>\n    </div>\n</div>\n"
 
 /***/ }),
 
@@ -1763,7 +1763,7 @@ var PlotComponent = /** @class */ (function () {
             }
         ];
         a.labels = ['Selected', 'Not Selected'];
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         a.title = "Structures";
         this.plots['Structures'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
@@ -1776,7 +1776,7 @@ var PlotComponent = /** @class */ (function () {
             }
         ];
         a.labels = ['Selected', 'Not Selected'];
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         a.title = "Studies";
         this.plots['Studies'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
@@ -1789,7 +1789,7 @@ var PlotComponent = /** @class */ (function () {
             }
         ];
         a.labels = ['Selected', 'Not Selected'];
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         a.title = "Findings";
         this.plots['Findings'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
@@ -1802,7 +1802,7 @@ var PlotComponent = /** @class */ (function () {
             }
         ];
         a.labels = this.plot_info['plotInfo']['normalised_species'][0];
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         a.title = "Species";
         this.plots['Species'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
@@ -1816,7 +1816,7 @@ var PlotComponent = /** @class */ (function () {
         ];
         a.labels = this.plot_info['plotInfo']['relevance'][0];
         a.title = "Relevance";
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         this.plots['Treatment'] = a;
         var a = new _plot__WEBPACK_IMPORTED_MODULE_3__["Plot"]();
         a.id = this.plotID;
@@ -1829,7 +1829,7 @@ var PlotComponent = /** @class */ (function () {
         ];
         a.labels = this.plot_info['plotInfo']['source'][0];
         a.title = "Source";
-        a.chartType = 'doughnut';
+        a.chartType = 'pie';
         this.plots['Source'] = a;
     };
     PlotComponent.prototype.ngAfterViewInit = function () {
@@ -2373,7 +2373,7 @@ var TableComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: lightgray;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}\r\n\r\np {\r\n    border-style: solid;\r\n    border-color: red;\r\n}"
+module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n\r\n.button {\r\n    font-size: 16px;\r\n    padding: 10px;\r\n}\r\n\r\n.active, .button:hover {\r\n    background-color: lightgray;\r\n    color: white;\r\n}\r\n\r\n.triangle-down {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tborder-left: 25px solid transparent;\r\n\tborder-right: 25px solid transparent;\r\n\tborder-top: 50px solid #555;\r\n}\r\n\r\np {\r\n    border-style: solid;\r\n    border-color: red;\r\n}\r\n\r\n#myTabs {\r\n    z-index: 9999;\r\n    position: fixed;\r\n    top: 0px;\r\n    width: 100%;\r\n    background-color: white;\r\n    padding: 10px;\r\n}"
 
 /***/ }),
 
@@ -2384,7 +2384,7 @@ module.exports = ".li {\r\n    font-size: 16px;\r\n    cursor: pointer;\r\n}\r\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Plot </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n  </span>\n    <br>\n    <br>\n    <app-filter-info ></app-filter-info>\n    <router-outlet></router-outlet>\n</div>"
+module.exports = "<div class=\"row\" id=\"myTabs\">\n  <span>\n    <a class=\"button\"><span (click)=\"toggleNav()\">&#9776; Filters</span></a>\n    <a class=\"button\" href=\"#plot\" routerLink=\"plot\"> Overview </a>\n    <a class=\"button\" href=\"#table\" routerLink=\"table\"> Table </a>\n  </span>\n</div>\n<div>\n  <br>\n  <br>\n  <app-filter-info ></app-filter-info>\n  <router-outlet></router-outlet>\n</div>"
 
 /***/ }),
 
