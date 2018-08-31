@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 import pandas as pd
+# Disable SettingWithCopyWarning warnings
+pd.set_option('chained_assignment', None)
 import json
 import copy
 import math
@@ -25,51 +27,48 @@ observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 @api_view(['GET'])
 def initFindings(request):
 
-    global output_df
+    global output_df, optionsDict
+
     output_df = pd.read_pickle("API/static/data/output.pkl")
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
+    optionsDict = results['allOptions']
     send_data = FindingSerializer(results, many=False).data
     return Response(send_data)
 
 @api_view(['GET'])
 def findings(request):
 
-    global all_df, study_df, output_df
+    global all_df, study_df, output_df, optionsDict
 
     #####################
     # Apply all filters #
     #####################
 
-    filtered_tmp = all_df[:]
+    filtered = all_df[:]
 
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
-        filtered_tmp = filtered_tmp[filtered_tmp.relevance == 'Treatment related']
+        filtered = filtered[filtered.relevance == 'Treatment related']
 
     # Sex
     sex = request.GET.get("sex")
     if sex:
-        filtered_tmp = filtered_tmp[filtered_tmp.sex == sex]
+        filtered = filtered[filtered.sex == sex]
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
-        filtered_tmp = filtered_tmp[(filtered_tmp.exposure_period_days >= int(min_exposure)) &
-                    (filtered_tmp.exposure_period_days <= int(max_exposure))]
+        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure)) &
+                    (filtered.exposure_period_days <= int(max_exposure))]
 
     ##
     ## Filter organs, observations and grades by category
     ##
-
-    # Create a copy of the filtered df without the parameter / observation
-    # filtering aplied, to use when populating the optionsDict for 
-    # these two parameters
-    category_filtered_tmp = filtered_tmp[:]
     # Use this df to store each parameter / observation and add them together
     # so they don't become mutually exclusive
-    additive_df = pd.DataFrame(columns=filtered_tmp.columns)
+    additive_df = pd.DataFrame(columns=filtered.columns)
     
     # Organs
     all_organs = request.GET.getlist("parameters")
@@ -86,8 +85,8 @@ def findings(request):
             else:
                 tmp_dict[category].extend(expanded_val)
         for category in tmp_dict:
-            or_df = filtered_tmp[(filtered_tmp.source == category.strip()) &
-                                 (filtered_tmp.parameter.isin(tmp_dict[category]))]
+            or_df = filtered[(filtered.source == category.strip()) &
+                                 (filtered.parameter.isin(tmp_dict[category]))]
             additive_df = pd.concat([additive_df, or_df])
 
     # Observations
@@ -111,21 +110,17 @@ def findings(request):
             else:
                 tmp_dict[category].append(val)
         for category in tmp_dict:
-            or_df = filtered_tmp[(filtered_tmp.source == category) & 
-                                 (filtered_tmp.observation.isin(tmp_dict[category]))]
+            or_df = filtered[(filtered.source == category) & 
+                                 (filtered.observation.isin(tmp_dict[category]))]
             additive_df = pd.concat([additive_df, or_df])
     
     if not additive_df.empty:
-        filtered_tmp = additive_df[:]
+        filtered = additive_df[:]
 
-    queryDict = {}
-    filtered = filtered_tmp[:]
     # Pharmacological action
     all_pharm = request.GET.getlist("pharmacological_action")
     if len(all_pharm) > 0:
-        queryDict['pharmacological_action'] = 'targetAction == @all_pharm'
-        filtered.query('targetAction == @all_pharm', inplace=True)
-        category_filtered_tmp.query('targetAction == @all_pharm', inplace=True)
+        filtered = filtered[filtered.targetAction.isin(all_pharm)]
 
     # Compound name
     all_compound_name = request.GET.getlist("compound_name")
@@ -134,125 +129,22 @@ def findings(request):
         plus_signs = [x.replace(' ', '+') for x in all_compound_name]
         all_compound_name = all_compound_name+plus_signs
         all_compound_name = list(set(all_compound_name))
-        queryDict['compound_name'] = 'common_name == @all_compound_name'
-        filtered.query('common_name == @all_compound_name', inplace=True)
-        category_filtered_tmp.query('common_name == @all_compound_name', inplace=True)
+        filtered = filtered[filtered.common_name.isin(all_compound_name)]
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
     if len(all_cas_number) > 0:
-        queryDict['cas_number'] = 'cas_number == @all_cas_number'
-        filtered.query('cas_number == @all_cas_number', inplace=True)
-        category_filtered_tmp.query('cas_number == @all_cas_number', inplace=True)
+        filtered = filtered[filtered.cas_number.isin(all_cas_number)]
 
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
-        queryDict['routes'] = 'normalised_administration_route == @all_routes'
-        filtered.query('normalised_administration_route == @all_routes', inplace=True)
-        category_filtered_tmp.query('normalised_administration_route == @all_routes', inplace=True)
+        filtered = filtered[filtered.normalised_administration_route.isin(all_routes)]
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
-        queryDict['species'] = 'normalised_species == @all_species'
-        filtered.query('normalised_species == @all_species', inplace=True)
-        category_filtered_tmp.query('normalised_species == @all_species', inplace=True)
-
-    ####################################
-    # Generate optionsDict by applying #
-    # all filters but the ones in      #
-    # that category                    #
-    ####################################
-
-    optionsDict = {}
-    categories = all_df.source.dropna().unique().tolist()
-    if not filtered.empty:
-        optionsDict['parameters'] = {}
-        optionsDict['observations'] = {}
-        valuesL = list(queryDict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = category_filtered_tmp.query(query_string)
-        else:
-            tmp_df = category_filtered_tmp[:]
-
-        for category in categories:
-            organs = tmp_df[tmp_df.source.str.lower() == category.lower()].parameter.dropna().unique().tolist()
-            optionsDict['parameters'][category] = organs
-            optionsDict['parameters'][category].sort()
-
-            observations = tmp_df[tmp_df.source.str.lower() == category.lower()].observation.dropna().unique().tolist()
-            optionsDict['observations'][category] = observations
-            optionsDict['observations'][category].sort()
-            
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('pharmacological_action', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
-        optionsDict['pharmacological_action'] = tmp_df.targetAction.dropna().unique().tolist()
-        optionsDict['pharmacological_action'].sort()
-
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('cas_number', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
-        optionsDict['cas_number'] = tmp_df.cas_number.dropna().unique().tolist()
-        optionsDict['cas_number'].sort()
-
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('compound_name', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
-        optionsDict['compound_name'] = tmp_df.common_name.dropna().unique().tolist()
-        optionsDict['compound_name'].sort()
-
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('routes', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
-        optionsDict['routes'] = tmp_df.normalised_administration_route.dropna().unique().tolist()
-        try:
-            optionsDict['routes'].remove('Unknown')
-            optionsDict['routes'].remove('Unassigned')
-        except:
-            pass
-        optionsDict['routes'].sort()
-
-        tmp_dict = copy.deepcopy(queryDict)
-        tmp_dict.pop('species', None)
-        valuesL = list(tmp_dict.values())
-        if len(valuesL) > 0:
-            query_string = ' and '.join(valuesL)
-            tmp_df = filtered_tmp.query(query_string)
-        else:
-            tmp_df = filtered_tmp
-        optionsDict['species'] = tmp_df[tmp_df.normalised_species != 'Excluded term'].normalised_species.dropna().unique().tolist()
-        optionsDict['species'].sort()
-
-        exposure_range = filtered.exposure_period_days.dropna().unique().tolist()
-        exposure_range.sort()
-        optionsDict['exposure_min'] = int(exposure_range[0])
-        optionsDict['exposure_max'] = int(exposure_range[-1])
-
-        optionsDict['sex'] = all_df.sex.dropna().unique().tolist()
-        optionsDict['sex'].sort()
+        filtered = filtered[filtered.normalised_species.isin(all_species)]
 
     #############
     # Aggregate #
