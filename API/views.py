@@ -72,10 +72,10 @@ def findings(request):
     
     # parameters and observations
     all_parameters = request.GET.getlist("parameters")
+    tmp_parameters_dict = {}
     all_categories = set([])
     if len(all_parameters) > 0:
         all_parameters = all_parameters[0].split('@')
-        tmp_parameters_dict = {}
         for v in all_parameters:
             category, val = v.split('|')
             # Expand based on the ontology
@@ -89,9 +89,9 @@ def findings(request):
 
     # Observations
     all_observations = request.GET.getlist("observations")
+    tmp_observations_dict = {}
     if len(all_observations) > 0:
         all_observations = all_observations[0].split('@')
-        tmp_observations_dict = {}
         for v in all_observations:
             category, val = v.split('|')
             category = category.strip()
