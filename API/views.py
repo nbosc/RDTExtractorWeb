@@ -64,36 +64,34 @@ def findings(request):
                     (filtered.exposure_period_days <= int(max_exposure))]
 
     ##
-    ## Filter organs, observations and grades by category
+    ## Filter parameters, observations and grades by category
     ##
     # Use this df to store each parameter / observation and add them together
     # so they don't become mutually exclusive
     additive_df = pd.DataFrame(columns=filtered.columns)
     
-    # Organs
-    all_organs = request.GET.getlist("parameters")
-    if len(all_organs) > 0:
-        all_organs = all_organs[0].split('@')
-        tmp_dict = {}
-        for v in all_organs:
+    # parameters and observations
+    all_parameters = request.GET.getlist("parameters")
+    all_categories = set([])
+    if len(all_parameters) > 0:
+        all_parameters = all_parameters[0].split('@')
+        tmp_parameters_dict = {}
+        for v in all_parameters:
             category, val = v.split('|')
             # Expand based on the ontology
             expanded_val = list(organ_onto_df[organ_onto_df.parent_term == val].child_term)
             expanded_val = [val]+expanded_val
-            if category not in tmp_dict:
-                tmp_dict[category] = expanded_val
+            if category not in tmp_parameters_dict:
+                tmp_parameters_dict[category] = expanded_val
             else:
-                tmp_dict[category].extend(expanded_val)
-        for category in tmp_dict:
-            or_df = filtered[(filtered.source == category.strip()) &
-                                 (filtered.parameter.isin(tmp_dict[category]))]
-            additive_df = pd.concat([additive_df, or_df])
+                tmp_parameters_dict[category].extend(expanded_val)
+        all_categories = set(tmp_parameters_dict.keys())
 
     # Observations
     all_observations = request.GET.getlist("observations")
     if len(all_observations) > 0:
         all_observations = all_observations[0].split('@')
-        tmp_dict = {}
+        tmp_observations_dict = {}
         for v in all_observations:
             category, val = v.split('|')
             category = category.strip()
@@ -101,20 +99,30 @@ def findings(request):
             # Expand based on the ontology
             expanded_val = list(observation_onto_df[observation_onto_df.parent_term == val].child_term)
             expanded_val = [val]+expanded_val
-            if category not in tmp_dict:
-                tmp_dict[category] = expanded_val
+            if category not in tmp_observations_dict:
+                tmp_observations_dict[category] = expanded_val
             else:
-                tmp_dict[category].extend(expanded_val)
-            if category not in tmp_dict:
-                tmp_dict[category] = [val]
+                tmp_observations_dict[category].extend(expanded_val)
+            if category not in tmp_observations_dict:
+                tmp_observations_dict[category] = [val]
             else:
-                tmp_dict[category].append(val)
-        for category in tmp_dict:
-            or_df = filtered[(filtered.source == category) & 
-                                 (filtered.observation.isin(tmp_dict[category]))]
+                tmp_observations_dict[category].append(val)
+        all_categories = all_categories.union(set(tmp_parameters_dict.keys()))
+
+    if bool(all_categories):
+        # At least one observation or parameter filter has been applied
+        for category in all_categories:
+            if category in tmp_parameters_dict and category in tmp_observations_dict:
+                or_df = filtered[(filtered.source == category.strip()) &
+                                (filtered.parameter.isin(tmp_parameters_dict[category])) &
+                                (filtered.observation.isin(tmp_observations_dict[category]))]
+            elif category in tmp_parameters_dict:
+                or_df = filtered[(filtered.source == category.strip()) &
+                                (filtered.parameter.isin(tmp_parameters_dict[category]))]
+            elif category in tmp_observations_dict:
+                or_df = filtered[(filtered.source == category) & 
+                                (filtered.observation.isin(tmp_observations_dict[category]))]
             additive_df = pd.concat([additive_df, or_df])
-    
-    if not additive_df.empty:
         filtered = additive_df[:]
 
     # Pharmacological action
