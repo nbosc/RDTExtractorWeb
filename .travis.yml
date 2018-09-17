@@ -22,7 +22,7 @@ before_script:
 script:
   # Your test script goes here 
   - source activate DjangoRESTFUL
-  - python ../mananage.py runserver
+  - python manage.py runserver
   #- py.test -vv
 
 sudo: required
