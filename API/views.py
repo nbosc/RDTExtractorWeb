@@ -11,6 +11,7 @@ import json
 import copy
 import math
 import pickle
+import time, cProfile
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import FindingSerializer,Pageserializer
 from API.utils import extract
@@ -19,49 +20,118 @@ def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
 
 # Load dataframes with information on studies, compounds and findings
+t0 = time.time()
 substance_df = pd.read_pickle("API/static/data/substance.pkl")
-all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression='gzip')
+# t1 = time.time()
+study_df = pd.read_pickle("API/static/data/study.pkl")
+# t2 = time.time()
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
+# t3 = time.time()
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
+# t4 = time.time()
+all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression="gzip")
+tf = time.time()
+print ('Loading:\n\t{}'.format(tf-t0))
+# print ('substance only:\n\t{}'.format(t1-t0))
+# print ('study only:\n\t{}'.format(t2-t1))
+# print ('organ only:\n\t{}'.format(t3-t2))
+# print ('observation only:\n\t{}'.format(t4-t3))
+# print ('all only:\n\t{}'.format(tf-t4))
 
 @api_view(['GET'])
 def initFindings(request):
 
     global output_df, optionsDict
 
+    t0 = time.time()
     output_df = pd.read_pickle("API/static/data/output.pkl")
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     optionsDict = results['allOptions']
     send_data = FindingSerializer(results, many=False).data
+    tf = time.time()
+    print ('init:\n\t{}'.format(tf-t0))
+
     return Response(send_data)
 
 @api_view(['GET'])
 def findings(request):
 
-    global all_df, study_df, output_df, optionsDict
+    global all_df, substance_df, study_df, output_df, optionsDict
+    t0 = time.time()
 
     #####################
     # Apply all filters #
     #####################
 
-    filtered = all_df[:]
+    ##
+    ## Substance-level filters
+    ##
+    filtered_subs = substance_df[:]
 
-    # Relevancy
-    relevant = request.GET.get("treatmentRelated")
-    if relevant:
-        filtered = filtered[filtered.relevance == 'Treatment related']
+    # Pharmacological action
+    all_pharm = request.GET.getlist("pharmacological_action")
+    if len(all_pharm) > 0:
+        filtered_subs = filtered_subs[filtered_subs.targetAction.isin(all_pharm)]
+    t1 = time.time()
 
-    # Sex
-    sex = request.GET.get("sex")
-    if sex:
-        filtered = filtered[filtered.sex == sex]
+    # Compound name
+    all_compound_name = request.GET.getlist("compound_name")
+    if len(all_compound_name) > 0:
+        # Solve issue with plus signs in compound names being converted to spaces
+        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
+        all_compound_name = all_compound_name+plus_signs
+        all_compound_name = list(set(all_compound_name))
+        filtered_subs = filtered_subs[filtered_subs.common_name.isin(all_compound_name)]
+
+    # CAS number
+    all_cas_number = request.GET.getlist("cas_number")
+    if len(all_cas_number) > 0:
+        filtered_subs = filtered_subs[filtered_subs.cas_number.isin(all_cas_number)]
+
+    ##
+    ## Study-level filters
+    ##
+    filtered_studies = study_df[:]
+    filtered_studies = filtered_studies[filtered_studies.subst_id.isin(filtered_subs.subst_id)]
+    t2 = time.time()
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
     max_exposure = request.GET.get("max_exposure")
     if min_exposure and max_exposure:
-        filtered = filtered[(filtered.exposure_period_days >= int(min_exposure)) &
-                    (filtered.exposure_period_days <= int(max_exposure))]
+        filtered_studies = filtered_studies[(filtered_studies.exposure_period_days >= int(min_exposure)) &
+                    (filtered_studies.exposure_period_days <= int(max_exposure))]
+    t3 = time.time()
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        filtered_studies = filtered_studies[filtered_studies.admin_route.isin(all_routes)]
+    t4 = time.time()
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        filtered_studies = filtered_studies[filtered_studies.species.isin(all_species)]
+    t5 = time.time()
+
+    ##
+    ## Finding-level filters
+    ##
+    filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id')
+    t6 = time.time()
+
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered = filtered[filtered.relevance == 'Treatment related']
+    t7 = time.time()
+
+    # Sex
+    sex = request.GET.get("sex")
+    if sex:
+        filtered = filtered[filtered.sex == sex]
+    t8 = time.time()
 
     ##
     ## Filter parameters, observations and grades by category
@@ -86,6 +156,7 @@ def findings(request):
             else:
                 tmp_parameters_dict[category].extend(expanded_val)
         all_categories = set(tmp_parameters_dict.keys())
+    t9 = time.time()
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -108,51 +179,24 @@ def findings(request):
             else:
                 tmp_observations_dict[category].append(val)
         all_categories = all_categories.union(set(tmp_parameters_dict.keys()))
+    t10 = time.time()
 
     if bool(all_categories):
         # At least one observation or parameter filter has been applied
         for category in all_categories:
             if category in tmp_parameters_dict and category in tmp_observations_dict:
-                or_df = filtered[(filtered.source == category.strip()) &
+                or_df = filtered[(filtered.endpoint_type == category.strip()) &
                                 (filtered.parameter.isin(tmp_parameters_dict[category])) &
                                 (filtered.observation.isin(tmp_observations_dict[category]))]
             elif category in tmp_parameters_dict:
-                or_df = filtered[(filtered.source == category.strip()) &
+                or_df = filtered[(filtered.endpoint_type == category.strip()) &
                                 (filtered.parameter.isin(tmp_parameters_dict[category]))]
             elif category in tmp_observations_dict:
-                or_df = filtered[(filtered.source == category) & 
+                or_df = filtered[(filtered.endpoint_type == category) & 
                                 (filtered.observation.isin(tmp_observations_dict[category]))]
             additive_df = pd.concat([additive_df, or_df])
         filtered = additive_df[:]
-
-    # Pharmacological action
-    all_pharm = request.GET.getlist("pharmacological_action")
-    if len(all_pharm) > 0:
-        filtered = filtered[filtered.targetAction.isin(all_pharm)]
-
-    # Compound name
-    all_compound_name = request.GET.getlist("compound_name")
-    if len(all_compound_name) > 0:
-        # Solve issue with plus signs in compound names being converted to spaces
-        plus_signs = [x.replace(' ', '+') for x in all_compound_name]
-        all_compound_name = all_compound_name+plus_signs
-        all_compound_name = list(set(all_compound_name))
-        filtered = filtered[filtered.common_name.isin(all_compound_name)]
-
-    # CAS number
-    all_cas_number = request.GET.getlist("cas_number")
-    if len(all_cas_number) > 0:
-        filtered = filtered[filtered.cas_number.isin(all_cas_number)]
-
-    # Administration route
-    all_routes = request.GET.getlist("routes")
-    if len(all_routes) > 0:
-        filtered = filtered[filtered.normalised_administration_route.isin(all_routes)]
-
-    # Species
-    all_species = request.GET.getlist("species")
-    if len(all_species) > 0:
-        filtered = filtered[filtered.normalised_species.isin(all_species)]
+    t11 = time.time()
 
     #############
     # Aggregate #
@@ -160,28 +204,36 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
+    t12a = time.time()
 
-    filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'source', 'study_id'])
+    filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id'])
+    t12b = time.time()
     num_findings = filtered_findings.ngroups
+    t12c = time.time()
     filtered_findings = filtered_findings.count().reset_index()
+    t12d = time.time()
+    t12 = time.time()
 
-    ##PLOT INFO
+    #############
+    # Plot info #
+    #############
+
     plot_info = {}
     # Species
-    normalised_species = filtered.groupby(['normalised_species','study_id']).count()
-    normalised_species = normalised_species.reset_index().groupby(['normalised_species'])['normalised_species'].count()
-    normalised_species.sort_values(ascending=False, inplace=True)
-    plot_info['normalised_species'] = [[],[]]
+    species = filtered.groupby(['species','study_id']).count()
+    species = species.reset_index().groupby(['species'])['species'].count()
+    species.sort_values(ascending=False, inplace=True)
+    plot_info['species'] = [[],[]]
     sum_value = 0
-    for index, value in normalised_species.iteritems():
+    for index, value in species.iteritems():
         p = float(value)/num_studies
         if p < 0.015:
-            plot_info['normalised_species'][0].append('Other')
-            plot_info['normalised_species'][1].append(num_studies-sum_value)
+            plot_info['species'][0].append('Other')
+            plot_info['species'][1].append(num_studies-sum_value)
             break
         sum_value += value
-        plot_info['normalised_species'][0].append(index)
-        plot_info['normalised_species'][1].append(value)
+        plot_info['species'][0].append(index)
+        plot_info['species'][1].append(value)
 
     # Treatment related
     relevance = filtered_findings.groupby(['relevance'])['relevance'].count()
@@ -189,7 +241,7 @@ def findings(request):
     plot_info['relevance'] = [relevance.index, relevance.values]
 
     # Source
-    source = filtered_findings.groupby(['source'])['source'].count()
+    source = filtered_findings.groupby(['endpoint_type'])['endpoint_type'].count()
     source.sort_values(ascending=False, inplace=True)
     plot_info['source'] = [[], []]
     sum_value = 0
@@ -202,15 +254,16 @@ def findings(request):
         sum_value += value
         plot_info['source'][0].append(index)
         plot_info['source'][1].append(value)
+    t13 = time.time()
 
     if not filtered.empty:
-        study_count_df = filtered.dropna(subset=['normalised_species'])[['subst_id', 'normalised_species', 'study_id']].groupby(['subst_id', 'normalised_species']).study_id.nunique().reset_index()
-        study_count_df.columns = ['subst_id', 'normalised_species', 'study_count']
-        study_count_df.loc[:,'count'] = study_count_df.normalised_species + ': ' + study_count_df.study_count.astype(int).astype(str)
+        study_count_df = filtered.dropna(subset=['species'])[['subst_id', 'species', 'study_id']].groupby(['subst_id', 'species']).study_id.nunique().reset_index()
+        study_count_df.columns = ['subst_id', 'species', 'study_count']
+        study_count_df.loc[:,'count'] = study_count_df.species + ': ' + study_count_df.study_count.astype(int).astype(str)
         study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
         output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
-                        substance_df[['subst_id', 'cas_number', 'common_name', 'company_id', 
+                        substance_df[['subst_id', 'cas_number', 'common_name',  
                                 'smiles', 'status', 'targetActionList']].drop_duplicates(), 
                         how='left', on='subst_id', left_index=False, right_index=False, 
                         sort=False)
@@ -219,10 +272,10 @@ def findings(request):
                         sort=False)
         output_df = output_df.drop_duplicates()
         output_df.common_name = output_df.common_name.str.replace(', ', '\n')
+        t14 = time.time()
     else:
         output_df = pd.DataFrame(columns=['subst_id', 'cas_number', 'common_name', 
-                                    'company_id', 'smiles', 'status', 'targetActionList', 
-                                    'count'])
+                                    'smiles', 'status', 'targetActionList', 'count'])
 
     ##############
     # Pagination #
@@ -271,6 +324,26 @@ def findings(request):
     }
 
     send_data = FindingSerializer(results, many=False).data
+    tf = time.time()
+    print ('TOTAL: %.4f' %(tf-t0))    
+    print ('\tpharm action: %.4f' %(t1-t0))
+    print ('\tstudies filter: %.4f' %(t2-t1))
+    print ('\texposure: %.4f' %(t3-t2))
+    print ('\troutes: %.4f' %(t4-t3))
+    print ('\tspecies: %.4f' %(t5-t4))
+    print ('\tfindings filer: %.4f' %(t6-t5))
+    print ('\trelevant: %.4f' %(t7-t6))
+    print ('\tsex: %.4f' %(t8-t7))
+    print ('\tparamenters: %.4f' %(t9-t8))
+    print ('\tobservations: %.4f' %(t10-t9))
+    print ('\tapply parameters and observations: %.4f' %(t11-t10))
+    print ('\taggregate: %.4f' %(t12-t11))
+    print ('\t\tnunique: %.4f' %(t12a-t11))
+    print ('\t\tgroupby: %.4f' %(t12b-t12a))
+    print ('\t\tngroups: %.4f' %(t12c-t12b))
+    print ('\t\tcount reset index: %.4f' %(t12d-t12c))
+    print ('\tplot info: %.4f' %(t13-t12))
+    print ('\tfinal step: %.4f' %(t14-t13))
     return Response(send_data)
 
 @api_view(['GET'])
