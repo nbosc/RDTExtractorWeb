@@ -118,7 +118,7 @@ def findings(request):
     ##
     ## Finding-level filters
     ##
-    filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id')
+    filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id', how='inner')
     t6 = time.time()
 
     # Relevancy
@@ -255,6 +255,10 @@ def findings(request):
         plot_info['source'][0].append(index)
         plot_info['source'][1].append(value)
     t13 = time.time()
+
+    #################
+    # Create output #
+    #################
 
     if not filtered.empty:
         study_count_df = filtered.dropna(subset=['species'])[['subst_id', 'species', 'study_id']].groupby(['subst_id', 'species']).study_id.nunique().reset_index()
