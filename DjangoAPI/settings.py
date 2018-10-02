@@ -132,7 +132,7 @@ CORS_ORIGIN_WHITELIST = (
     'http//:localhost:8000',
     'http//:localhost:4200'
 )
-ANGULAR_APP_DIR = os.path.join(BASE_DIR, 'frontend/dist')
+ANGULAR_APP_DIR = os.path.join(BASE_DIR, 'frontend')
 
 STATICFILES_DIRS = [
     os.path.join(ANGULAR_APP_DIR),
