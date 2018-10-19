@@ -1,20 +1,21 @@
-# from snippets.models import Snippet
-# from snippets.serializers import SnippetSerializer
-from django.http import Http404
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
+import os
+import math
+import pickle
+import io
+import zipfile
+import time, cProfile
 import pandas as pd
 # Disable SettingWithCopyWarning warnings
 pd.set_option('chained_assignment', None)
-import json
-import copy
-import math
-import pickle
-import time, cProfile
-from django.views.decorators.csrf import csrf_exempt
-from .serializers import FindingSerializer,Pageserializer
-from API.utils import extract
+# import json
+# import copy
+# from django.views.decorators.csrf import csrf_exempt
+from .serializers import FindingSerializer, Pageserializer
+# from API.utils import extract
+from django.http import HttpResponse
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+# from rest_framework import status
 
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
@@ -30,6 +31,7 @@ organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 # t4 = time.time()
 all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression="gzip")
+filtered = all_df[:]
 tf = time.time()
 print ('Loading:\n\t{}'.format(tf-t0))
 # print ('substance only:\n\t{}'.format(t1-t0))
@@ -37,6 +39,8 @@ print ('Loading:\n\t{}'.format(tf-t0))
 # print ('organ only:\n\t{}'.format(t3-t2))
 # print ('observation only:\n\t{}'.format(t4-t3))
 # print ('all only:\n\t{}'.format(tf-t4))
+
+optionsDict = {}
 
 @api_view(['GET'])
 def initFindings(request):
@@ -56,7 +60,8 @@ def initFindings(request):
 @api_view(['GET'])
 def findings(request):
 
-    global all_df, substance_df, study_df, output_df, optionsDict
+    global all_df, substance_df, study_df, output_df, optionsDict, filtered
+
     t0 = time.time()
 
     #####################
@@ -124,7 +129,8 @@ def findings(request):
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
-        filtered = filtered[filtered.relevance == 'Treatment related']
+        # filtered = filtered[filtered.relevance == 'Treatment related']
+        filtered = filtered[filtered.relevance]
     t7 = time.time()
 
     # Sex
@@ -206,7 +212,8 @@ def findings(request):
     num_structures = filtered.subst_id.nunique()
     t12a = time.time()
 
-    filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id'])
+    filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex',
+                            'endpoint_type', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id'])
     t12b = time.time()
     num_findings = filtered_findings.ngroups
     t12c = time.time()
@@ -276,10 +283,10 @@ def findings(request):
                         sort=False)
         output_df = output_df.drop_duplicates()
         output_df.common_name = output_df.common_name.str.replace(', ', '\n')
-        t14 = time.time()
     else:
         output_df = pd.DataFrame(columns=['subst_id', 'cas_number', 'common_name', 
                                     'smiles', 'status', 'targetActionList', 'count'])
+    t14 = time.time()
 
     ##############
     # Pagination #
@@ -335,7 +342,7 @@ def findings(request):
     print ('\texposure: %.4f' %(t3-t2))
     print ('\troutes: %.4f' %(t4-t3))
     print ('\tspecies: %.4f' %(t5-t4))
-    print ('\tfindings filer: %.4f' %(t6-t5))
+    print ('\tfindings filter: %.4f' %(t6-t5))
     print ('\trelevant: %.4f' %(t7-t6))
     print ('\tsex: %.4f' %(t8-t7))
     print ('\tparamenters: %.4f' %(t9-t8))
@@ -395,3 +402,98 @@ def page(request):
 
     send_data = Pageserializer(results, many=False).data
     return Response(send_data)
+
+@api_view(['GET'])
+def download(request):
+
+    global substance_df, filtered
+
+    smiles_df = substance_df[['inchi_key', 'std_smiles']].drop_duplicates()
+
+    # Define finding as organ+observation
+    filtered.dropna(subset=['parameter', 'observation'], inplace=True)
+    filtered['finding'] = filtered.apply(lambda row: row.parameter+'_'+row.observation, axis=1)
+    quant_filtered_df = filtered[['inchi_key', 'finding', 'dose']]
+    
+    ##
+    ## Get stats for relevant findings
+    ##
+    group_df = filtered.groupby(('inchi_key'))
+    # Get the number of studies per substance
+    count_df = group_df.study_id.nunique().to_frame().reset_index()
+    min_df = group_df.dose_min.min().to_frame().reset_index()
+    max_df = group_df.dose_max.max().to_frame().reset_index()
+    group_df = quant_filtered_df[quant_filtered_df.dose>0].groupby(('inchi_key'))
+    min_observation_dose_df = group_df.dose.min().to_frame().reset_index()
+    # Get all stats into a single dataframe
+    stats_df = pd.merge(count_df, min_df, how='inner', on='inchi_key', 
+                        left_index=False, right_index=False, sort=False)
+    stats_df = pd.merge(stats_df, max_df, how='inner', on='inchi_key', 
+                        left_index=False, right_index=False, sort=False)
+    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', 
+                        on='inchi_key', 
+                        left_index=False, right_index=False, sort=False)
+    stats_df.columns = ['inchi_key', 'study_count', 'dose_min', 'dose_max', 'min_observation_dose']
+    
+    ##
+    ## Aggragate by substance and finding
+    ##
+
+    # Aggregate by substance and finding (as defined above), 
+    # keeping the minimum dose for each substance/finding instance
+    group_df = quant_filtered_df.groupby(('inchi_key', 'finding')).min().add_prefix('min_').reset_index()
+    
+    ##
+    ## Pivot so that each finding is a row
+    ##
+    
+    ### Quantitative
+    pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='min_dose').reset_index()
+    quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key', 
+                                left_index=False, right_index=False, sort=False)
+    # Reorder columns
+    cols = quantitative_df.columns.tolist()
+    cols = cols[0:4]+[cols[-1]]+cols[4:-1]
+    quantitative_df = quantitative_df[cols]
+    quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']], 
+                               how='left', on='inchi_key', 
+                               left_index=False, right_index=False, sort=False)
+
+    ### Qualitative
+    group_df = filtered.groupby(['inchi_key', 'finding']).study_id.nunique().reset_index(name='counts')
+    pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
+    qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key',
+                                left_index=False, right_index=False, sort=False)
+    # Reorder columns
+    cols = qualitative_df.columns.tolist()
+    cols = cols[0:4]+[cols[-1]]+cols[4:-1]
+    qualitative_df = qualitative_df[cols]
+    qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']], 
+                              how='left', on='inchi_key', 
+                              left_index=False, right_index=False, sort=False)
+    
+    ##
+    ## Create the HttpResponse object with the appropriate CSV header.
+    ##
+    files = {}
+
+    buffer = io.StringIO()
+    qualitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
+    buffer.seek(0)
+    files['qualitative'] = buffer
+
+    quantitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
+    buffer.seek(0)
+    files['quantitative'] = buffer
+
+    zipped_file = io.BytesIO()
+    with zipfile.ZipFile(zipped_file, "a", zipfile.ZIP_DEFLATED, False) as zipper:
+        for i, file in files.items():
+            file.seek(0)
+            zipper.writestr("{}.tsv".format(i), file.read())
+    zipped_file.seek(0)
+
+    response = HttpResponse(zipped_file, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="results.zip"'
+
+    return response
