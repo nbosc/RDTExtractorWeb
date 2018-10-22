@@ -40,10 +40,11 @@ optionsDict = {}
 @api_view(['GET'])
 def initFindings(request):
 
-    global output_df, optionsDict
+    global output_df, filtered, optionsDict
 
     t0 = time.time()
     output_df = pd.read_pickle("API/static/data/output.pkl")
+    filtered = all_df[:]
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     optionsDict = results['allOptions']
     send_data = FindingSerializer(results, many=False).data
@@ -403,16 +404,18 @@ def download(request):
 
     global substance_df, filtered
 
-    print ('aqui')
-
-    smiles_df = substance_df[['inchi_key', 'std_smiles']].drop_duplicates()
+    t0 = time.time()
+    smiles_df = substance_df[:]
+    smiles_df = smiles_df[['inchi_key', 'std_smiles']].drop_duplicates()
     output_df = filtered[:]
+    t1 = time.time()
 
     # Define finding as organ+observation
     output_df.dropna(subset=['parameter', 'observation'], inplace=True)
-    output_df['finding'] = output_df.apply(lambda row: row.parameter+'_'+row.observation, axis=1)
+    output_df['finding'] = output_df.parameter+'_'+output_df.observation
     quant_filtered_df = output_df[['inchi_key', 'finding', 'dose']]
     quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
+    t2 = time.time()
     
     ##
     ## Get stats for relevant findings
@@ -433,6 +436,7 @@ def download(request):
                         left_index=False, right_index=False, sort=False)
     stats_df.columns = ['inchi_key', 'study_count', 'dose_min', 
                         'dose_max', 'min_observation_dose']
+    t3 = time.time()
     
     ##
     ## Aggragate by substance and finding
@@ -441,6 +445,7 @@ def download(request):
     # Aggregate by substance and finding (as defined above), 
     # keeping the minimum dose for each substance/finding instance
     group_df = quant_filtered_df.groupby(('inchi_key', 'finding')).min().add_prefix('min_').reset_index()
+    t4 = time.time()
     
     ##
     ## Pivot so that each finding is a row
@@ -450,6 +455,7 @@ def download(request):
     pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='min_dose').reset_index()
     quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key', 
                                 left_index=False, right_index=False, sort=False)
+    t5 = time.time()
     # Reorder columns
     cols = quantitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
@@ -457,13 +463,14 @@ def download(request):
     quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                                how='left', on='inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    print (quantitative_df)
+    t6 = time.time()
 
     ### Qualitative
     group_df = output_df.groupby(['inchi_key', 'finding']).study_id.nunique().reset_index(name='counts')
     pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
     qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key',
                                 left_index=False, right_index=False, sort=False)
+    t7 = time.time()
     # Reorder columns
     cols = qualitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
@@ -471,6 +478,7 @@ def download(request):
     qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                               how='left', on='inchi_key', 
                               left_index=False, right_index=False, sort=False)
+    t8 = time.time()
     
     ##
     ## Create the HttpResponse object with the appropriate CSV header.
@@ -481,11 +489,13 @@ def download(request):
     qualitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
     buffer.seek(0)
     files['qualitative'] = buffer
+    t8a = time.time()
 
     buffer = io.StringIO()
     quantitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
     buffer.seek(0)
     files['quantitative'] = buffer
+    t8b = time.time()
 
     zipped_file = io.BytesIO()
     with zipfile.ZipFile(zipped_file, "a", zipfile.ZIP_DEFLATED, False) as zipper:
@@ -493,8 +503,24 @@ def download(request):
             file.seek(0)
             zipper.writestr("{}.tsv".format(i), file.read())
     zipped_file.seek(0)
+    t9 = time.time()
 
     response = HttpResponse(zipped_file, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="results.zip"'
+    tf = time.time()
+    print ('TOTAL: %.4f' %(tf-t0))    
+    print ('\tinit: %.4f' %(t1-t0))
+    print ('\tfinding: %.4f' %(t2-t1))
+    print ('\tstats: %.4f' %(t3-t2))
+    print ('\tgroup: %.4f' %(t4-t3))
+    print ('\tpivot/merge: %.4f' %(t5-t4))
+    print ('\tfinal quantitative: %.4f' %(t6-t5))
+    print ('\tpivot/merge: %.4f' %(t7-t6))
+    print ('\tfinal quantitative: %.4f' %(t8-t7))
+    print ('\tcreate and store files: %.4f' %(t9-t8))
+    print ('\t\tto csv 1: %.4f' %(t8a-t8))
+    print ('\t\tto csv 2: %.4f' %(t8b-t8a))
+    print ('\t\tzip: %.4f' %(t9-t8b))
+    print ('\tcreate response: %.4f' %(tf-t9))
 
     return response
