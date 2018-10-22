@@ -7,15 +7,10 @@ import time, cProfile
 import pandas as pd
 # Disable SettingWithCopyWarning warnings
 pd.set_option('chained_assignment', None)
-# import json
-# import copy
-# from django.views.decorators.csrf import csrf_exempt
 from .serializers import FindingSerializer, Pageserializer
-# from API.utils import extract
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-# from rest_framework import status
 
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
@@ -408,32 +403,36 @@ def download(request):
 
     global substance_df, filtered
 
+    print ('aqui')
+
     smiles_df = substance_df[['inchi_key', 'std_smiles']].drop_duplicates()
+    output_df = filtered[:]
 
     # Define finding as organ+observation
-    filtered.dropna(subset=['parameter', 'observation'], inplace=True)
-    filtered['finding'] = filtered.apply(lambda row: row.parameter+'_'+row.observation, axis=1)
-    quant_filtered_df = filtered[['inchi_key', 'finding', 'dose']]
+    output_df.dropna(subset=['parameter', 'observation'], inplace=True)
+    output_df['finding'] = output_df.apply(lambda row: row.parameter+'_'+row.observation, axis=1)
+    quant_filtered_df = output_df[['inchi_key', 'finding', 'dose']]
+    quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
     
     ##
     ## Get stats for relevant findings
     ##
-    group_df = filtered.groupby(('inchi_key'))
+    group_df = output_df.groupby(('inchi_key'))
     # Get the number of studies per substance
     count_df = group_df.study_id.nunique().to_frame().reset_index()
     min_df = group_df.dose_min.min().to_frame().reset_index()
     max_df = group_df.dose_max.max().to_frame().reset_index()
-    group_df = quant_filtered_df[quant_filtered_df.dose>0].groupby(('inchi_key'))
+    group_df = quant_filtered_df.groupby(('inchi_key'))
     min_observation_dose_df = group_df.dose.min().to_frame().reset_index()
     # Get all stats into a single dataframe
     stats_df = pd.merge(count_df, min_df, how='inner', on='inchi_key', 
                         left_index=False, right_index=False, sort=False)
     stats_df = pd.merge(stats_df, max_df, how='inner', on='inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', 
-                        on='inchi_key', 
+    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', on='inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df.columns = ['inchi_key', 'study_count', 'dose_min', 'dose_max', 'min_observation_dose']
+    stats_df.columns = ['inchi_key', 'study_count', 'dose_min', 
+                        'dose_max', 'min_observation_dose']
     
     ##
     ## Aggragate by substance and finding
@@ -453,20 +452,21 @@ def download(request):
                                 left_index=False, right_index=False, sort=False)
     # Reorder columns
     cols = quantitative_df.columns.tolist()
-    cols = cols[0:4]+[cols[-1]]+cols[4:-1]
+    cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     quantitative_df = quantitative_df[cols]
     quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                                how='left', on='inchi_key', 
                                left_index=False, right_index=False, sort=False)
+    print (quantitative_df)
 
     ### Qualitative
-    group_df = filtered.groupby(['inchi_key', 'finding']).study_id.nunique().reset_index(name='counts')
+    group_df = output_df.groupby(['inchi_key', 'finding']).study_id.nunique().reset_index(name='counts')
     pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
     qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key',
                                 left_index=False, right_index=False, sort=False)
     # Reorder columns
     cols = qualitative_df.columns.tolist()
-    cols = cols[0:4]+[cols[-1]]+cols[4:-1]
+    cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     qualitative_df = qualitative_df[cols]
     qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                               how='left', on='inchi_key', 
@@ -482,6 +482,7 @@ def download(request):
     buffer.seek(0)
     files['qualitative'] = buffer
 
+    buffer = io.StringIO()
     quantitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
     buffer.seek(0)
     files['quantitative'] = buffer
