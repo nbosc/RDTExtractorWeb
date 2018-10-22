@@ -4,3 +4,4 @@ API/static/data/*.*
 API/__pychche_
 *.ipynb
 *.pyc
+ .vscode/
