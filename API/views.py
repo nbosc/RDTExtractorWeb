@@ -240,8 +240,13 @@ def findings(request):
 
     # Treatment related
     relevance = filtered_findings.groupby(['relevance'])['relevance'].count()
-    relevance.sort_values(ascending=False, inplace=True)
-    plot_info['relevance'] = [relevance.index, relevance.values]
+    plot_info['relevance'] = [[], []]
+    for index, value in relevance.iteritems():
+        if index:
+            plot_info['relevance'][0].append('Treatment-related')
+        else:
+            plot_info['relevance'][0].append('Not related')
+        plot_info['relevance'][1].append(value)
 
     # Source
     source = filtered_findings.groupby(['endpoint_type'])['endpoint_type'].count()
