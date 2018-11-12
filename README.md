@@ -17,7 +17,7 @@ This tool is designed to extract data from the _in vivo_ repeat-dose toxicity (R
 The script can work with version 2016.1 or with later versions. For the former, you need to request access to the data files from us and place these files in the data folder. For the latter, you need to have the Oracle database provided by [Lhasa](https://www.lhasalimited.org/).
 
 In order to be able to aggregate the data by parent compound, some pre-processing has to be done to data as they exist in the database. Each substance is standardised according to the following protocol:
-- Use the process_smiles.std method from [this repository] (https://github.com/bet-gregori/standardiser) to standardize, discard mixtures, discard compound with metal ions, and remove all salts.
+- Use the process_smiles.std method from [this repository](https://github.com/bet-gregori/standardiser) to standardize, discard mixtures, discard compound with metal ions, and remove all salts.
 - Neutralize all charges.
 
 This project is an extension of the work published in the following paper:
