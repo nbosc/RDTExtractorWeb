@@ -19,8 +19,6 @@ The script can work with version 2016.1 or with later versions. For the former, 
 In order to be able to aggregate the data by parent compound, some pre-processing has to be done to data as they exist in the database. Each substance is standardised according to the following protocol:
 - Use the process_smiles.std method from https://github.com/bet-gregori/standardiser to standardize, discard mixtures, discard compound with metal ions, and remove all salts.
 - Neutralize all charges.
-- Differentiate stereoisomers.
-- Merge all tautomers.
 
 This project is an extension of the work published in the following paper:
 - [López-Massaguer O, Pinto-Gil K, Sanz F, Amberg A, Anger LT, Stolte M, Ravagli C, Marc P, Pastor M. Toxicol Sci. 2018 Mar; 162(1): 287–300.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5837688/)
