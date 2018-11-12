@@ -247,7 +247,6 @@ def findings(request):
     if substance_caption != '':
         caption += 'Substance-level filters:\n%s\n' %substance_caption
     
-
     #############
     # Aggregate #
     #############
@@ -465,6 +464,8 @@ def download(request):
     t0 = time.time()
     smiles_df = substance_df[:]
     smiles_df = smiles_df[['inchi_key', 'std_smiles']].drop_duplicates()
+    ids_df = substance_df[['inchi_key', 'subst_id']].drop_duplicates()
+    ids_df = ids_df.groupby(['inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
     output_df = filtered[:]
     t1 = time.time()
 
@@ -518,6 +519,8 @@ def download(request):
     cols = quantitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     quantitative_df = quantitative_df[cols]
+    quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='inchi_key', 
+                               left_index=False, right_index=False, sort=False)
     quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                                how='left', on='inchi_key', 
                                left_index=False, right_index=False, sort=False)
@@ -533,6 +536,8 @@ def download(request):
     cols = qualitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     qualitative_df = qualitative_df[cols]
+    qualitative_df = pd.merge(qualitative_df, ids_df, how='left', on='inchi_key', 
+                               left_index=False, right_index=False, sort=False)
     qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']], 
                               how='left', on='inchi_key', 
                               left_index=False, right_index=False, sort=False)
