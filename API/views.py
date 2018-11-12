@@ -15,6 +15,8 @@ from rest_framework.decorators import api_view
 def get_stats(group):
     return {'min': group.min(), 'max': group.max()}
 
+caption = ''
+
 # Load dataframes with information on studies, compounds and findings
 t0 = time.time()
 substance_df = pd.read_pickle("API/static/data/substance.pkl")
@@ -56,7 +58,7 @@ def initFindings(request):
 @api_view(['GET'])
 def findings(request):
 
-    global all_df, substance_df, study_df, output_df, optionsDict, filtered
+    global all_df, substance_df, study_df, output_df, optionsDict, filtered, caption
 
     t0 = time.time()
 
@@ -68,11 +70,13 @@ def findings(request):
     ## Substance-level filters
     ##
     filtered_subs = substance_df[:]
+    substance_caption = ''
 
     # Pharmacological action
     all_pharm = request.GET.getlist("pharmacological_action")
     if len(all_pharm) > 0:
         filtered_subs = filtered_subs[filtered_subs.targetAction.isin(all_pharm)]
+        substance_caption += '\tPharmacological action: %s\n' %', '.join(all_pharm)
     t1 = time.time()
 
     # Compound name
@@ -83,18 +87,35 @@ def findings(request):
         all_compound_name = all_compound_name+plus_signs
         all_compound_name = list(set(all_compound_name))
         filtered_subs = filtered_subs[filtered_subs.common_name.isin(all_compound_name)]
+        substance_caption += '\tCompound name: %s\n' %', '.join(all_compound_name)
 
     # CAS number
     all_cas_number = request.GET.getlist("cas_number")
     if len(all_cas_number) > 0:
         filtered_subs = filtered_subs[filtered_subs.cas_number.isin(all_cas_number)]
+        substance_caption += '\tPharmacological action: %s\n' %', '.join(all_cas_number)
 
     ##
     ## Study-level filters
     ##
     filtered_studies = study_df[:]
     filtered_studies = filtered_studies[filtered_studies.subst_id.isin(filtered_subs.subst_id)]
+    study_caption = ''
     t2 = time.time()
+
+    # Species
+    all_species = request.GET.getlist("species")
+    if len(all_species) > 0:
+        filtered_studies = filtered_studies[filtered_studies.species.isin(all_species)]
+        study_caption += '\tSpecies: %s\n' %', '.join(all_species)
+    t5 = time.time()
+
+    # Administration route
+    all_routes = request.GET.getlist("routes")
+    if len(all_routes) > 0:
+        filtered_studies = filtered_studies[filtered_studies.admin_route.isin(all_routes)]
+        study_caption += '\tAdminitration route: %s\n' %', '.join(all_routes)
+    t4 = time.time()
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -102,6 +123,7 @@ def findings(request):
     if min_exposure and max_exposure:
         filtered_studies = filtered_studies[(filtered_studies.exposure_period_days >= int(min_exposure)) &
                     (filtered_studies.exposure_period_days <= int(max_exposure))]
+        study_caption += '\tExposure range: %d to %d days\n' %(int(min_exposure), int(max_exposure))
     t3 = time.time()
 
     # Dose
@@ -110,52 +132,50 @@ def findings(request):
     if min_dose and max_dose:
         filtered_studies = filtered_studies[(filtered_studies.dose_min >= float(min_dose)) &
                     (filtered_studies.dose_max <= int(max_dose))]
+        study_caption += '\tDose range: %s to %s mg/kg\n' %(min_dose, max_dose)
     t3 = time.time()
-
-    # Administration route
-    all_routes = request.GET.getlist("routes")
-    if len(all_routes) > 0:
-        filtered_studies = filtered_studies[filtered_studies.admin_route.isin(all_routes)]
-    t4 = time.time()
-
-    # Species
-    all_species = request.GET.getlist("species")
-    if len(all_species) > 0:
-        filtered_studies = filtered_studies[filtered_studies.species.isin(all_species)]
-    t5 = time.time()
 
     ##
     ## Finding-level filters
     ##
     filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id', how='inner')
     t6 = time.time()
-
-    # Relevancy
-    relevant = request.GET.get("treatmentRelated")
-    if relevant:
-        # filtered = filtered[filtered.relevance == 'Treatment related']
-        filtered = filtered[filtered.relevance]
-    t7 = time.time()
+    finding_caption = ''
 
     # Sex
     sex = request.GET.get("sex")
     if sex:
         filtered = filtered[filtered.sex == sex]
+        if sex == 'F':
+            finding_caption += '\tSex: Female\n'
+        elif sex == 'M':
+            finding_caption += '\tSex: Male\n'
+        else:
+            finding_caption += '\tSex: Both\n'
     t8 = time.time()
 
-    ##
-    ## Filter parameters, observations and grades by category
-    ##
+    # Relevancy
+    relevant = request.GET.get("treatmentRelated")
+    if relevant:
+        filtered = filtered[filtered.relevance]
+        finding_caption += '\tTreatment-related only\n'
+    t7 = time.time()
+
+    #
+    # Filter parameters, observations and grades by category
+    #
     # Use this df to store each parameter / observation and add them together
     # so they don't become mutually exclusive
     additive_df = pd.DataFrame(columns=filtered.columns)
+    finding_observation_caption = ''
     
-    # parameters and observations
+    # Parameters
     all_parameters = request.GET.getlist("parameters")
     tmp_parameters_dict = {}
     all_categories = set([])
     if len(all_parameters) > 0:
         all_parameters = all_parameters[0].split('@')
+        finding_observation_caption += '\tParameter: %s\n' %', '.join(all_parameters)
         for v in all_parameters:
             category, val = v.split('|')
             # Expand based on the ontology
@@ -173,6 +193,7 @@ def findings(request):
     tmp_observations_dict = {}
     if len(all_observations) > 0:
         all_observations = all_observations[0].split('@')
+        finding_observation_caption += '\tObservation: %s\n' %', '.join(all_observations)
         for v in all_observations:
             category, val = v.split('|')
             category = category.strip()
@@ -207,6 +228,25 @@ def findings(request):
             additive_df = pd.concat([additive_df, or_df])
         filtered = additive_df[:]
     t11 = time.time()
+
+    ##################################
+    # Generate caption summarizing   #
+    # the filtering criteria applied #
+    ##################################
+
+    caption = ''
+    if study_caption != '':
+        caption += 'Study-level filters:\n%s\n' %study_caption
+    if finding_observation_caption != '' or finding_caption != '':
+        caption += 'Finding-level filters:\n'
+        if finding_observation_caption != '':
+            caption += '%s' %finding_observation_caption
+        if finding_caption != '':
+            caption += '%s' %finding_caption
+        caption += '\n'
+    if substance_caption != '':
+        caption += 'Substance-level filters:\n%s\n' %substance_caption
+    
 
     #############
     # Aggregate #
@@ -415,7 +455,12 @@ def page(request):
 @api_view(['GET'])
 def download(request):
 
-    global substance_df, filtered
+    global substance_df, filtered, caption
+
+    ####################################
+    ## Generate output files          ##
+    ## the filtering criteria applied ##
+    ####################################
 
     t0 = time.time()
     smiles_df = substance_df[:]
@@ -514,7 +559,8 @@ def download(request):
     with zipfile.ZipFile(zipped_file, "a", zipfile.ZIP_DEFLATED, False) as zipper:
         for i, file in files.items():
             file.seek(0)
-            zipper.writestr("{}.tsv".format(i), file.read())
+            file_text = caption+file.read()
+            zipper.writestr("{}.tsv".format(i), file_text)
     zipped_file.seek(0)
     t9 = time.time()
 
