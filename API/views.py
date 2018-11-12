@@ -104,6 +104,14 @@ def findings(request):
                     (filtered_studies.exposure_period_days <= int(max_exposure))]
     t3 = time.time()
 
+    # Dose
+    min_dose = request.GET.get("min_dose")
+    max_dose = request.GET.get("max_dose")
+    if min_dose and max_dose:
+        filtered_studies = filtered_studies[(filtered_studies.dose_min >= float(min_dose)) &
+                    (filtered_studies.dose_max <= int(max_dose))]
+    t3 = time.time()
+
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
