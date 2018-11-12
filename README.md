@@ -39,10 +39,10 @@ And two at the end:
 - subst_id: All substance IDs corresponding to the parent compound.
 - std_smiles: Smiles string corresponding to the standardised parent compound.
 
-Between these two groups, there is a column for each relevant finding. In these columns a value is provided if the finding is reported for the given substance, and it is empty otherwise. The value will be 1 in the qualitative file and the minimum dose at which the finding is reported in the quantitative file.
+Between these two groups, there is a column for each relevant finding. In these columns a value is provided if the finding is reported for the given substance, and it is empty otherwise. The value will be the number of studies that report the finding in the qualitative file, and the minimum dose at which the finding is reported in the quantitative file.
 
 This is an example of the qualitative output: 
-![qualiative](https://raw.githubusercontent.com/phi-grib/RDTextractor/master/img/qual.JPG)
+![qualiative](https://raw.githubusercontent.com/phi-grib/DjangoAPI/master/img/qual.JPG)
 
 This is an example of the quantitative output: 
-![quantitative](https://raw.githubusercontent.com/phi-grib/RDTextractor/master/img/quant.JPG)
+![quantitative](https://raw.githubusercontent.com/phi-grib/DjangoAPI/master/img/quant.JPG)
