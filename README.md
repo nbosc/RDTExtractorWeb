@@ -14,8 +14,6 @@ In the root folder execute "python manage.py runserver"
 This tool is designed to extract data from the _in vivo_ repeat-dose toxicity (RDT) studies' database generated within the context of the [eTOX](http://www.etoxproject.eu/) project. These data are expanded using an histopathological observation and an anatomical entity ontologies. The [histopathological ontology](https://github.com/Novartis/hpath/blob/master/LICENSE.txt) is obtained from Novartis and can be used under the Apache License 2.0. The anatomical entities ontology is extracted from the following paper:
 - [Hayamizu TF, Mangan M, Corradi JP, Kadin JA, Ringwald M. Genome Biol. 2005; 6(3): R29](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1088948/)
 
-The script can work with version 2016.1 or with later versions. For the former, you need to request access to the data files from us and place these files in the data folder. For the latter, you need to have the Oracle database provided by [Lhasa](https://www.lhasalimited.org/).
-
 In order to be able to aggregate the data by parent compound, some pre-processing has to be done to data as they exist in the database. Each substance is standardised according to the following protocol:
 - Use the process_smiles.std method from [this repository](https://github.com/bet-gregori/standardiser) to standardize, discard mixtures, discard compound with metal ions, and remove all salts.
 - Neutralize all charges.
