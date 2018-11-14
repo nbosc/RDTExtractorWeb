@@ -456,10 +456,6 @@ def download(request):
 
     global substance_df, filtered, caption
 
-    min_dose = float(request.GET.get("min_dose"))
-
-    print (min_dose)
-
     ####################################
     ## Generate output files          ##
     ## the filtering criteria applied ##
