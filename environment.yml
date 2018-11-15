@@ -1,4 +1,4 @@
-name: DjangoRESTFUL
+name: RDTExtractor
 channels:
   - defaults
 dependencies:

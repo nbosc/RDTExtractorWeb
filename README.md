@@ -4,9 +4,10 @@
 
 Install the enviroment
 
-In the root folder execute "python manage.py runserver"
+`% conda env create -f environment.yml`
 
 ## Run
+In the root folder execute:
 
 `% python manage.py runserver`
 
