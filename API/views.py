@@ -49,7 +49,7 @@ def initFindings(request):
     filtered = all_df[:]
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     optionsDict = results['allOptions']
-    send_data = InitFindingSerializer(results, many=False).data
+    send_data = FindingSerializer(results, many=False).data
     tf = time.time()
     print ('init:\n\t{}'.format(tf-t0))
 
@@ -401,6 +401,7 @@ def findings(request):
     if (next_page > num_pages):
         next_page = 0
 
+    output_df.to_pickle("../output_df.pkl")
     results = {
         'data': output_df[init:end].fillna(value="-").to_dict('records'),
         'allOptions': optionsDict,
