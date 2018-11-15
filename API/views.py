@@ -30,7 +30,7 @@ observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
 all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression="gzip")
 filtered = all_df[:]
 tf = time.time()
-print ('Loading:\n\t{}'.format(tf-t0))
+# print ('Loading:\n\t{}'.format(tf-t0))
 # print ('substance only:\n\t{}'.format(t1-t0))
 # print ('study only:\n\t{}'.format(t2-t1))
 # print ('organ only:\n\t{}'.format(t3-t2))
@@ -51,7 +51,7 @@ def initFindings(request):
     optionsDict = results['allOptions']
     send_data = FindingSerializer(results, many=False).data
     tf = time.time()
-    print ('init:\n\t{}'.format(tf-t0))
+    # print ('init:\n\t{}'.format(tf-t0))
 
     return Response(send_data)
 
@@ -129,10 +129,10 @@ def findings(request):
     # Min negative Dose
     # Create filtered negative studies
     filtered_studies_negative=filtered_studies[:]
-    min_negative_dose = request.GET.get("min_negative_dose")
+    min_negative_dose = request.GET.get("negative_min_dose")
     if min_negative_dose:
         filtered_studies_negative = filtered_studies_negative[filtered_studies_negative.dose_max >= float(min_negative_dose)]
-        study_caption += '\tMin negative dose : %s mg/kg\n' %(min_negative_dose)
+        study_caption += '\tMinimum tested dose for negatives: %s mg/kg\n' %(min_negative_dose)
 
     # Dose
     min_dose = request.GET.get("min_dose")
@@ -424,25 +424,25 @@ def findings(request):
 
     send_data = FindingSerializer(results, many=False).data
     tf = time.time()
-    print ('TOTAL: %.4f' %(tf-t0))
-    print ('\tpharm action: %.4f' %(t1-t0))
-    print ('\tstudies filter: %.4f' %(t2-t1))
-    print ('\texposure: %.4f' %(t3-t2))
-    print ('\troutes: %.4f' %(t4-t3))
-    print ('\tspecies: %.4f' %(t5-t4))
-    print ('\tfindings filter: %.4f' %(t6-t5))
-    print ('\trelevant: %.4f' %(t7-t6))
-    print ('\tsex: %.4f' %(t8-t7))
-    print ('\tparamenters: %.4f' %(t9-t8))
-    print ('\tobservations: %.4f' %(t10-t9))
-    print ('\tapply parameters and observations: %.4f' %(t11-t10))
-    print ('\taggregate: %.4f' %(t12-t11))
-    print ('\t\tnunique: %.4f' %(t12a-t11))
-    print ('\t\tgroupby: %.4f' %(t12b-t12a))
-    print ('\t\tngroups: %.4f' %(t12c-t12b))
-    print ('\t\tcount reset index: %.4f' %(t12d-t12c))
-    print ('\tplot info: %.4f' %(t13-t12))
-    print ('\tfinal step: %.4f' %(t14-t13))
+    # print ('TOTAL: %.4f' %(tf-t0))    
+    # print ('\tpharm action: %.4f' %(t1-t0))
+    # print ('\tstudies filter: %.4f' %(t2-t1))
+    # print ('\texposure: %.4f' %(t3-t2))
+    # print ('\troutes: %.4f' %(t4-t3))
+    # print ('\tspecies: %.4f' %(t5-t4))
+    # print ('\tfindings filter: %.4f' %(t6-t5))
+    # print ('\trelevant: %.4f' %(t7-t6))
+    # print ('\tsex: %.4f' %(t8-t7))
+    # print ('\tparamenters: %.4f' %(t9-t8))
+    # print ('\tobservations: %.4f' %(t10-t9))
+    # print ('\tapply parameters and observations: %.4f' %(t11-t10))
+    # print ('\taggregate: %.4f' %(t12-t11))
+    # print ('\t\tnunique: %.4f' %(t12a-t11))
+    # print ('\t\tgroupby: %.4f' %(t12b-t12a))
+    # print ('\t\tngroups: %.4f' %(t12c-t12b))
+    # print ('\t\tcount reset index: %.4f' %(t12d-t12c))
+    # print ('\tplot info: %.4f' %(t13-t12))
+    # print ('\tfinal step: %.4f' %(t14-t13))
     return Response(send_data)
 
 @api_view(['GET'])
@@ -612,19 +612,19 @@ def download(request):
     response = HttpResponse(zipped_file, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="results.zip"'
     tf = time.time()
-    print ('TOTAL: %.4f' %(tf-t0))    
-    print ('\tinit: %.4f' %(t1-t0))
-    print ('\tfinding: %.4f' %(t2-t1))
-    print ('\tstats: %.4f' %(t3-t2))
-    print ('\tgroup: %.4f' %(t4-t3))
-    print ('\tpivot/merge: %.4f' %(t5-t4))
-    print ('\tfinal quantitative: %.4f' %(t6-t5))
-    print ('\tpivot/merge: %.4f' %(t7-t6))
-    print ('\tfinal quantitative: %.4f' %(t8-t7))
-    print ('\tcreate and store files: %.4f' %(t9-t8))
-    print ('\t\tto csv 1: %.4f' %(t8a-t8))
-    print ('\t\tto csv 2: %.4f' %(t8b-t8a))
-    print ('\t\tzip: %.4f' %(t9-t8b))
-    print ('\tcreate response: %.4f' %(tf-t9))
+    # print ('TOTAL: %.4f' %(tf-t0))    
+    # print ('\tinit: %.4f' %(t1-t0))
+    # print ('\tfinding: %.4f' %(t2-t1))
+    # print ('\tstats: %.4f' %(t3-t2))
+    # print ('\tgroup: %.4f' %(t4-t3))
+    # print ('\tpivot/merge: %.4f' %(t5-t4))
+    # print ('\tfinal quantitative: %.4f' %(t6-t5))
+    # print ('\tpivot/merge: %.4f' %(t7-t6))
+    # print ('\tfinal quantitative: %.4f' %(t8-t7))
+    # print ('\tcreate and store files: %.4f' %(t9-t8))
+    # print ('\t\tto csv 1: %.4f' %(t8a-t8))
+    # print ('\t\tto csv 2: %.4f' %(t8b-t8a))
+    # print ('\t\tzip: %.4f' %(t9-t8b))
+    # print ('\tcreate response: %.4f' %(tf-t9))
 
     return response
