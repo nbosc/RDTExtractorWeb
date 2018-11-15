@@ -15,8 +15,8 @@ This tool is designed to extract data from the _in vivo_ repeat-dose toxicity (R
 - [Hayamizu TF, Mangan M, Corradi JP, Kadin JA, Ringwald M. Genome Biol. 2005; 6(3): R29](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1088948/)
 
 In order to be able to aggregate the data by parent compound, some pre-processing has to be done to data as they exist in the database. Each substance is standardised according to the following protocol:
-- Use the process_smiles.std method from [this repository](https://github.com/bet-gregori/standardiser) to standardize, discard mixtures, discard compound with metal ions, and remove all salts.
-- Neutralize all charges.
+- From [this repository](https://github.com/bet-gregori/standardiser) use the _process_smiles.std_ method to standardize, discard mixtures, discard compound with metal ions, and remove all salts. Also use the _neutralise.run_ method to neutralise all charges when possible.
+- Using [molVS](https://molvs.readthedocs.io/en/latest/guide/intro.html), get the canonical tautomer.
 
 This project is an extension of the work published in the following paper:
 - [López-Massaguer O, Pinto-Gil K, Sanz F, Amberg A, Anger LT, Stolte M, Ravagli C, Marc P, Pastor M. Toxicol Sci. 2018 Mar; 162(1): 287–300.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5837688/)
