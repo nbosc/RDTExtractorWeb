@@ -7,7 +7,7 @@ import time, cProfile
 import pandas as pd
 # Disable SettingWithCopyWarning warnings
 pd.set_option('chained_assignment', None)
-from .serializers import FindingSerializer, Pageserializer
+from .serializers import FindingSerializer, Pageserializer, InitFindingSerializer
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -49,7 +49,7 @@ def initFindings(request):
     filtered = all_df[:]
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     optionsDict = results['allOptions']
-    send_data = FindingSerializer(results, many=False).data
+    send_data = InitFindingSerializer(results, many=False).data
     tf = time.time()
     # print ('init:\n\t{}'.format(tf-t0))
 
@@ -93,7 +93,7 @@ def findings(request):
     all_cas_number = request.GET.getlist("cas_number")
     if len(all_cas_number) > 0:
         filtered_subs = filtered_subs[filtered_subs.cas_number.isin(all_cas_number)]
-        substance_caption += '\tPharmacological action: %s\n' %', '.join(all_cas_number)
+        substance_caption += '\tCas number: %s\n' %', '.join(all_cas_number)
 
     ##
     ## Study-level filters
@@ -126,6 +126,14 @@ def findings(request):
         study_caption += '\tExposure range: %d to %d days\n' %(int(min_exposure), int(max_exposure))
     t3 = time.time()
 
+    # Min negative Dose
+    # Create filtered negative studies
+    filtered_studies_negative=filtered_studies[:]
+    min_negative_dose = request.GET.get("negative_min_dose")
+    if min_negative_dose:
+        filtered_studies_negative = filtered_studies_negative[filtered_studies_negative.dose_max >= float(min_negative_dose)]
+        study_caption += '\tMinimum tested dose for negatives: %s mg/kg\n' %(min_negative_dose)
+
     # Dose
     min_dose = request.GET.get("min_dose")
     max_dose = request.GET.get("max_dose")
@@ -135,17 +143,20 @@ def findings(request):
         study_caption += '\tDose range: %s to %s mg/kg\n' %(min_dose, max_dose)
     t3 = time.time()
 
+
+
     ##
     ## Finding-level filters
     ##
     filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id', how='inner')
+    filtered_negative = pd.merge(all_df, filtered_studies_negative[['study_id']], on='study_id', how='inner')
     t6 = time.time()
     finding_caption = ''
 
     # Sex
     sex = request.GET.get("sex")
     if sex:
-        filtered = filtered[filtered.sex == sex]
+        filtered =filtered[filtered.sex == sex]
         if sex == 'F':
             finding_caption += '\tSex: Female\n'
         elif sex == 'M':
@@ -157,7 +168,7 @@ def findings(request):
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
-        filtered = filtered[filtered.relevance]
+        filtered =filtered[filtered.relevance]
         finding_caption += '\tTreatment-related only\n'
     t7 = time.time()
 
@@ -166,6 +177,7 @@ def findings(request):
     #
     # Use this df to store each parameter / observation and add them together
     # so they don't become mutually exclusive
+    filtered['positive'] = True
     additive_df = pd.DataFrame(columns=filtered.columns)
     finding_observation_caption = ''
     
@@ -219,14 +231,23 @@ def findings(request):
                 or_df = filtered[(filtered.endpoint_type == category.strip()) &
                                 (filtered.parameter.isin(tmp_parameters_dict[category])) &
                                 (filtered.observation.isin(tmp_observations_dict[category]))]
+
             elif category in tmp_parameters_dict:
                 or_df = filtered[(filtered.endpoint_type == category.strip()) &
                                 (filtered.parameter.isin(tmp_parameters_dict[category]))]
             elif category in tmp_observations_dict:
-                or_df = filtered[(filtered.endpoint_type == category) & 
+                or_df = filtered[(filtered.endpoint_type == category) &
                                 (filtered.observation.isin(tmp_observations_dict[category]))]
-            additive_df = pd.concat([additive_df, or_df])
-        filtered = additive_df[:]
+
+            or_df_negative = filtered_negative[(filtered_negative.endpoint_type == category.strip()) &
+                                (filtered_negative.parameter.isin(tmp_parameters_dict[category]))]
+            negative_df = filtered_negative[~filtered_negative.subst_id.isin(or_df_negative.subst_id)]
+
+            or_df['positive'] = True
+            negative_df['positive'] = False
+
+        filtered = pd.concat([or_df, negative_df])
+
     t11 = time.time()
 
     ##################################
@@ -253,14 +274,25 @@ def findings(request):
 
     num_studies = filtered.study_id.nunique()
     num_structures = filtered.subst_id.nunique()
+
+    num_studies_positives = filtered.study_id[filtered.positive].nunique()
+    num_structures_positives = filtered.subst_id[filtered.positive].nunique()
+    num_studies_negatives = filtered.study_id[~filtered.positive].nunique()
+    num_structures_negatives = filtered.subst_id[~filtered.positive].nunique()
+
     t12a = time.time()
 
     filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex',
-                            'endpoint_type', 'study_id']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id'])
+                            'endpoint_type', 'study_id', 'positive']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id', 'positive'])
     t12b = time.time()
     num_findings = filtered_findings.ngroups
+
+
+
     t12c = time.time()
     filtered_findings = filtered_findings.count().reset_index()
+    num_findings_positive= len(filtered_findings[filtered_findings.positive])
+    num_findings_negatives = len(filtered_findings[~filtered_findings.positive])
     t12d = time.time()
     t12 = time.time()
 
@@ -316,12 +348,13 @@ def findings(request):
     #################
 
     if not filtered.empty:
+
         study_count_df = filtered.dropna(subset=['species'])[['subst_id', 'species', 'study_id']].groupby(['subst_id', 'species']).study_id.nunique().reset_index()
         study_count_df.columns = ['subst_id', 'species', 'study_count']
         study_count_df.loc[:,'count'] = study_count_df.species + ': ' + study_count_df.study_count.astype(int).astype(str)
         study_count_df = study_count_df[['subst_id', 'count']].groupby('subst_id').agg(lambda x : '\n'.join(x)).reset_index()
 
-        output_df = pd.merge(filtered[['subst_id']].drop_duplicates(),
+        output_df = pd.merge(filtered[['subst_id','positive']].drop_duplicates(),
                         substance_df[['subst_id', 'cas_number', 'common_name',  
                                 'smiles', 'status', 'targetActionList']].drop_duplicates(), 
                         how='left', on='subst_id', left_index=False, right_index=False, 
@@ -379,7 +412,13 @@ def findings(request):
         'next_page': next_page,
         'num_studies': num_studies,
         'num_structures': num_structures,
-        'num_findings' : num_findings
+        'num_findings' : num_findings,
+        'num_studies_positives': num_studies_positives,
+        'num_structures_positives': num_structures_positives,
+        'num_findings_positives': num_findings_positive,
+        'num_studies_negatives': num_studies_negatives,
+        'num_structures_negatives': num_structures_negatives,
+        'num_findings_negatives': num_findings_negatives
     }
 
     send_data = FindingSerializer(results, many=False).data
