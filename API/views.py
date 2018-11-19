@@ -512,13 +512,14 @@ def download(request):
     smiles_df = smiles_df[['inchi_key', 'std_smiles']].drop_duplicates()
     ids_df = substance_df[['inchi_key', 'subst_id']].drop_duplicates()
     ids_df = ids_df.groupby(['inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
+    positives = filtered.groupby('inchi_key')['positive'].agg(lambda x: tuple(set(x))).to_frame().reset_index()
     output_df = filtered[:]
     t1 = time.time()
 
     # Define finding as organ+observation
     output_df.dropna(subset=['parameter', 'observation'], inplace=True)
     output_df['finding'] = output_df.parameter+'_'+output_df.observation
-    quant_filtered_df = output_df[['inchi_key', 'finding', 'dose']]
+    quant_filtered_df = output_df[['inchi_key', 'finding', 'dose','positive']]
     quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
     t2 = time.time()
     
@@ -532,6 +533,8 @@ def download(request):
     max_df = group_df.dose_max.max().to_frame().reset_index()
     group_df = quant_filtered_df.groupby(('inchi_key'))
     min_observation_dose_df = group_df.dose.min().to_frame().reset_index()
+
+
     # Get all stats into a single dataframe
     stats_df = pd.merge(count_df, min_df, how='inner', on='inchi_key', 
                         left_index=False, right_index=False, sort=False)
@@ -567,8 +570,11 @@ def download(request):
     quantitative_df = quantitative_df[cols]
     quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']], 
+    quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']],
                                how='left', on='inchi_key', 
+                               left_index=False, right_index=False, sort=False)
+    quantitative_df = pd.merge(quantitative_df, positives,
+                               how='left', on='inchi_key',
                                left_index=False, right_index=False, sort=False)
     t6 = time.time()
 
@@ -584,8 +590,11 @@ def download(request):
     qualitative_df = qualitative_df[cols]
     qualitative_df = pd.merge(qualitative_df, ids_df, how='left', on='inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']], 
+    qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']],
                               how='left', on='inchi_key', 
+                              left_index=False, right_index=False, sort=False)
+    qualitative_df = pd.merge(qualitative_df, positives,
+                              how='left', on='inchi_key',
                               left_index=False, right_index=False, sort=False)
     t8 = time.time()
     
