@@ -507,15 +507,15 @@ def download(request):
     smiles_df = smiles_df[['inchi_key', 'std_smiles']].drop_duplicates()
     ids_df = substance_df[['inchi_key', 'subst_id']].drop_duplicates()
     ids_df = ids_df.groupby(['inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
-    positives = filtered.groupby('inchi_key')['positive'].agg(lambda x: tuple(set(x))).to_frame().reset_index()
+    positives = filtered.groupby('inchi_key')['positive'].first().to_frame().reset_index()
     output_df = filtered[:]
     t1 = time.time()
 
     # Define finding as organ+observation
-    output_df.dropna(subset=['parameter', 'observation'], inplace=True)
+    output_df[output_df.positive].dropna(subset=['parameter', 'observation'], inplace=True)
     output_df['finding'] = output_df.parameter+'_'+output_df.observation
     quant_filtered_df = output_df[['inchi_key', 'finding', 'dose','positive']]
-    quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
+    #quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
     t2 = time.time()
     
     ##
@@ -555,7 +555,12 @@ def download(request):
     ##
     
     ### Quantitative
-    pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='min_dose').reset_index()
+    pivotted_df = group_df[group_df.min_positive].pivot_table(index='inchi_key', columns='finding',
+                                                           values='min_dose').reset_index()
+    negative = pd.DataFrame(quant_filtered_df[~quant_filtered_df.positive]['inchi_key'].unique(), columns=['inchi_key'])
+    pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
+
+
     quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key', 
                                 left_index=False, right_index=False, sort=False)
     t5 = time.time()
@@ -574,8 +579,10 @@ def download(request):
     t6 = time.time()
 
     ### Qualitative
-    group_df = output_df.groupby(['inchi_key', 'finding']).study_id.nunique().reset_index(name='counts')
-    pivotted_df = group_df.pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
+    group_df = output_df.groupby(['inchi_key', 'finding','positive']).study_id.nunique().reset_index(name='counts')
+    print (group_df.head())
+    pivotted_df = group_df[group_df.positive].pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
+    pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
     qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key',
                                 left_index=False, right_index=False, sort=False)
     t7 = time.time()
