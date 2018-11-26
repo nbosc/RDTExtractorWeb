@@ -247,6 +247,7 @@ def findings(request):
                                     (all_df.parameter.isin(tmp_parameters_dict[category]))]
                 negative_df = filtered_negative[~filtered_negative.inchi_key.isin(or_df_negative.inchi_key)]
                 negative_df['positive'] = False
+                #negative_df = negative_df.drop(columns=['observation', 'parameter'])
                 additive_df = pd.concat([additive_df, negative_df])
 
         filtered = additive_df[:]
@@ -549,6 +550,8 @@ def download(request):
     # keeping the minimum dose for each substance/finding instance
     group_df = quant_filtered_df.groupby(('inchi_key', 'finding')).min().add_prefix('min_').reset_index()
     t4 = time.time()
+
+    group_df.to_pickle("../group_df.pkl")
     
     ##
     ## Pivot so that each finding is a row
