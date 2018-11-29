@@ -17,7 +17,13 @@ Install and activate the enviroment
 
 `conda env create -f environment.yml`
 
+In Linux, activate the environment using:
+
 `source activate RDTExtractorWeb`
+
+In Windows, use:
+
+`activate RDTExtractorWeb`
 
 You will need to put the data files we will provide in the (root folder)/API/static/data/ folder.
 
