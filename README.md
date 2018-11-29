@@ -8,14 +8,16 @@ or
 
 - `git clone https://github.com/phi-grib/RDTExtractorWeb`
 
-`cd RDTextractorWeb`
 
 ## Install
 
 Install and activate the enviroment
 
+`cd RDTextractorWeb`
+
 `conda env create -f environment.yml`
-`source activate RDTExtractor`
+
+`source activate RDTExtractorWeb`
 
 You will need to put the data files we will provide in the API/static/data/ folder.
 
