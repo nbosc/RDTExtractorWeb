@@ -6,18 +6,27 @@
 
 or 
 
-- `git clone https://github.com/phi-grib/DjangoAPI.git`
+- `git clone https://github.com/phi-grib/RDTExtractorWeb`
+
 
 ## Install
 
-Install the enviroment
+Install and activate the enviroment
+
+`cd RDTextractorWeb`
 
 `conda env create -f environment.yml`
+
+`source activate RDTExtractorWeb`
+
+You will need to put the data files we will provide in the API/static/data/ folder.
 
 ## Run
 In the root folder execute:
 
 `python manage.py runserver`
+
+and then navigate to <http:/127.0.0.1:8000>.
 
 ## Introduction
 This tool is designed to extract data from the _in vivo_ repeat-dose toxicity (RDT) studies' database generated within the context of the [eTOX](http://www.etoxproject.eu/) project. These data are expanded using an histopathological observation and an anatomical entity ontologies. The [histopathological ontology](https://github.com/Novartis/hpath/blob/master/LICENSE.txt) is obtained from Novartis and can be used under the Apache License 2.0. The anatomical entities ontology is extracted from the following paper:
