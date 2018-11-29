@@ -8,6 +8,8 @@ or
 
 - `git clone https://github.com/phi-grib/RDTExtractorWeb`
 
+`cd RDTextractorWeb`
+
 ## Install
 
 Install and activate the enviroment
