@@ -1,4 +1,4 @@
-# DjangoAPI
+# RDTExtractorWeb
 
 ## Download
 
@@ -19,10 +19,10 @@ Install and activate the enviroment
 
 `source activate RDTExtractorWeb`
 
-You will need to put the data files we will provide in the API/static/data/ folder.
+You will need to put the data files we will provide in the (root folder)/API/static/data/ folder.
 
 ## Run
-In the root folder execute:
+At the root folder execute:
 
 `python manage.py runserver`
 
