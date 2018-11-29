@@ -13,7 +13,7 @@ or
 
 Install and activate the enviroment
 
-`cd RDTextractorWeb`
+`cd RDTExtractorWeb`
 
 `conda env create -f environment.yml`
 
