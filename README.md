@@ -19,7 +19,7 @@ Install and activate the enviroment
 
 `source activate RDTExtractorWeb`
 
-You will need to put the data files we will provide in the API/static/data/ folder.
+You will need to put the data files we will provide in the API/static/data/ folder. These files are distributed separately, please contact us to get them.
 
 ## Run
 In the root folder execute:
