@@ -1,4 +1,4 @@
-# DjangoAPI
+# RDTExtractorWeb
 
 ## Download
 
@@ -13,16 +13,22 @@ or
 
 Install and activate the enviroment
 
-`cd RDTextractorWeb`
+`cd RDTExtractorWeb`
 
 `conda env create -f environment.yml`
 
+In Linux, activate the environment using:
+
 `source activate RDTExtractorWeb`
 
-You will need to put the data files we will provide in the API/static/data/ folder. These files are distributed separately, please contact us to get them.
+In Windows, use:
+
+`activate RDTExtractorWeb`
+
+You will need to put the data files, that are distributed separately, in the (root folder)/API/static/data/ folder.
 
 ## Run
-In the root folder execute:
+At the root folder execute:
 
 `python manage.py runserver`
 
