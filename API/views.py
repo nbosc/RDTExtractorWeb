@@ -99,7 +99,7 @@ def findings(request):
     ## Study-level filters
     ##
     filtered_studies = study_df[:]
-    filtered_studies = filtered_studies[filtered_studies.inchi_key.isin(filtered_subs.inchi_key)]
+    filtered_studies = filtered_studies[filtered_studies.nonStandard_inchi_key.isin(filtered_subs.nonStandard_inchi_key)]
     study_caption = ''
     # t2 = time.time()
 
@@ -190,14 +190,26 @@ def findings(request):
         finding_observation_caption += '\tParameter: %s\n' %', '.join(all_parameters)
         for v in all_parameters:
             category, val = v.split('|')
-            # Expand based on the ontology
-            expanded_val = list(organ_onto_df[organ_onto_df.parent_term == val].child_term)
-            expanded_val = [val]+expanded_val
+            category = category.strip()
+            all_categories.add(category)
+            val = val.strip()
+            checked = []
+            expanded = set([])
+            to_check = [val]
+            # Expand recursively based on the ontology
+            while to_check:
+                val = to_check.pop()
+                expanded.add(val)
+                checked.append(val)
+                children = set(organ_onto_df[organ_onto_df.parent_term == val].child_term)
+                expanded.update(children)
+                for child in children:
+                    if child not in checked:
+                        to_check.append(child)
             if category not in tmp_parameters_dict:
-                tmp_parameters_dict[category] = expanded_val
+                tmp_parameters_dict[category] = list(expanded)
             else:
-                tmp_parameters_dict[category].extend(expanded_val)
-        all_categories = set(tmp_parameters_dict.keys())
+                tmp_parameters_dict[category].extend(list(expanded))
     # t9 = time.time()
 
     # Observations
@@ -209,20 +221,28 @@ def findings(request):
         for v in all_observations:
             category, val = v.split('|')
             category = category.strip()
+            all_categories.add(category)
             val = val.strip()
-            # Expand based on the ontology
-            expanded_val = list(observation_onto_df[observation_onto_df.parent_term == val].child_term)
-            expanded_val = [val]+expanded_val
+            checked = []
+            expanded = set([])
+            to_check = [val]
+            # Expand recursively based on the ontology
+            while to_check:
+                val = to_check.pop()
+                expanded.add(val)
+                print (expanded)
+                checked.append(val)
+                children = set(observation_onto_df[observation_onto_df.parent_term == val].child_term)
+                expanded.update(children)
+                for child in children:
+                    if child not in checked:
+                        to_check.append(child)
             if category not in tmp_observations_dict:
-                tmp_observations_dict[category] = expanded_val
+                tmp_observations_dict[category] = list(expanded)
             else:
-                tmp_observations_dict[category].extend(expanded_val)
-            if category not in tmp_observations_dict:
-                tmp_observations_dict[category] = [val]
-            else:
-                tmp_observations_dict[category].append(val)
-        all_categories = all_categories.union(set(tmp_parameters_dict.keys()))
+                tmp_observations_dict[category].extend(list(expanded))
     # t10 = time.time()
+    print (all_categories)
 
     if bool(all_categories):
         # At least one observation or parameter filter has been applied
@@ -245,7 +265,7 @@ def findings(request):
             if min_negative_dose:
                 or_df_negative = all_df[(all_df.endpoint_type == category) &
                                     (all_df.parameter.isin(tmp_parameters_dict[category]))]
-                negative_df = filtered_negative[~filtered_negative.inchi_key.isin(or_df_negative.inchi_key)]
+                negative_df = filtered_negative[~filtered_negative.nonStandard_inchi_key.isin(or_df_negative.nonStandard_inchi_key)]
                 negative_df['positive'] = False
                 #negative_df = negative_df.drop(columns=['observation', 'parameter'])
                 additive_df = pd.concat([additive_df, negative_df])
@@ -277,12 +297,12 @@ def findings(request):
     #############
 
     num_studies = filtered.study_id.nunique()
-    num_structures = filtered.inchi_key.nunique()
+    num_structures = filtered.nonStandard_inchi_key.nunique()
 
     num_studies_positives = filtered.study_id[filtered.positive].nunique()
-    num_structures_positives = filtered.inchi_key[filtered.positive].nunique()
+    num_structures_positives = filtered.nonStandard_inchi_key[filtered.positive].nunique()
     num_studies_negatives = filtered.study_id[~filtered.positive].nunique()
-    num_structures_negatives = filtered.inchi_key[~filtered.positive].nunique()
+    num_structures_negatives = filtered.nonStandard_inchi_key[~filtered.positive].nunique()
 
     # t12a = time.time()
 
@@ -351,23 +371,23 @@ def findings(request):
 
     if not filtered.empty:
 
-        study_count_df = filtered.dropna(subset=['species'])[['inchi_key', 'species', 'study_id']].groupby(['inchi_key', 'species']).study_id.nunique().reset_index()
-        study_count_df.columns = ['inchi_key', 'species', 'study_count']
+        study_count_df = filtered.dropna(subset=['species'])[['nonStandard_inchi_key', 'species', 'study_id']].groupby(['nonStandard_inchi_key', 'species']).study_id.nunique().reset_index()
+        study_count_df.columns = ['nonStandard_inchi_key', 'species', 'study_count']
         study_count_df.loc[:,'count'] = study_count_df.species + ': ' + study_count_df.study_count.astype(int).astype(str)
-        study_count_df = study_count_df[['inchi_key', 'count']].groupby('inchi_key').agg(lambda x : '\n'.join(x)).reset_index()
+        study_count_df = study_count_df[['nonStandard_inchi_key', 'count']].groupby('nonStandard_inchi_key').agg(lambda x : '\n'.join(x)).reset_index()
 
-        output_df = pd.merge(filtered[['inchi_key','positive']].drop_duplicates(),
-                        substance_df[['inchi_key', 'cas_number', 'common_name',  
+        output_df = pd.merge(filtered[['nonStandard_inchi_key','positive']].drop_duplicates(),
+                        substance_df[['nonStandard_inchi_key', 'cas_number', 'common_name',  
                                 'smiles', 'status', 'targetActionList']].drop_duplicates(), 
-                        how='left', on='inchi_key', left_index=False, right_index=False, 
+                        how='left', on='nonStandard_inchi_key', left_index=False, right_index=False, 
                         sort=False)
         output_df = pd.merge(output_df, study_count_df,
-                        how='left', on='inchi_key', left_index=False, right_index=False, 
+                        how='left', on='nonStandard_inchi_key', left_index=False, right_index=False, 
                         sort=False)
         output_df = output_df.drop_duplicates()
         output_df.common_name = output_df.common_name.str.replace(', ', '\n')
     else:
-        output_df = pd.DataFrame(columns=['inchi_key', 'cas_number', 'common_name', 
+        output_df = pd.DataFrame(columns=['nonStandard_inchi_key', 'cas_number', 'common_name', 
                                     'smiles', 'status', 'targetActionList', 'count'])
     # t14 = time.time()
 
@@ -384,7 +404,7 @@ def findings(request):
         init = 0
         end = len(filtered)
 
-    num_pages = math.ceil(output_df.inchi_key.nunique() / 5.)
+    num_pages = math.ceil(output_df.nonStandard_inchi_key.nunique() / 5.)
 
     # Range of pages to show
     if page < 4:
@@ -454,7 +474,7 @@ def page(request):
 
     page = int(request.GET.get("page"))
 
-    total = output_df.inchi_key.nunique()
+    total = output_df.nonStandard_inchi_key.nunique()
     if page != 0:
         init = (page - 1) * 5
         end = init + 5
@@ -505,40 +525,40 @@ def download(request):
 
     t0 = time.time()
     smiles_df = substance_df[:]
-    smiles_df = smiles_df[['inchi_key', 'std_smiles']].drop_duplicates()
-    ids_df = substance_df[['inchi_key', 'subst_id']].drop_duplicates()
-    ids_df = ids_df.groupby(['inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
-    positives = filtered.groupby('inchi_key')['positive'].first().to_frame().reset_index()
+    smiles_df = smiles_df[['nonStandard_inchi_key', 'std_smiles']].drop_duplicates()
+    ids_df = substance_df[['nonStandard_inchi_key', 'subst_id']].drop_duplicates()
+    ids_df = ids_df.groupby(['nonStandard_inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
+    positives = filtered.groupby('nonStandard_inchi_key')['positive'].first().to_frame().reset_index()
     output_df = filtered[:]
     t1 = time.time()
 
     # Define finding as organ+observation
     output_df[output_df.positive].dropna(subset=['parameter', 'observation'], inplace=True)
     output_df['finding'] = output_df.parameter+'_'+output_df.observation
-    quant_filtered_df = output_df[['inchi_key', 'finding', 'dose','positive']]
+    quant_filtered_df = output_df[['nonStandard_inchi_key', 'finding', 'dose','positive']]
     #quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
     t2 = time.time()
     
     ##
     ## Get stats for relevant findings
     ##
-    group_df = output_df.groupby(('inchi_key'))
+    group_df = output_df.groupby(('nonStandard_inchi_key'))
     # Get the number of studies per substance
     count_df = group_df.study_id.nunique().to_frame().reset_index()
     min_df = group_df.dose_min.min().to_frame().reset_index()
     max_df = group_df.dose_max.max().to_frame().reset_index()
-    group_df = quant_filtered_df.groupby(('inchi_key'))
+    group_df = quant_filtered_df.groupby(('nonStandard_inchi_key'))
     min_observation_dose_df = group_df.dose.min().to_frame().reset_index()
 
 
     # Get all stats into a single dataframe
-    stats_df = pd.merge(count_df, min_df, how='inner', on='inchi_key', 
+    stats_df = pd.merge(count_df, min_df, how='inner', on='nonStandard_inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df = pd.merge(stats_df, max_df, how='inner', on='inchi_key', 
+    stats_df = pd.merge(stats_df, max_df, how='inner', on='nonStandard_inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', on='inchi_key', 
+    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', on='nonStandard_inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df.columns = ['inchi_key', 'study_count', 'dose_min', 
+    stats_df.columns = ['nonStandard_inchi_key', 'study_count', 'dose_min', 
                         'dose_max', 'min_observation_dose']
     t3 = time.time()
     
@@ -548,7 +568,7 @@ def download(request):
 
     # Aggregate by substance and finding (as defined above), 
     # keeping the minimum dose for each substance/finding instance
-    group_df = quant_filtered_df.groupby(('inchi_key', 'finding')).min().add_prefix('min_').reset_index()
+    group_df = quant_filtered_df.groupby(('nonStandard_inchi_key', 'finding')).min().add_prefix('min_').reset_index()
     t4 = time.time()
 
     group_df.to_pickle("../group_df.pkl")
@@ -558,48 +578,48 @@ def download(request):
     ##
     
     ### Quantitative
-    pivotted_df = group_df[group_df.min_positive].pivot_table(index='inchi_key', columns='finding',
+    pivotted_df = group_df[group_df.min_positive].pivot_table(index='nonStandard_inchi_key', columns='finding',
                                                            values='min_dose').reset_index()
-    negative = pd.DataFrame(quant_filtered_df[~quant_filtered_df.positive]['inchi_key'].unique(), columns=['inchi_key'])
+    negative = pd.DataFrame(quant_filtered_df[~quant_filtered_df.positive]['nonStandard_inchi_key'].unique(), columns=['nonStandard_inchi_key'])
     pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
 
 
-    quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key', 
+    quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key', 
                                 left_index=False, right_index=False, sort=False)
     t5 = time.time()
     # Reorder columns
     cols = quantitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     quantitative_df = quantitative_df[cols]
-    quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='inchi_key', 
+    quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    quantitative_df = pd.merge(quantitative_df, smiles_df[['inchi_key', 'std_smiles']],
-                               how='left', on='inchi_key', 
+    quantitative_df = pd.merge(quantitative_df, smiles_df[['nonStandard_inchi_key', 'std_smiles']],
+                               how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
     quantitative_df = pd.merge(quantitative_df, positives,
-                               how='left', on='inchi_key',
+                               how='left', on='nonStandard_inchi_key',
                                left_index=False, right_index=False, sort=False)
     t6 = time.time()
 
     ### Qualitative
-    group_df = output_df.groupby(['inchi_key', 'finding','positive']).study_id.nunique().reset_index(name='counts')
+    group_df = output_df.groupby(['nonStandard_inchi_key', 'finding','positive']).study_id.nunique().reset_index(name='counts')
     print (group_df.head())
-    pivotted_df = group_df[group_df.positive].pivot_table(index='inchi_key', columns='finding', values='counts').reset_index()
+    pivotted_df = group_df[group_df.positive].pivot_table(index='nonStandard_inchi_key', columns='finding', values='counts').reset_index()
     pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
-    qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='inchi_key',
+    qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key',
                                 left_index=False, right_index=False, sort=False)
     t7 = time.time()
     # Reorder columns
     cols = qualitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     qualitative_df = qualitative_df[cols]
-    qualitative_df = pd.merge(qualitative_df, ids_df, how='left', on='inchi_key', 
+    qualitative_df = pd.merge(qualitative_df, ids_df, how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    qualitative_df = pd.merge(qualitative_df, smiles_df[['inchi_key', 'std_smiles']],
-                              how='left', on='inchi_key', 
+    qualitative_df = pd.merge(qualitative_df, smiles_df[['nonStandard_inchi_key', 'std_smiles']],
+                              how='left', on='nonStandard_inchi_key', 
                               left_index=False, right_index=False, sort=False)
     qualitative_df = pd.merge(qualitative_df, positives,
-                              how='left', on='inchi_key',
+                              how='left', on='nonStandard_inchi_key',
                               left_index=False, right_index=False, sort=False)
     t8 = time.time()
     
