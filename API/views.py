@@ -18,24 +18,13 @@ def get_stats(group):
 caption = ''
 
 # Load dataframes with information on studies, compounds and findings
-# t0 = time.time()
 substance_df = pd.read_pickle("API/static/data/substance.pkl")
-# t1 = time.time()
 study_df = pd.read_pickle("API/static/data/study.pkl")
-# t2 = time.time()
+study_cmpd_df = pd.read_pickle("API/static/data/study_cmpd.pkl")
 organ_onto_df = pd.read_pickle("API/static/data/organ_ontology.pkl")
-# t3 = time.time()
 observation_onto_df = pd.read_pickle("API/static/data/observation_ontology.pkl")
-# t4 = time.time()
 all_df = pd.read_pickle("API/static/data/all.pkl.gz", compression="gzip")
 filtered = all_df[:]
-# tf = time.time()
-# print ('Loading:\n\t{}'.format(tf-t0))
-# print ('substance only:\n\t{}'.format(t1-t0))
-# print ('study only:\n\t{}'.format(t2-t1))
-# print ('organ only:\n\t{}'.format(t3-t2))
-# print ('observation only:\n\t{}'.format(t4-t3))
-# print ('all only:\n\t{}'.format(tf-t4))
 
 optionsDict = {}
 
@@ -58,9 +47,7 @@ def initFindings(request):
 @api_view(['GET'])
 def findings(request):
 
-    global all_df, substance_df, study_df, output_df, optionsDict, filtered, caption
-
-    # t0 = time.time()
+    global all_df, substance_df, study_df, study_cmpd_df, output_df, optionsDict, filtered, caption
 
     #####################
     # Apply all filters #
@@ -77,7 +64,6 @@ def findings(request):
     if len(all_pharm) > 0:
         filtered_subs = filtered_subs[filtered_subs.targetAction.isin(all_pharm)]
         substance_caption += '\tPharmacological action: %s\n' %', '.join(all_pharm)
-    # t1 = time.time()
 
     # Compound name
     all_compound_name = request.GET.getlist("compound_name")
@@ -99,23 +85,25 @@ def findings(request):
     ## Study-level filters
     ##
     filtered_studies = study_df[:]
+    # Create filtered negative studies
+    filtered_studies_negative = study_cmpd_df[:]
+
     filtered_studies = filtered_studies[filtered_studies.nonStandard_inchi_key.isin(filtered_subs.nonStandard_inchi_key)]
     study_caption = ''
-    # t2 = time.time()
 
     # Species
     all_species = request.GET.getlist("species")
     if len(all_species) > 0:
         filtered_studies = filtered_studies[filtered_studies.species.isin(all_species)]
+        filtered_studies_negative = filtered_studies_negative[filtered_studies_negative.species.isin(all_species)]
         study_caption += '\tSpecies: %s\n' %', '.join(all_species)
-    # t5 = time.time()
 
     # Administration route
     all_routes = request.GET.getlist("routes")
     if len(all_routes) > 0:
         filtered_studies = filtered_studies[filtered_studies.admin_route.isin(all_routes)]
+        filtered_studies_negative = filtered_studies_negative[filtered_studies_negative.admin_route.isin(all_routes)]
         study_caption += '\tAdminitration route: %s\n' %', '.join(all_routes)
-    # t4 = time.time()
 
     # Exposure
     min_exposure = request.GET.get("min_exposure")
@@ -124,15 +112,6 @@ def findings(request):
         filtered_studies = filtered_studies[(filtered_studies.exposure_period_days >= int(min_exposure)) &
                     (filtered_studies.exposure_period_days <= int(max_exposure))]
         study_caption += '\tExposure range: %d to %d days\n' %(int(min_exposure), int(max_exposure))
-    # t3 = time.time()
-
-    # Min negative Dose
-    # Create filtered negative studies
-    filtered_studies_negative=filtered_studies[:]
-    min_negative_dose = request.GET.get("negative_min_dose")
-    if min_negative_dose:
-        filtered_studies_negative = filtered_studies_negative[filtered_studies_negative.dose_max >= float(min_negative_dose)]
-        study_caption += '\tMinimum tested dose for negatives: %s mg/kg\n' %(min_negative_dose)
 
     # Dose
     min_dose = request.GET.get("min_dose")
@@ -140,16 +119,19 @@ def findings(request):
     if min_dose and max_dose:
         filtered_studies = filtered_studies[(filtered_studies.dose_min >= float(min_dose)) &
                     (filtered_studies.dose_max <= int(max_dose))]
-        study_caption += '\tDose range: %s to %s mg/kg\n' %(min_dose, max_dose)
-    # t3 = time.time()
+        study_caption += '\tDose range: %s to %s mg/kg\n' %(min_dose, max_dose)        
+    # Min negative Dose
+    min_negative_dose = request.GET.get("negative_min_dose")
+    if min_negative_dose:
+        study_caption += '\tMinimum tested dose for negatives: %s mg/kg\n' %(min_negative_dose)
 
     ##
     ## Finding-level filters
     ##
     filtered = pd.merge(all_df, filtered_studies[['study_id']], on='study_id', how='inner')
     if min_negative_dose:
-        filtered_negative = pd.merge(all_df, filtered_studies_negative[['study_id']], on='study_id', how='inner')
-    # t6 = time.time()
+        filtered_negative = pd.merge(all_df, filtered_studies_negative[['study_id']], 
+                                    on='study_id', how='inner')
     finding_caption = ''
 
     # Sex
@@ -162,14 +144,12 @@ def findings(request):
             finding_caption += '\tSex: Male\n'
         else:
             finding_caption += '\tSex: Both\n'
-    # t8 = time.time()
 
     # Relevancy
     relevant = request.GET.get("treatmentRelated")
     if relevant:
         filtered = filtered[filtered.relevance]
         finding_caption += '\tTreatment-related only\n'
-    # t7 = time.time()
 
     #
     # Filter parameters, observations and grades by category
@@ -210,7 +190,6 @@ def findings(request):
                 tmp_parameters_dict[category] = list(expanded)
             else:
                 tmp_parameters_dict[category].extend(list(expanded))
-    # t9 = time.time()
 
     # Observations
     all_observations = request.GET.getlist("observations")
@@ -230,7 +209,6 @@ def findings(request):
             while to_check:
                 val = to_check.pop()
                 expanded.add(val)
-                print (expanded)
                 checked.append(val)
                 children = set(observation_onto_df[observation_onto_df.parent_term == val].child_term)
                 expanded.update(children)
@@ -241,8 +219,6 @@ def findings(request):
                 tmp_observations_dict[category] = list(expanded)
             else:
                 tmp_observations_dict[category].extend(list(expanded))
-    # t10 = time.time()
-    print (all_categories)
 
     if bool(all_categories):
         # At least one observation or parameter filter has been applied
@@ -263,16 +239,15 @@ def findings(request):
             additive_df = pd.concat([additive_df, or_df])
 
             if min_negative_dose:
-                or_df_negative = all_df[(all_df.endpoint_type == category) &
-                                    (all_df.parameter.isin(tmp_parameters_dict[category]))]
-                negative_df = filtered_negative[~filtered_negative.nonStandard_inchi_key.isin(or_df_negative.nonStandard_inchi_key)]
+                tmp_findings_df = all_df[(all_df.endpoint_type == category) &
+                                       (all_df.parameter.isin(tmp_parameters_dict[category]))]
+                tmp_study_cmpd_df = filtered_studies_negative[(filtered_studies_negative.study_id.isin(tmp_findings_df.study_id))]
+                negative_df = filtered_studies_negative[~(filtered_studies_negative.nonStandard_inchi_key.isin(tmp_study_cmpd_df.nonStandard_inchi_key)) &(filtered_studies_negative.dose_max >= float(min_negative_dose))]
+                negative_df = all_df[all_df.nonStandard_inchi_key.isin(negative_df.nonStandard_inchi_key)]
                 negative_df['positive'] = False
-                #negative_df = negative_df.drop(columns=['observation', 'parameter'])
                 additive_df = pd.concat([additive_df, negative_df])
 
         filtered = additive_df[:]
-
-    # t11 = time.time()
 
     ##################################
     # Generate caption summarizing   #
@@ -304,19 +279,13 @@ def findings(request):
     num_studies_negatives = filtered.study_id[~filtered.positive].nunique()
     num_structures_negatives = filtered.nonStandard_inchi_key[~filtered.positive].nunique()
 
-    # t12a = time.time()
-
     filtered_findings = filtered[['dose', 'observation', 'parameter', 'relevance', 'sex',
                             'endpoint_type', 'study_id', 'positive']].drop_duplicates().groupby(['dose', 'observation', 'parameter', 'relevance', 'sex', 'endpoint_type', 'study_id', 'positive'])
-    # t12b = time.time()
     num_findings = filtered_findings.ngroups
 
-    # t12c = time.time()
     filtered_findings = filtered_findings.count().reset_index()
     num_findings_positive= len(filtered_findings[filtered_findings.positive])
     num_findings_negatives = len(filtered_findings[~filtered_findings.positive])
-    # t12d = time.time()
-    # t12 = time.time()
 
     #############
     # Plot info #
@@ -363,7 +332,6 @@ def findings(request):
         sum_value += value
         plot_info['source'][0].append(index)
         plot_info['source'][1].append(value)
-    # t13 = time.time()
 
     #################
     # Create output #
@@ -389,7 +357,6 @@ def findings(request):
     else:
         output_df = pd.DataFrame(columns=['nonStandard_inchi_key', 'cas_number', 'common_name', 
                                     'smiles', 'status', 'targetActionList', 'count'])
-    # t14 = time.time()
 
     ##############
     # Pagination #
@@ -445,26 +412,6 @@ def findings(request):
     }
 
     send_data = FindingSerializer(results, many=False).data
-    # tf = time.time()
-    # print ('TOTAL: %.4f' %(tf-t0))    
-    # print ('\tpharm action: %.4f' %(t1-t0))
-    # print ('\tstudies filter: %.4f' %(t2-t1))
-    # print ('\texposure: %.4f' %(t3-t2))
-    # print ('\troutes: %.4f' %(t4-t3))
-    # print ('\tspecies: %.4f' %(t5-t4))
-    # print ('\tfindings filter: %.4f' %(t6-t5))
-    # print ('\trelevant: %.4f' %(t7-t6))
-    # print ('\tsex: %.4f' %(t8-t7))
-    # print ('\tparamenters: %.4f' %(t9-t8))
-    # print ('\tobservations: %.4f' %(t10-t9))
-    # print ('\tapply parameters and observations: %.4f' %(t11-t10))
-    # print ('\taggregate: %.4f' %(t12-t11))
-    # print ('\t\tnunique: %.4f' %(t12a-t11))
-    # print ('\t\tgroupby: %.4f' %(t12b-t12a))
-    # print ('\t\tngroups: %.4f' %(t12c-t12b))
-    # print ('\t\tcount reset index: %.4f' %(t12d-t12c))
-    # print ('\tplot info: %.4f' %(t13-t12))
-    # print ('\tfinal step: %.4f' %(t14-t13))
     return Response(send_data)
 
 @api_view(['GET'])
@@ -523,21 +470,18 @@ def download(request):
     ## the filtering criteria applied ##
     ####################################
 
-    t0 = time.time()
     smiles_df = substance_df[:]
     smiles_df = smiles_df[['nonStandard_inchi_key', 'std_smiles']].drop_duplicates()
     ids_df = substance_df[['nonStandard_inchi_key', 'subst_id']].drop_duplicates()
     ids_df = ids_df.groupby(['nonStandard_inchi_key'],as_index=False).agg(lambda x: ', '.join(x))
     positives = filtered.groupby('nonStandard_inchi_key')['positive'].first().to_frame().reset_index()
     output_df = filtered[:]
-    t1 = time.time()
 
     # Define finding as organ+observation
     output_df[output_df.positive].dropna(subset=['parameter', 'observation'], inplace=True)
     output_df['finding'] = output_df.parameter+'_'+output_df.observation
     quant_filtered_df = output_df[['nonStandard_inchi_key', 'finding', 'dose','positive']]
     #quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
-    t2 = time.time()
     
     ##
     ## Get stats for relevant findings
@@ -547,7 +491,7 @@ def download(request):
     count_df = group_df.study_id.nunique().to_frame().reset_index()
     min_df = group_df.dose_min.min().to_frame().reset_index()
     max_df = group_df.dose_max.max().to_frame().reset_index()
-    group_df = quant_filtered_df.groupby(('nonStandard_inchi_key'))
+    group_df = quant_filtered_df[quant_filtered_df.positive].groupby(('nonStandard_inchi_key'))
     min_observation_dose_df = group_df.dose.min().to_frame().reset_index()
 
 
@@ -560,7 +504,6 @@ def download(request):
                         left_index=False, right_index=False, sort=False)
     stats_df.columns = ['nonStandard_inchi_key', 'study_count', 'dose_min', 
                         'dose_max', 'min_observation_dose']
-    t3 = time.time()
     
     ##
     ## Aggragate by substance and finding
@@ -569,7 +512,6 @@ def download(request):
     # Aggregate by substance and finding (as defined above), 
     # keeping the minimum dose for each substance/finding instance
     group_df = quant_filtered_df.groupby(('nonStandard_inchi_key', 'finding')).min().add_prefix('min_').reset_index()
-    t4 = time.time()
 
     group_df.to_pickle("../group_df.pkl")
     
@@ -586,7 +528,6 @@ def download(request):
 
     quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key', 
                                 left_index=False, right_index=False, sort=False)
-    t5 = time.time()
     # Reorder columns
     cols = quantitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
@@ -599,7 +540,6 @@ def download(request):
     quantitative_df = pd.merge(quantitative_df, positives,
                                how='left', on='nonStandard_inchi_key',
                                left_index=False, right_index=False, sort=False)
-    t6 = time.time()
 
     ### Qualitative
     group_df = output_df.groupby(['nonStandard_inchi_key', 'finding','positive']).study_id.nunique().reset_index(name='counts')
@@ -608,7 +548,6 @@ def download(request):
     pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
     qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key',
                                 left_index=False, right_index=False, sort=False)
-    t7 = time.time()
     # Reorder columns
     cols = qualitative_df.columns.tolist()
     cols = cols[0:5]+[cols[-1]]+cols[5:-1]
@@ -621,7 +560,6 @@ def download(request):
     qualitative_df = pd.merge(qualitative_df, positives,
                               how='left', on='nonStandard_inchi_key',
                               left_index=False, right_index=False, sort=False)
-    t8 = time.time()
     
     ##
     ## Create the HttpResponse object with the appropriate CSV header.
@@ -632,13 +570,11 @@ def download(request):
     qualitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
     buffer.seek(0)
     files['qualitative'] = buffer
-    t8a = time.time()
 
     buffer = io.StringIO()
     quantitative_df.to_csv(buffer, encoding='utf-8', sep='\t', index=False)
     buffer.seek(0)
     files['quantitative'] = buffer
-    t8b = time.time()
 
     zipped_file = io.BytesIO()
     with zipfile.ZipFile(zipped_file, "a", zipfile.ZIP_DEFLATED, False) as zipper:
@@ -647,24 +583,8 @@ def download(request):
             file_text = caption+file.read()
             zipper.writestr("{}.tsv".format(i), file_text)
     zipped_file.seek(0)
-    t9 = time.time()
 
     response = HttpResponse(zipped_file, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="results.zip"'
-    tf = time.time()
-    # print ('TOTAL: %.4f' %(tf-t0))    
-    # print ('\tinit: %.4f' %(t1-t0))
-    # print ('\tfinding: %.4f' %(t2-t1))
-    # print ('\tstats: %.4f' %(t3-t2))
-    # print ('\tgroup: %.4f' %(t4-t3))
-    # print ('\tpivot/merge: %.4f' %(t5-t4))
-    # print ('\tfinal quantitative: %.4f' %(t6-t5))
-    # print ('\tpivot/merge: %.4f' %(t7-t6))
-    # print ('\tfinal quantitative: %.4f' %(t8-t7))
-    # print ('\tcreate and store files: %.4f' %(t9-t8))
-    # print ('\t\tto csv 1: %.4f' %(t8a-t8))
-    # print ('\t\tto csv 2: %.4f' %(t8b-t8a))
-    # print ('\t\tzip: %.4f' %(t9-t8b))
-    # print ('\tcreate response: %.4f' %(tf-t9))
 
     return response
