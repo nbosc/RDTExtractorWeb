@@ -481,7 +481,7 @@ def download(request):
     output_df[output_df.positive].dropna(subset=['parameter', 'observation'], inplace=True)
     output_df['finding'] = output_df.parameter+'_'+output_df.observation
     quant_filtered_df = output_df[['nonStandard_inchi_key', 'finding', 'dose','positive']]
-    #quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
+    quant_filtered_df = quant_filtered_df[quant_filtered_df.dose>0]
     
     ##
     ## Get stats for relevant findings
@@ -511,9 +511,7 @@ def download(request):
 
     # Aggregate by substance and finding (as defined above), 
     # keeping the minimum dose for each substance/finding instance
-    group_df = quant_filtered_df.groupby(('nonStandard_inchi_key', 'finding')).min().add_prefix('min_').reset_index()
-
-    group_df.to_pickle("../group_df.pkl")
+    group_df = quant_filtered_df[quant_filtered_df.dose > 0].groupby(('nonStandard_inchi_key', 'finding')).min().add_prefix('min_').reset_index()
     
     ##
     ## Pivot so that each finding is a row
@@ -525,12 +523,10 @@ def download(request):
     negative = pd.DataFrame(quant_filtered_df[~quant_filtered_df.positive]['nonStandard_inchi_key'].unique(), columns=['nonStandard_inchi_key'])
     pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
 
-
     quantitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key', 
                                 left_index=False, right_index=False, sort=False)
     # Reorder columns
     cols = quantitative_df.columns.tolist()
-    cols = cols[0:5]+[cols[-1]]+cols[5:-1]
     quantitative_df = quantitative_df[cols]
     quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
