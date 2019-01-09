@@ -33,14 +33,11 @@ def initFindings(request):
 
     global output_df, filtered, optionsDict
 
-    # t0 = time.time()
     output_df = pd.read_pickle("API/static/data/output.pkl")
     filtered = all_df[:]
     results = pickle.load(open("API/static/data/init_results.pkl", 'rb'))
     optionsDict = results['allOptions']
     send_data = FindingSerializer(results, many=False).data
-    # tf = time.time()
-    # print ('init:\n\t{}'.format(tf-t0))
 
     return Response(send_data)
 
@@ -500,7 +497,8 @@ def download(request):
                         left_index=False, right_index=False, sort=False)
     stats_df = pd.merge(stats_df, max_df, how='inner', on='nonStandard_inchi_key', 
                         left_index=False, right_index=False, sort=False)
-    stats_df = pd.merge(stats_df, min_observation_dose_df, how='left', on='nonStandard_inchi_key', 
+    stats_df = pd.merge(stats_df, min_observation_dose_df, 
+                        how='left', on='nonStandard_inchi_key', 
                         left_index=False, right_index=False, sort=False)
     stats_df.columns = ['nonStandard_inchi_key', 'study_count', 'dose_min', 
                         'dose_max', 'min_observation_dose']
@@ -528,9 +526,11 @@ def download(request):
     # Reorder columns
     cols = quantitative_df.columns.tolist()
     quantitative_df = quantitative_df[cols]
-    quantitative_df = pd.merge(quantitative_df, ids_df, how='left', on='nonStandard_inchi_key', 
+    quantitative_df = pd.merge(quantitative_df, ids_df, 
+                               how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    quantitative_df = pd.merge(quantitative_df, smiles_df[['nonStandard_inchi_key', 'std_smiles']],
+    quantitative_df = pd.merge(quantitative_df, 
+                               smiles_df[['nonStandard_inchi_key', 'std_smiles']],
                                how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
     quantitative_df = pd.merge(quantitative_df, positives,
@@ -539,7 +539,6 @@ def download(request):
 
     ### Qualitative
     group_df = output_df.groupby(['nonStandard_inchi_key', 'finding','positive']).study_id.nunique().reset_index(name='counts')
-    print (group_df.head())
     pivotted_df = group_df[group_df.positive].pivot_table(index='nonStandard_inchi_key', columns='finding', values='counts').reset_index()
     pivotted_df = pd.concat([pivotted_df, negative], ignore_index=True)
     qualitative_df = pd.merge(stats_df, pivotted_df, how='left', on='nonStandard_inchi_key',
@@ -550,7 +549,8 @@ def download(request):
     qualitative_df = qualitative_df[cols]
     qualitative_df = pd.merge(qualitative_df, ids_df, how='left', on='nonStandard_inchi_key', 
                                left_index=False, right_index=False, sort=False)
-    qualitative_df = pd.merge(qualitative_df, smiles_df[['nonStandard_inchi_key', 'std_smiles']],
+    qualitative_df = pd.merge(qualitative_df, 
+                              smiles_df[['nonStandard_inchi_key', 'std_smiles']],
                               how='left', on='nonStandard_inchi_key', 
                               left_index=False, right_index=False, sort=False)
     qualitative_df = pd.merge(qualitative_df, positives,
