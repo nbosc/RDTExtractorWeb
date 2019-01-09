@@ -224,20 +224,24 @@ def findings(request):
             if category in tmp_parameters_dict and category in tmp_observations_dict:
                 or_df = filtered[(filtered.endpoint_type == category) &
                                 (filtered.parameter.isin(tmp_parameters_dict[category])) &
-                                (filtered.observation.isin(tmp_observations_dict[category]))]
+                                (filtered.observation.isin(tmp_observations_dict[category])) &
+                                (filtered.dose > 0)]
             elif category in tmp_parameters_dict:
                 or_df = filtered[(filtered.endpoint_type == category) &
-                                (filtered.parameter.isin(tmp_parameters_dict[category]))]
+                                (filtered.parameter.isin(tmp_parameters_dict[category])) &
+                                (filtered.dose > 0)]
             elif category in tmp_observations_dict:
                 or_df = filtered[(filtered.endpoint_type == category) &
-                                (filtered.observation.isin(tmp_observations_dict[category]))]
+                                (filtered.observation.isin(tmp_observations_dict[category])) &
+                                (filtered.dose > 0)]
 
             or_df['positive'] = True
             additive_df = pd.concat([additive_df, or_df])
 
             if min_negative_dose:
                 tmp_findings_df = all_df[(all_df.endpoint_type == category) &
-                                       (all_df.parameter.isin(tmp_parameters_dict[category]))]
+                                       (all_df.parameter.isin(tmp_parameters_dict[category])) &
+                                       (all_df.dose > 0)]
                 tmp_study_cmpd_df = filtered_studies_negative[(filtered_studies_negative.study_id.isin(tmp_findings_df.study_id))]
                 negative_df = filtered_studies_negative[~(filtered_studies_negative.nonStandard_inchi_key.isin(tmp_study_cmpd_df.nonStandard_inchi_key)) &(filtered_studies_negative.dose_max >= float(min_negative_dose))]
                 negative_df = all_df[all_df.nonStandard_inchi_key.isin(negative_df.nonStandard_inchi_key)]
